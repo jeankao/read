@@ -13,6 +13,8 @@ from uuid import uuid4
 from django.conf import settings
 from wsgiref.util import FileWrapper
 from django.http import HttpResponse
+from django.http import JsonResponse
+
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
     return user.groups.filter(name='teacher').exists() and Classroom.objects.filter(teacher_id=user.id, id=classroom_id).exists()
@@ -150,7 +152,7 @@ def work_class(request, classroom_id, work_id):
         
     return render_to_response('teacher/twork_class.html',{'classmate_work': classmate_work, 'classroom_id':classroom_id, 'index': work_id}, context_instance=RequestContext(request))
 	
-# 列出所有課程
+# 列出所有討論主題
 class ForumListView(ListView):
     model = FWork
     context_object_name = 'works'
@@ -174,7 +176,7 @@ class ForumListView(ListView):
         context['classroom'] = classroom
         return context	
         
-#新增一個課程
+#新增一個討論主題
 class ForumCreateView(CreateView):
     model = FWork
     form_class = ForumForm
@@ -199,7 +201,43 @@ class ForumCreateView(CreateView):
         return context	
   
         return redirect("/teacher/forum/"+self.kwargs['classroom_id'])        
-            			
+
+# 列出某討論主題的班級
+class ForumClassListView(ListView):
+    model = FWork
+    context_object_name = 'classrooms'
+    template_name = "teacher/forum_class.html"		
+    paginate_by = 20
+    def get_queryset(self):        		
+        fwork = FWork.objects.get(id=self.kwargs['forum_id'])
+        classrooms = Classroom.objects.filter(teacher_id=fwork.teacher_id).order_by("-id")
+        return classrooms
+			
+    def get_context_data(self, **kwargs):
+        context = super(ForumClassListView, self).get_context_data(**kwargs)				
+        fwork = FWork.objects.get(id=self.kwargs['forum_id'])
+        fclassrooms = FClass.objects.filter(forum_id=fwork.id)
+        classroom_ids = []
+        for fclassroom in fclassrooms:
+            classroom_ids.append(fclassroom.classroom_id)
+        context['fwork'] = fwork
+        context['classroom_ids'] = classroom_ids
+        return context	
+	
+# Ajax 開放班取、關閉班級
+def forum_switch(request):
+    forum_id = request.POST.get('forumid')
+    classroom_id = request.POST.get('classroomid')		
+    status = request.POST.get('status')
+    try:
+        fwork = FClass.objects.get(forum_id=forum_id, classroom_id=classroom_id)
+        if status == 'false' :
+    				fwork.delete()
+    except ObjectDoesNotExist:
+            fwork = FClass(forum_id=forum_id, classroom_id=classroom_id)
+            fwork.save()
+    return JsonResponse({'status':status}, safe=False)        
+	
 # 列出某作業所有同學名單
 def forum_class(request, classroom_id, work_id):
     enrolls = Enroll.objects.filter(classroom_id=classroom_id)
@@ -229,11 +267,10 @@ def forum_class(request, classroom_id, work_id):
         return custom[0].seat
 	
     classmate_work = sorted(classmate_work, key=getKey)
-    
-        
+   
     return render_to_response('teacher/twork_class.html',{'classmate_work': classmate_work, 'classroom_id':classroom_id, 'index': work_id}, context_instance=RequestContext(request))
 
-# 列出所有課程
+# 列出所有討論主題素材
 class ForumContentListView(ListView):
     model = FContent
     context_object_name = 'contents'

@@ -20,8 +20,9 @@ Licence URI: http://www.os-templates.com/template-terms
     display: inline-block;
     padding: 6px 12px;	
    	margin-bottom: 5px;
-} 
+	}
 </style>
+		{% block header %}{% endblock %}
   <!-- Optional theme -->
 <!--
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
@@ -125,7 +126,6 @@ Licence URI: http://www.os-templates.com/template-terms
       }
     }
   });
- 
   $(document).ready(function(){
     //$('main').css('padding-top', $('.row0').height()+15+'px');
     {% block domready %}

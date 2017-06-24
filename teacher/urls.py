@@ -3,7 +3,8 @@ from django.conf.urls import url
 from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
-from teacher.views import ClassroomListView, ClassroomCreateView, WorkListView, WorkCreateView, ForumListView, ForumCreateView, ForumContentListView, ForumContentCreateView
+from teacher.views import ClassroomListView, ClassroomCreateView, WorkListView, WorkCreateView
+from teacher.views import ForumListView, ForumCreateView, ForumContentListView, ForumContentCreateView, ForumClassListView
 
 urlpatterns = [
     # 班級
@@ -24,5 +25,8 @@ urlpatterns = [
     url(r'^forum/content/(?P<forum_id>\d+)/$', login_required(ForumContentListView.as_view()), name='forum-content'), 
     url(r'^forum/content/add/(?P<forum_id>\d+)/$', login_required(ForumContentCreateView.as_view()), name='forum-content-add'),
     url(r'^forum/content/delete/(?P<forum_id>\d+)/(?P<content_id>\d+)/$', views.forum_delete, name='forum-content-delete'),   
-    url(r'^forum/class/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/$', views.forum_class, name='forum-class'),  
+    #url(r'^forum/class/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/$', views.forum_class, name='forum-class'),  
+    url(r'^forum/class/(?P<forum_id>\d+)/$',  login_required(ForumClassListView.as_view()), name='forum-class'),    
+    #設定班級
+    url(r'^forum/class/switch/$', views.forum_switch, name='make'),    
 ]
