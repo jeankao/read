@@ -2,7 +2,7 @@
 {% load tag %}
 {% block title %} Teachers {% endblock %}
 {% block content %}
-        <a href="/teacher/forum/content/add/{{forum_id}}" class="btn btn-warning" role="btn">新增素材</a>
+        <a href="/teacher/forum/content/add/{{forum_id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 新增素材</a>
 <button type="button" class="btn btn-success">{{fwork.title}}</button>
 
         {% for work in contents %}

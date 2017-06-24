@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %} Teachers {% endblock %}
 {% block content %}
-        <a href="/teacher/forum/add/{{classroom.id}}" class="btn btn-warning" role="btn">新增討論</a>
+        <a href="/teacher/forum/add/{{classroom.id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 新增討論</a>
         <table class="table">
             <tr>
                 <td>{{classroom.name}}</td>
@@ -12,10 +12,9 @@
             <td>{{work.title}}</td>
 			<td>{{work.time}}</td>
 							<td>
-						<a href="/teacher/forum/class/{{work.id}}" class="btn btn-default" role="btn">班級</a>
-            <a href="/teacher/forum/content/{{work.id}}" class="btn btn-primary" role="btn">素材</a>
-            <a href="/teacher/forum/class/{{classroom_id}}/{{work.id}}" class="btn" role="btn">評分</a>
-            <a href="/student/forum/memo/{{classroom_id}}/{{work.id}}" class="btn" role="btn">心得</a>			
+						<a href="/teacher/forum/class/{{work.id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span> 班級</a>
+            <a href="/teacher/forum/content/{{work.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> 素材</a>
+            <a href="/teacher/forum/class/{{classroom_id}}/{{work.id}}" class="btn" role="btn"><span class="glyphicon glyphicon-sunglasses" aria-hidden="true"></span> 評分</a>		
 						</td>
 					</tr>
         {% endfor %}
