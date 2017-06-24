@@ -43,9 +43,10 @@ class FClass(models.Model):
 
 class FContent(models.Model):
     forum_id =  models.IntegerField(default=0)
-    content_type = models.IntegerField(default=0)
-    content_title = models.CharField(max_length=250,null=True,blank=True)     
-    content_link = models.CharField(max_length=250,null=True,blank=True) 
-    content_youtube = models.CharField(max_length=250,null=True,blank=True) 
-    content_file = models.FileField(blank=True,null=True)
+    types = models.IntegerField(default=0)
+    title = models.CharField(max_length=250,null=True,blank=True)
+    memo = models.TextField(default='')    
+    link = models.CharField(max_length=250,null=True,blank=True) 
+    youtube = models.CharField(max_length=250,null=True,blank=True) 
+    file = models.FileField(blank=True,null=True)
     content_filename = models.CharField(max_length=20,null=True,blank=True)     

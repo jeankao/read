@@ -70,12 +70,12 @@ class ForumForm(forms.ModelForm):
 class ForumContentForm(forms.ModelForm):
         class Meta:
            model = FContent
-           fields = ['forum_id', 'content_type', 'content_title', 'content_link', 'content_youtube', 'content_file']
+           fields = ['forum_id', 'types', 'title', 'link', 'youtube', 'file']
         
         def __init__(self, *args, **kwargs):
             super(ForumContentForm, self).__init__(*args, **kwargs)
             self.fields['forum_id'].required = False		
-            self.fields['content_title'].required = False						
-            self.fields['content_link'].required = False
-            self.fields['content_youtube'].required = False
-            self.fields['content_file'].required = False
+            self.fields['title'].required = False						
+            self.fields['link'].required = False
+            self.fields['youtube'].required = False
+            self.fields['file'].required = False

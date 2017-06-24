@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^forum/content/(?P<forum_id>\d+)/$', login_required(ForumContentListView.as_view()), name='forum-content'), 
     url(r'^forum/content/add/(?P<forum_id>\d+)/$', login_required(ForumContentCreateView.as_view()), name='forum-content-add'),
     url(r'^forum/content/delete/(?P<forum_id>\d+)/(?P<content_id>\d+)/$', views.forum_delete, name='forum-content-delete'),   
+    url(r'^forum/content/edit/(?P<forum_id>\d+)/(?P<content_id>\d+)/$', views.forum_edit, name='forum-content-edit'),    
     #url(r'^forum/class/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/$', views.forum_class, name='forum-class'),  
     url(r'^forum/class/(?P<forum_id>\d+)/$',  login_required(ForumClassListView.as_view()), name='forum-class'),    
     #設定班級

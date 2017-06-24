@@ -10,7 +10,7 @@ from django.utils.safestring import mark_safe
 from datetime import datetime
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ObjectDoesNotExist
-
+import re
 register = template.Library()
 
 @register.filter
@@ -45,3 +45,8 @@ def number(youtube):
     number_pos = youtube.find("v=")
     number = youtube[number_pos+2:number_pos+13]
     return number
+
+@register.filter()
+def memo(text):
+  memo = re.sub(r"\n", r"<br/>", re.sub(r"\[m_(\d+)#(\d\d:\d\d:\d\d)\]", r"<button class='btn btn-default btn-xs btn-marker' data-mid='\1' data-time='\2'>\2</button>",text))
+  return memo

@@ -14,7 +14,7 @@ from django.conf import settings
 from wsgiref.util import FileWrapper
 from django.http import HttpResponse
 from django.http import JsonResponse
-
+import re
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
     return user.groups.filter(name='teacher').exists() and Classroom.objects.filter(teacher_id=user.id, id=classroom_id).exists()
@@ -234,6 +234,7 @@ def forum_switch(request):
         if status == 'false' :
     				fwork.delete()
     except ObjectDoesNotExist:
+        if status == 'true':
             fwork = FClass(forum_id=forum_id, classroom_id=classroom_id)
             fwork.save()
     return JsonResponse({'status':status}, safe=False)        
@@ -275,13 +276,14 @@ class ForumContentListView(ListView):
     model = FContent
     context_object_name = 'contents'
     template_name = "teacher/forum_content.html"		
-    paginate_by = 20
     def get_queryset(self):
         queryset = FContent.objects.filter(forum_id=self.kwargs['forum_id']).order_by("-id")
         return queryset
 			
     def get_context_data(self, **kwargs):
         context = super(ForumContentListView, self).get_context_data(**kwargs)
+        fwork = FWork.objects.get(id=self.kwargs['forum_id'])
+        context['fwork']= fwork
         context['forum_id'] = self.kwargs['forum_id']
         return context	
 			
@@ -289,25 +291,25 @@ class ForumContentListView(ListView):
 class ForumContentCreateView(CreateView):
     model = FContent
     form_class = ForumContentForm
-    template_name = "teacher/forum_form.html"
+    template_name = "teacher/forum_content_form.html"
     def form_valid(self, form):
         self.object = form.save(commit=False)
         work = FContent(forum_id=self.object.forum_id)
-        if self.object.content_type == 1:
-            work.content_type = 1
-            work.content_title = self.object.content_title
-            work.content_link = self.object.content_link
-        if self.object.content_type  == 2:
-            work.content_type = 2					
-            work.content_youtube = self.object.content_youtube
-        if self.object.content_type  == 3:
-            work.content_type = 3
+        if self.object.types == 1:
+            work.types = 1
+            work.title = self.object.title
+            work.link = self.object.link
+        if self.object.types  == 2:
+            work.types = 2					
+            work.youtube = self.object.youtube
+        if self.object.types  == 3:
+            work.types = 3
             myfile = self.request.FILES['content_file']
             fs = FileSystemStorage()
             filename = uuid4().hex
-            work.content_title = myfile.name
-            work.content_filename = filename
-            fs.save("static/upload/"+filename, myfile)	
+            work.title = myfile.name
+            work.filename = str(self.request.user.id)+"/"+filename
+            fs.save("static/upload/"+str(self.request.user.id)+"/"+filename, myfile)	
         work.save()         
   
         return redirect("/teacher/forum/content/"+self.kwargs['forum_id'])  
@@ -322,7 +324,34 @@ def forum_delete(request, forum_id, content_id):
     instance.delete()
 
     return redirect("/teacher/forum/content/"+forum_id)  
-		
+	
+def forum_edit(request, forum_id, content_id):
+    try:
+        instance = FContent.objects.get(id=content_id)
+    except:
+        pass
+    if request.method == 'POST':
+            content_id = request.POST.get("id", "")
+            try:
+                content = FContent.objects.get(id=content_id)
+            except ObjectDoesNotExist:
+	              content = FContent(forum_id= request.POST.get("forum_id", ""), types=form.cleaned_data['types'])
+            if content.types == 1:
+                content.title = request.POST.get("title", "")
+                content.link = request.POST.get("link", "")
+            elif content.types == 2:
+                content.youtube = request.POST.get("youtube", "")
+            elif content.types == 3:
+                myfile =  request.FILES.get("content_file", "")
+                fs = FileSystemStorage()
+                filename = uuid4().hex
+                content.title = myfile.name
+                content.filename = str(request.user.id)+"/"+filename
+                fs.save("static/upload/"+str(request.user.id)+"/"+filename, myfile)
+            content.memo = request.POST.get("memo", "")
+            content.save()
+            return redirect('/teacher/forum/content/'+forum_id)   
+    return render_to_response('teacher/forum_edit.html',{'content': instance, 'forum_id':forum_id, 'content_id':content_id}, context_instance=RequestContext(request))		
 	
 def forum_download(request, content_id):
     content = FContent.objects.get(id=content_id)
