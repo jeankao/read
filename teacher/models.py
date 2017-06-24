@@ -28,14 +28,18 @@ class TWork(models.Model):
     title = models.CharField(max_length=250)
     teacher_id = models.IntegerField(default=0)		
     classroom_id = models.IntegerField(default=0)
-    time = models.DateTimeField(default=timezone.now)    
+    time = models.DateTimeField(default=timezone.now) 
     
 #討論區
 class FWork(models.Model):
     title = models.CharField(max_length=250)
     teacher_id = models.IntegerField(default=0)		
     classroom_id = models.IntegerField(default=0)
-    time = models.DateTimeField(default=timezone.now)    
+    time = models.DateTimeField(default=timezone.now) 
+
+class FClass(models.Model):
+    forum_id = models.IntegerField(default=0)
+    classroom_id =  models.IntegerField(default=0)
 
 class FContent(models.Model):
     forum_id =  models.IntegerField(default=0)

@@ -31,3 +31,17 @@ def img(title):
         return "certificate"
     else :
         return ""
+ 
+@register.filter(name='has_group') 
+def has_group(user, group_name):
+    try:
+        group =  Group.objects.get(name=group_name) 
+    except ObjectDoesNotExist:
+        group = None
+    return group in user.groups.all()
+
+@register.filter()
+def number(youtube):
+    number_pos = youtube.find("v=")
+    number = youtube[number_pos+2:number_pos+13]
+    return number

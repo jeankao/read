@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load tag %}
+{% block title %} Teachers {% endblock %}
+{% block content %}
+        <a href="/teacher/forum/content/add/{{forum_id}}">新增素材</a><BR><BR>
+        <table>
+        {% for work in contents %}
+              <tr><td><A href="/teacher/forum/content/delete/{{forum_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"></a>
+              {% if work.content_type == 1 %}
+
+              <a href="{{work.content_link}}" target="_blank">{% if work.content_title %}{{work.content_title}}{% else %}開啟連結{% endif %}</a>
+                
+              {% endif %}
+              {% if work.content_type == 2 %}
+              
+              <iframe width="560" height="315" src="https://www.youtube.com/embed/{{work.content_youtube|number}}" frameborder="0" allowfullscreen></iframe>
+                            
+              {% endif %}
+              {% if work.content_type == 3 %}
+              <a href="/teacher/forum/download/{{work.id}}" target="_blank">{{work.content_title}}</a> 
+                                            
+              {% endif %}              
+                </td></tr>
+        {% endfor %}
+        </table>
+{% endblock %}
+          

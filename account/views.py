@@ -290,7 +290,7 @@ def adminrealname(request, user_id):
         else:
             return redirect("/")
 
-    return render_to_response('account/realname.html',{'form': form}, context_instance=RequestContext(request))
+    return render_to_response('form.html',{'form': form}, context_instance=RequestContext(request))
 	
 # 修改自己的真實姓名
 def realname(request):
@@ -309,7 +309,7 @@ def realname(request):
         user = User.objects.get(id=request.user.id)
         form = RealnameForm(instance=user)
 
-    return render_to_response('account/realname.html',{'form': form}, context_instance=RequestContext(request))
+    return render_to_response('form.html',{'form': form}, context_instance=RequestContext(request))
 
 # 修改學校名稱
 def adminschool(request):

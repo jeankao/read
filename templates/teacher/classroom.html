@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+        <a href="/teacher/classroom/add" class="btn btn-warning" role="btn">新增班級</a>
+
+        <div class="row">
+        {% for classroom in classrooms %}
+  		<div class="col-xs-12 col-sm-6 col-md-4">
+  <div class="panel panel-default">
+  <div class="panel-heading">{{classroom.name}}({{classroom.password}})</div>
+  <div class="panel-body">
+                  <a href="/student/classmate/{{classroom.id}}" class="btn btn-primary" role="btn">公告</a>  
+                <a href="/teacher/forum/{{classroom.id}}" class="btn btn-primary" role="btn">討論區</a>        
+                <a href="/teacher/work/{{classroom.id}}" class="btn btn-primary" role="btn">專題</a>
+                <BR>
+                <a href="/teacher/classroom/edit/{{classroom.id}}" class="btn btn-default" role="btn">修改</a>
+                <a href="/student/classmate/{{classroom.id}}" class="btn btn-default" role="btn">學生</a>
+  </div>
+  </div>
+  </div>
+  <div>
+  {% endfor %}
+          </div>
+  
+{% endblock %}

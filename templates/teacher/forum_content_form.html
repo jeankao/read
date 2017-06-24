@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+         <form action=""  method="post"  enctype="multipart/form-data">
+           <input type=hidden name=content_type value="1">
+           <input type=hidden name=forum_id value={{forum_id}}>
+           文章褾題:<input id="id_content_title" maxlength="250" name="content_title" type="text" placeholder="開啟連結">
+           文章網址:<input id="id_content_link" maxlength="250" name="content_link" type="text"> {% csrf_token %}<input type="submit" value="送出">
+        </form>
+<BR><BR>
+<!--------------------------------------------------------->
+         <form action=""  method="post" enctype="multipart/form-data">
+           <input type=hidden name=content_type value="2">
+           <input type=hidden name=forum_id value={{forum_id}}>           
+           Youtube:<input id="id_content_youtube" maxlength="250" name="content_youtube" type="text" /><input type="submit" value="送出">
+            {% csrf_token %}         
+        </form>
+<BR><BR>
+<!--------------------------------------------------------->
+         <form action=""  method="post" enctype="multipart/form-data" >
+           <input type=hidden name=content_type value="3">
+           <input type=hidden name=forum_id value={{forum_id}}>           
+           檔案:<input id="id_content_file" name="content_file" type="file"/><input type="submit" value="送出">
+            {% csrf_token %}         
+        </form>
+{% endblock %}

@@ -6,4 +6,5 @@ urlpatterns = [
         url(r'^admin/', include(admin.site.urls)),
         url(r'^$', views.homepage, name='homepage'),
         url(r'^account/', include('account.urls')),  
+        url(r'^teacher/', include('teacher.urls')),    
 ]
