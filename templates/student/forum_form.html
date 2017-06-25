@@ -70,15 +70,36 @@
 function secToTime(sec) {
     return (new Date(sec*1000)).toUTCString().split(' ')[4];
 }
-
+ 
 function onYouTubeIframeAPIReady() {
+  $('.btn-marker').click(function(event) {
+    var vid = vidMap['m_'+$(event.target).data('mid')];
+    var tsec = timeToSec($(event.target).data('time'));
+    if (!vidPlayer) {
+      vidPlayer = new YT.Player('vplayer', {
+        height: '315', 
+        width: '560', 
+        videoId: vid,
+        playerVars: {
+          start: tsec,
+        },
+        events: {
+          'onReady': onPlayerReady,
+        }
+      });
+    } else {
+      vidPlayer.loadVideoById(vid, tsec, 'large');
+      vidPlayer.playVideo();
+    }
+    $('#vidModal').modal('show');
+  });  
   $('.material iframe[src*="www.youtube.com"]').each(function(index, element) {
       var materialID = $(element).parent().parent().parent().parent().attr('id');
       var playerID = materialID+'_player';
       var player;
       $(element).attr('id', playerID);
       player = new YT.Player(playerID);
-      $(".btn-add-marker", $(element).parent().parent().parent()).click(function(e) {
+      $(".btn-add-marker", $(element).parent().parent().parent().parent()).click(function(e) {
         var commentID = '#memo';
         var comment_body = $(commentID).val();
         if (comment_body)
@@ -120,29 +141,7 @@ function timeToSec(timestr) {
     return (hh*3600)+(mm*60)+ss;
 }
 
-function onYouTubeIframeAPIReady() {
-  $('.btn-marker').click(function(event) {
-    var vid = vidMap['m_'+$(event.target).data('mid')];
-    var tsec = timeToSec($(event.target).data('time'));
-    if (!vidPlayer) {
-      vidPlayer = new YT.Player('vplayer', {
-        height: '315', 
-        width: '560', 
-        videoId: vid,
-        playerVars: {
-          start: tsec,
-        },
-        events: {
-          'onReady': onPlayerReady,
-        }
-      });
-    } else {
-      vidPlayer.loadVideoById(vid, tsec, 'large');
-      vidPlayer.playVideo();
-    }
-    $('#vidModal').modal('show');
-  });
-}
+//------------------------------------------------------------------------
 
 $('#vidModal').on('hidden.bs.modal', function (e) {
   vidPlayer.stopVideo();

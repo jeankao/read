@@ -4,7 +4,7 @@
 {% block content %}
 {% for work in works %}
   <div class="panel panel-default">
-    <div class="panel-heading">{{work.publication_date}}</div>
+    <div class="panel-heading"><button type="button" class="btn btn-success">{{forloop.revcounter}}</button> {{work.publication_date}}</div>
     <div class="panel-body">{{ work.memo|memo|safe }}</div>
   </div>
 {% endfor %}
