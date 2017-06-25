@@ -29,5 +29,7 @@ urlpatterns = [
     url(r'^forum/history/(?P<user_id>\d+)/(?P<index>\d+)/$', views.forum_history),  
     url(r'^forum/like/$', views.forum_like, name='like'),    
     url(r'^forum/people/$', views.forum_people, name='like'), 
-    url(r'^forum/score/$', views.forum_score, name='score'),    
+    url(r'^forum/score/$', views.forum_score, name='score'),   
+    url(r'^forum/jieba/(?P<classroom_id>\d+)/(?P<index>\d+)/$', views.forum_jieba), 	
+    url(r'^forum/word/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<word>[^/]+)/$', views.forum_word),  	
 ]

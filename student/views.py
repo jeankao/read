@@ -14,6 +14,7 @@ import re
 from django.http import JsonResponse
 import json
 from django.contrib.auth.models import User
+import jieba
 
 # 列出選修的班級
 class ClassroomListView(ListView):
@@ -364,3 +365,57 @@ def forum_score(request):
     else:
         return JsonResponse({'status':'fail'}, safe=False)        
 
+# 統計某討論主題所有同學心得
+def forum_jieba(request, classroom_id, index): 
+    classroom = Classroom.objects.get(id=classroom_id)
+    enrolls = Enroll.objects.filter(classroom_id=classroom_id)
+    works = []
+    contents = FContent.objects.filter(forum_id=index).order_by("-id")
+    teacher_id = Classroom.objects.get(id=classroom_id).teacher_id
+    memo = ""
+    for enroll in enrolls:
+        try:
+            works = SFWork.objects.filter(index=index, student_id=enroll.student_id).order_by("-id")
+            if works:
+                memo += works[0].memo
+        except ObjectDoesNotExist:
+            pass
+    memo = memo.rstrip('\r\n')
+    seglist = jieba.cut(memo, cut_all=False)
+    hash = {}
+    for item in seglist: 
+        if item in hash:
+            hash[item] += 1
+        else:
+            hash[item] = 1
+    words = []
+    count = 0
+    error=""
+    for key, value in sorted(hash.items(), key=lambda x: x[1], reverse=True):
+        if ord(key[0]) > 32 :
+            count += 1	
+            words.append([key, value])
+            if count == 100:
+                break       
+    return render_to_response('student/forum_jieba.html', {'index': index, 'words':words, 'enrolls':enrolls, 'classroom':classroom}, context_instance=RequestContext(request))
+
+# 查詢某班某詞句心得
+def forum_word(request, classroom_id, index, word):
+        enrolls = Enroll.objects.filter(classroom_id=classroom_id).order_by("seat")
+        work_ids = []
+        datas = []
+        pos = word.index('-')
+        word = word[0:pos]
+        for enroll in enrolls:
+            try:
+                works = SFWork.objects.filter(index=index, student_id=enroll.student_id,memo__contains=word).order_by("-id")
+                if works:
+                    work_ids.append(works[0].id)
+                    datas.append([works[0], enroll.seat])
+            except ObjectDoesNotExist:
+                pass
+        classroom = Classroom.objects.get(id=classroom_id)
+        for work, seat in datas:
+            work.memo = work.memo.replace(word, '<font color=red>'+word+'</font>')          
+        return render_to_response('student/forum_word.html', {'word':word, 'datas':datas, 'classroom':classroom}, context_instance=RequestContext(request))
+		
