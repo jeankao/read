@@ -10,7 +10,7 @@
       var data = google.visualization.arrayToDataTable([
         ["詞句", "出現次數"],
         {% for word in words %}
-        ['{{word.0}}-{{forloop.counter}}', {{word.1}}],
+        ['{{word.0}} {{forloop.counter}}', {{word.1}}],
         {% endfor %}
       ]);
 
@@ -20,7 +20,7 @@
       var options = {
         title: "{{classroom.name}}心得用詞統計",
         width: 900,
-        height: 3600,
+        height: 300+{{words|length}}*40,
         chartArea:{top:60},       
       };
       var chart = new google.visualization.BarChart(document.getElementById("barchart_values"));
@@ -34,5 +34,9 @@
   </script>
 {% endblock %}
 {% block content %}
+{% if words %}
 <div id="barchart_values"></div>
+{% else %}
+尚未有心得發表
+{% endif %}
 {% endblock %}

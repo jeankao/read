@@ -404,7 +404,7 @@ def forum_word(request, classroom_id, index, word):
         enrolls = Enroll.objects.filter(classroom_id=classroom_id).order_by("seat")
         work_ids = []
         datas = []
-        pos = word.index('-')
+        pos = word.index(' ')
         word = word[0:pos]
         for enroll in enrolls:
             try:
