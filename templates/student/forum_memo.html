@@ -20,7 +20,7 @@
     <a href="#" data-forumid="{{works.0.index}}" data-userid="{{ enroll.student_id }}" class="people">
     <span id="likes_count">{{works.0.likes|likes_count}}</span>人按讚
     </a>
-    <a href="" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-comment" aria-hidden="true">留言</span></a>
+    <a href="" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-heart" aria-hidden="true">留言</span></a>
 <fieldset class="rating">
     <input {% if works.0.score == 10 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star5_{{works.0.id}}" name="rating{{works.0.id}}" value="10"/><label class = "full" for="star5_{{works.0.id}}" title="太棒了 - 5顆星"></label>
     <input {% if works.0.score == 9 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star4half_{{works.0.id}}" name="rating{{works.0.id}}" value="9" /><label class="half" for="star4half_{{works.0.id}}" title="好棒 - 4.5顆星"></label>
@@ -133,7 +133,7 @@ $(document).ready(function () {
       function(data){
         if (data['status'] == 'ok')
         {
- 
+          alert( $(launcher).val()+"分");
 
         } else {
 			   	alert("hello");
