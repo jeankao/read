@@ -232,10 +232,11 @@ class ForumListView(ListView):
             return redirect('/')
         return super(ForumListView, self).render_to_response(context)    
 			
-def forum_submit(request, index):
+def forum_submit(request, classroom_id, index):
         scores = []
         works = SFWork.objects.filter(index=index, student_id=request.user.id).order_by("-id")
         contents = FContent.objects.filter(forum_id=index)
+        fwork = FWork.objects.get(id=index)
         if request.method == 'POST':
             form = ForumSubmitForm(request.POST, request.FILES)
             if form.is_valid():						
@@ -243,7 +244,7 @@ def forum_submit(request, index):
                 work.memo=form.cleaned_data['memo']
                 work.publication_date = timezone.now()
                 work.save()
-                return redirect("/student/forum/show/"+index)
+                return redirect("/student/forum/memo/"+classroom_id+"/"+index)
             else:
                 return render_to_response('student/forum_form.html', {'error':form.errors}, context_instance=RequestContext(request))
         else:
@@ -253,7 +254,7 @@ def forum_submit(request, index):
             else:
                 work = works[0]
                 form = ForumSubmitForm(instance=works[0])
-        return render_to_response('student/forum_form.html', {'work':work, 'form':form, 'scores':scores, 'index':index, 'contents':contents}, context_instance=RequestContext(request))
+        return render_to_response('student/forum_form.html', {'fwork':fwork, 'works':works, 'work':work, 'form':form, 'scores':scores, 'index':index, 'contents':contents}, context_instance=RequestContext(request))
 
 def forum_show(request, index):
 		work = []

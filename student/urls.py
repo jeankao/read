@@ -17,15 +17,14 @@ urlpatterns = [
     #url(r'^calendar/(?P<classroom_id>\d+)/$', views.LoginCalendarClassView.as_view()),     	
     #作業
     url(r'^work/(?P<classroom_id>\d+)/$', login_required(WorkListView.as_view()), name='work-list'),  
-    url(r'^work/submit/(?P<index>\d+)/$', views.submit),    
+    url(r'^work/submit/(?P<classroom_id>\d+)/(?P<index>\d+)/$', views.submit),    
     url(r'^work/show/(?P<index>\d+)/$', views.show),      
     url(r'^work/video/(?P<classroom_id>\d+)/(?P<index>\d+)/$', views.video), 	
     url(r'^work/memo/(?P<classroom_id>\d+)/(?P<index>\d+)/$', views.memo), 
 	  url(r'^work/rank/(?P<index>\d+)/$', views.rank), 	
     #作業
     url(r'^forum/(?P<classroom_id>\d+)/$', login_required(ForumListView.as_view()), name='work-list'),  
-    url(r'^forum/submit/(?P<index>\d+)/$', views.forum_submit),    
-    url(r'^forum/show/(?P<index>\d+)/$', views.forum_show),  
+    url(r'^forum/submit/(?P<classroom_id>\d+)/(?P<index>\d+)/$', views.forum_submit),    
     url(r'^forum/memo/(?P<classroom_id>\d+)/(?P<index>\d+)/$', views.forum_memo),  
     url(r'^forum/history/(?P<user_id>\d+)/(?P<index>\d+)/$', views.forum_history),  
     url(r'^forum/like/$', views.forum_like, name='like'),    
