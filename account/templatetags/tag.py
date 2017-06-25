@@ -3,7 +3,7 @@ from django import template
 from django.contrib.auth.models import User
 from account.models import MessagePoll
 from teacher.models import Classroom
-from student.models import Enroll
+from student.models import Enroll, SFWork
 from django.contrib.auth.models import Group
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -11,11 +11,21 @@ from datetime import datetime
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ObjectDoesNotExist
 import re
+import json
 register = template.Library()
 
 @register.filter
 def modulo(num, val):
     return num % val
+  
+@register.filter
+def realname(user_id):
+    try: 
+        user = User.objects.get(id=user_id)
+        return user.first_name
+    except ObjectDoesNotExist:
+        pass
+        return ""
   
 @register.filter(name="img")
 def img(title):
@@ -50,3 +60,20 @@ def number(youtube):
 def memo(text):
   memo = re.sub(r"\n", r"<br/>", re.sub(r"\[m_(\d+)#(\d\d:\d\d:\d\d)\]", r"<button class='btn btn-default btn-xs btn-marker' data-mid='\1' data-time='\2'>\2</button>",text))
   return memo
+
+@register.filter()
+def likes(work_id):
+    sfwork = SFWork.objects.get(id=work_id)
+    jsonDec = json.decoder.JSONDecoder()    
+    if sfwork.likes:
+        likes = jsonDec.decode(sfwork.likes)
+        return likes
+    return False
+  
+@register.filter()
+def likes_count(likes):
+    jsonDec = json.decoder.JSONDecoder()    
+    if likes:
+        likes = jsonDec.decode(likes)
+        return len(likes)
+    return False

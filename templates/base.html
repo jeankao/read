@@ -73,12 +73,12 @@ Licence URI: http://www.os-templates.com/template-terms
 			{%endif %}
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="./" style="padding:0px; padding-right:10px"><img src="/static/images/s0.png" style="width:60px;margin:0px;">{{ request.user.first_name }}</a></li>
-			{% if request.user.is_authenticated %}		  
-			<li><a href="/account/logout" class='btn btn-default' role="btn">登出</a></li>
+  		{% if request.user.is_authenticated %}		  
+          <li><a href="./" style="padding:0px; padding-right:10px"><img src="/static/images/s0.png" style="width:60px;margin:0px;">{{ request.user.first_name }}</a></li>
+				<li><a href="/account/logout" class='btn btn-default' role="btn">登出</a></li>
 			{% else %}
-			<li><a href="/account/register" class='btn' role="btn">註冊新帳號</a></li>
-			<li><a href="/account/login" class='btn' role="btn">登入</a></li>
+			<li><a href="/account/register" class='btn btn-default' role="btn">註冊新帳號</a></li>
+			<li><a href="/account/login" class='btn btn-default' role="btn">登入</a> </li>
 			{% endif %}          </ul>
         </div><!--/.nav-collapse -->
       </div>

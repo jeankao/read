@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load tag %}
+{% block title %} Teachers {% endblock %}
+{% block content %}
+        <table>
+        <tr>
+			<td>名次</td>
+            <td>姓名</td>
+            <td>上傳時間</td>
+        </tr>
+        {% for work in works %}
+            <tr>
+			<td>{{forloop.counter}}</td>
+            <td>{{work.student_id|name}}</td>
+            <td>{{work.publication_date}}</td>          
+            </tr>
+        {% endfor %}
+        </table>
+
+{% endblock %}

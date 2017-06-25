@@ -14,8 +14,8 @@ class Enroll(models.Model):
     seat = models.IntegerField(default=0)
     # 組別
     group = models.IntegerField(default=0)
-	
     @property
+	
     def classroom(self):
         return Classroom.objects.get(id=self.classroom_id)  
 
@@ -67,8 +67,9 @@ class SFWork(models.Model):
     publication_date = models.DateTimeField(default=timezone.now)
     score = models.IntegerField(default=-1)
     scorer = models.IntegerField(default=0)
+    likes = models.TextField(default='')
 		
     def __unicode__(self):
         user = User.objects.filter(id=self.student_id)[0]
         index = self.index
-        return user.first_name+"("+str(index)+")"		
+        return user.first_name+"("+str(index)+")"

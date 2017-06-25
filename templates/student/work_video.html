@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load tz %}
+{% load tag %}
+{% block title %} Teachers {% endblock %}
+{% block content %}
+        <table>
+        <tr>
+            <td>座號</td>        
+            <td>姓名</td>
+            <td>影片</td>
+            <td>心得</ttd>
+        </tr>
+        {% for data in datas %}
+            <tr>
+            <td>{{data.0}}</td>
+            <td>{{data.1}}</td>
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/{{data.3|number}}" frameborder="0" allowfullscreen></iframe></td>
+            <td>{{data.2}}</td>            
+            </tr>
+        {% endfor %}
+        </table>
+
+{% endblock %}

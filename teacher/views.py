@@ -355,8 +355,8 @@ def forum_edit(request, forum_id, content_id):
 	
 def forum_download(request, content_id):
     content = FContent.objects.get(id=content_id)
-    filename = content.content_title
-    download =  settings.BASE_DIR + "/static/upload/" + content.content_filename
+    filename = content.title
+    download =  settings.BASE_DIR + "/static/upload/" + content.filename
     wrapper = FileWrapper(file( download, "r" ))
     response = HttpResponse(wrapper, content_type = 'application/force-download')
     #response = HttpResponse(content_type='application/force-download')

@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load tz %}
+{% load tag %}
+{% block content %}
+<div class="row">
+  {% for enroll, works in datas %}
+  <div class="panel panel-default">
+    <div class="panel-heading">{{enroll.seat}}){{enroll.student.first_name}} {{works.last.publication_date}}　　<A href="/student/forum/history/{{enroll.student_id}}/{{works.0.index}}"><img src="/static/images/edit.gif"> 歷史({{works|length}})</A></div>
+     {% if works.last %}    
+    <div class="panel-body">
+
+    {{works.last.memo|memo|safe}}
+
+    <hr>
+    {% if request.user.id in works.0.id|likes %}
+    <a href="#" data-forumid="{{works.0.index}}" data-userid="{{ enroll.student_id }}" data-action="unlike" class="like btn btn-primary" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
+    {% else %}
+    <a href="#" data-forumid="{{works.0.index}}" data-userid="{{ enroll.student_id }}" data-action="like" class="like btn btn-default" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
+    {% endif %}
+    <span id="likes_count">{{works.0.likes|likes_count}}</span>人按讚      
+    <a href="" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-comment" aria-hidden="true">留言</span></a>
+
+    </div>
+    {% endif %}   
+</div>
+{% endfor %}  
+  <div class="modal fade" tabindex="-1" role="dialog" id="vidModal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+            <div id="vplayer"></div>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+{% endblock %}
+
+{% block footer_script %}
+<script>
+var vidMap = {
+  {% for work in contents %}
+  {% if work.types == 2 %}
+  'm_{{ work.id }}': '{{ work.youtube|number }}',
+  {% endif %}
+  {% endfor %}  
+};
+
+
+var vidPlayer = null;
+function onPlayerReady(event) {
+  event.target.playVideo();
+}
+function timeToSec(timestr) {
+  var hh = parseInt(timestr.substr(0, 2)), 
+      mm = parseInt(timestr.substr(3, 2)), 
+      ss = parseInt(timestr.substr(6, 2));
+    return (hh*3600)+(mm*60)+ss;
+}
+
+function onYouTubeIframeAPIReady() {
+  $('.btn-marker').click(function(event) {
+    var vid = vidMap['m_'+$(event.target).data('mid')];
+    var tsec = timeToSec($(event.target).data('time'));
+    if (!vidPlayer) {
+      vidPlayer = new YT.Player('vplayer', {
+        height: '315', 
+        width: '560', 
+        videoId: vid,
+        playerVars: {
+          start: tsec,
+        },
+        events: {
+          'onReady': onPlayerReady,
+        }
+      });
+    } else {
+      vidPlayer.loadVideoById(vid, tsec, 'large');
+      vidPlayer.playVideo();
+    }
+    $('#vidModal').modal('show');
+  });
+}
+
+$('#vidModal').on('hidden.bs.modal', function (e) {
+  vidPlayer.stopVideo();
+});
+
+$(document).ready(function () {
+  //------------------------------------------------------------------------
+  // Load YouTube API library
+  var tag = document.createElement('script');
+  tag.id = 'iframe-demo';
+  tag.src = 'https://www.youtube.com/iframe_api';
+  var firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);  
+});
+</script>
+{% endblock %}
+
+{% block domready %}
+  $('a.like').click(function(e){
+    var launcher = this;  
+    e.preventDefault();
+    $.post('/student/forum/like/',
+      {
+        forumid: $(launcher).data('forumid'),
+        userid: $(launcher).data('userid'),
+        action: $(launcher).data('action')
+      },
+      function(data){
+        if (data['status'] == 'ok')
+        {
+          var previous_action = $(launcher).data('action');
+		      if (previous_action == 'like') {
+               likes_count = parseInt($(launcher).parent().find('#likes_count').html()) + 1;
+               $(launcher).parent().find('#likes_count').html(likes_count);
+               $(launcher).removeClass("btn-default").addClass("btn-primary");
+               $(launcher).data('action', 'unlike');
+           } else {
+               $(launcher).removeClass("btn-primary").addClass("btn-default");
+               $(launcher).data('action', 'like');
+               likes_count = parseInt($(launcher).parent().find('#likes_count').html()) - 1;
+               $(launcher).parent().find('#likes_count').html(likes_count);
+           }
+        } else {
+			   	alert("hello");
+	    	}
+      }
+    );
+  });
+{% endblock %}

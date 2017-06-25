@@ -7,4 +7,5 @@ urlpatterns = [
         url(r'^$', views.homepage, name='homepage'),
         url(r'^account/', include('account.urls')),  
         url(r'^teacher/', include('teacher.urls')),    
+        url(r'^student/', include('student.urls')),    
 ]
