@@ -13,6 +13,7 @@ import datetime
 import re
 from django.http import JsonResponse
 import json
+from django.contrib.auth.models import User
 
 # 列出選修的班級
 class ClassroomListView(ListView):
@@ -233,7 +234,7 @@ class ForumListView(ListView):
 			
 def forum_submit(request, index):
         scores = []
-        works = SFWork.objects.filter(index=index, student_id=request.user.id)
+        works = SFWork.objects.filter(index=index, student_id=request.user.id).order_by("-id")
         contents = FContent.objects.filter(forum_id=index)
         if request.method == 'POST':
             form = ForumSubmitForm(request.POST, request.FILES)
@@ -267,7 +268,8 @@ def forum_show(request, index):
 def forum_memo(request, classroom_id, index):    
     enrolls = Enroll.objects.filter(classroom_id=classroom_id)
     datas = []
-    contents = FContent.objects.filter(forum_id=index).order_by("-id")	
+    contents = FContent.objects.filter(forum_id=index).order_by("-id")
+    teacher_id = Classroom.objects.get(id=classroom_id).teacher_id
     for enroll in enrolls:
         try:
             works = SFWork.objects.filter(index=index, student_id=enroll.student_id).order_by("id")
@@ -282,7 +284,7 @@ def forum_memo(request, classroom_id, index):
             return -custom[0].seat
     datas = sorted(datas, key=getKey, reverse=True)	
 	
-    return render_to_response('student/forum_memo.html', {'datas': datas, 'contents':contents}, context_instance=RequestContext(request))
+    return render_to_response('student/forum_memo.html', {'datas': datas, 'contents':contents, 'teacher_id':teacher_id}, context_instance=RequestContext(request))
 	
 def forum_history(request, user_id, index):
 		work = []
@@ -325,6 +327,39 @@ def forum_like(request):
             sfworks = []            
         
         return JsonResponse({'status':'ok', 'likes':sfworks[0].likes}, safe=False)
+    else:
+        return JsonResponse({'status':'fail'}, safe=False)        
+
+def forum_people(request):
+    forum_id = request.POST.get('forumid')  
+    user_id = request.POST.get('userid')
+    likes = []
+    sfworks = []
+    names = []
+    if forum_id:
+        try:
+            sfworks = SFWork.objects.filter(index=forum_id, student_id=user_id).order_by("id")
+            sfwork = sfworks[0]
+            jsonDec = json.decoder.JSONDecoder()
+            if sfwork.likes:
+                likes = jsonDec.decode(sfwork.likes)  
+                for like in reversed(likes):
+                  user = User.objects.get(id=like)
+                  names.append('<button type="button" class="btn btn-default">'+user.first_name+'</button>')
+        except ObjectDoesNotExist:
+            sfworks = []                   
+        return JsonResponse({'status':'ok', 'likes':names}, safe=False)
+    else:
+        return JsonResponse({'status':'fail'}, safe=False)        
+
+def forum_score(request):
+    work_id = request.POST.get('workid')  
+    score = request.POST.get('score')
+    if work_id:
+        sfwork = SFWork.objects.get(id=work_id)
+        sfwork.score = score
+        sfwork.save()
+        return JsonResponse({'status':'ok'}, safe=False)
     else:
         return JsonResponse({'status':'fail'}, safe=False)        
 

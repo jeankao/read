@@ -17,8 +17,22 @@
     {% else %}
     <a href="#" data-forumid="{{works.0.index}}" data-userid="{{ enroll.student_id }}" data-action="like" class="like btn btn-default" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
     {% endif %}
-    <span id="likes_count">{{works.0.likes|likes_count}}</span>人按讚      
+    <a href="#" data-forumid="{{works.0.index}}" data-userid="{{ enroll.student_id }}" class="people">
+    <span id="likes_count">{{works.0.likes|likes_count}}</span>人按讚
+    </a>
     <a href="" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-comment" aria-hidden="true">留言</span></a>
+<fieldset class="rating">
+    <input {% if works.0.score == 10 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star5_{{works.0.id}}" name="rating{{works.0.id}}" value="10"/><label class = "full" for="star5_{{works.0.id}}" title="太棒了 - 5顆星"></label>
+    <input {% if works.0.score == 9 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star4half_{{works.0.id}}" name="rating{{works.0.id}}" value="9" /><label class="half" for="star4half_{{works.0.id}}" title="好棒 - 4.5顆星"></label>
+    <input {% if works.0.score == 8 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star4_{{works.0.id}}" name="rating{{works.0.id}}" value="8" /><label class = "full" for="star4_{{works.0.id}}" title="好棒 - 4顆星"></label>
+    <input {% if works.0.score == 7 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star3half_{{works.0.id}}" name="rating{{works.0.id}}" value="7" /><label class="half" for="star3half_{{works.0.id}}" title="不錯 - 3.5顆星"></label>
+    <input {% if works.0.score == 6 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star3_{{works.0.id}}" name="rating{{works.0.id}}" value="6" /><label class = "full" for="star3_{{works.0.id}}" title="不錯 - 3顆星"></label>
+    <input {% if works.0.score == 5 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star2half_{{works.0.id}}" name="rating{{works.0.id}}" value="5" /><label class="half" for="star2half_{{works.0.id}}" title="再加油 - 2.5顆星"></label>
+    <input {% if works.0.score == 4 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star2_{{works.0.id}}" name="rating{{works.0.id}}" value="4" /><label class = "full" for="star2_{{works.0.id}}" title="再加油 - 2顆星"></label>
+    <input {% if works.0.score == 3 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star1half_{{works.0.id}}" name="rating{{works.0.id}}" value="3" /><label class="half" for="star1half_{{works.0.id}}" title="繼續努力 - 1.5顆星"></label>
+    <input {% if works.0.score == 2 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star1_{{works.0.id}}" name="rating{{works.0.id}}" value="2" /><label class = "full" for="star1_{{works.0.id}}" title="繼續努力 - 1顆星"></label>
+    <input {% if works.0.score == 1 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="starhalf_{{works.0.id}}" name="rating{{works.0.id}}" value="1"/><label class="half" for="starhalf_{{works.0.id}}" title="繼續努力 - 0.5顆星"></label>
+</fieldset>
 
     </div>
     {% endif %}   
@@ -29,6 +43,16 @@
       <div class="modal-content">
         <div class="modal-body">
             <div id="vplayer"></div>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+  
+  <div class="modal fade" tabindex="-1" role="dialog" id="likes_people">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+            <div id="people"></div>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
@@ -98,6 +122,46 @@ $(document).ready(function () {
 {% endblock %}
 
 {% block domready %}
+  $('input:radio').change(function(e){
+    var launcher = this;  
+    e.preventDefault();
+    $.post('/student/forum/score/',
+      {
+        workid: $(launcher).data('workid'),
+        score: $(launcher).val(),
+      },
+      function(data){
+        if (data['status'] == 'ok')
+        {
+ 
+
+        } else {
+			   	alert("hello");
+	    	}
+      }
+    );
+  });    
+  
+  $('a.people').click(function(e){
+    var launcher = this;  
+    e.preventDefault();
+    $.post('/student/forum/people/',
+      {
+        forumid: $(launcher).data('forumid'),
+        userid: $(launcher).data('userid'),
+      },
+      function(data){
+        if (data['status'] == 'ok')
+        {
+            $("#people").html(data['likes']);
+            $('#likes_people').modal('show');
+
+        } else {
+			   	alert("hello");
+	    	}
+      }
+    );
+  });  
   $('a.like').click(function(e){
     var launcher = this;  
     e.preventDefault();

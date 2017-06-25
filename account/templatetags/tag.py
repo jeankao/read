@@ -76,4 +76,4 @@ def likes_count(likes):
     if likes:
         likes = jsonDec.decode(likes)
         return len(likes)
-    return False
+    return 0
