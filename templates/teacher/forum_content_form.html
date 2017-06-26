@@ -3,7 +3,7 @@
          <form action=""  method="post"  enctype="multipart/form-data">
            <input type=hidden name=types value="1">
            <input type=hidden name=forum_id value={{forum_id}}>
-           文章褾題:<input id="id_content_title" maxlength="250" name="content_title" type="text" placeholder="開啟連結">
+           文章褾題:<input id="id_content_title" maxlength="250" name="title" type="text" placeholder="開啟連結">
            文章網址:<input id="id_content_link" maxlength="250" name="link" type="text"> {% csrf_token %}<input type="submit" value="送出">
         </form>
 <BR><BR>
