@@ -268,25 +268,24 @@ def forum_show(request, index):
 
  # 查詢某作業所有同學心得
 def forum_memo(request, classroom_id, index):    
-    enrolls = Enroll.objects.filter(classroom_id=classroom_id)
-    datas = []
-    contents = FContent.objects.filter(forum_id=index).order_by("-id")
-    teacher_id = Classroom.objects.get(id=classroom_id).teacher_id
-    for enroll in enrolls:
-        try:
-            works = SFWork.objects.filter(index=index, student_id=enroll.student_id).order_by("id")
-            datas.append([enroll, works])
-        except ObjectDoesNotExist:
-            works = [SFWork(index=0, publication_date=timezone.make_aware(datetime.datetime(2000, 1, 1, 0, 0)))]
-            datas.append([enroll, works])
-    def getKey(custom):
-        if custom[1]:
-            return custom[1][0].publication_date, -custom[0].seat
-        else:
-            return -custom[0].seat
-    datas = sorted(datas, key=getKey, reverse=True)	
-	
-    return render_to_response('student/forum_memo.html', {'datas': datas, 'contents':contents, 'teacher_id':teacher_id}, context_instance=RequestContext(request))
+	enrolls = Enroll.objects.filter(classroom_id=classroom_id)
+	datas = []
+	contents = FContent.objects.filter(forum_id=index).order_by("-id")
+	teacher_id = Classroom.objects.get(id=classroom_id).teacher_id
+	# 一次取得所有 SFWork
+	works_pool = SFWork.objects.filter(index=index).order_by("id")
+	for enroll in enrolls:
+		works = filter(lambda w: w.student_id==enroll.student_id, works_pool)
+		# 對未作答學生不特別處理，因為 filter 會傳回 []
+		datas.append([enroll, works])
+	def getKey(custom):
+			if custom[1]:
+					return custom[1][0].publication_date, -custom[0].seat
+			else:
+					return -custom[0].seat
+	datas = sorted(datas, key=getKey, reverse=True)	
+
+	return render_to_response('student/forum_memo.html', {'datas': datas, 'contents':contents, 'teacher_id':teacher_id}, context_instance=RequestContext(request))
 	
 def forum_history(request, user_id, index):
 		work = []

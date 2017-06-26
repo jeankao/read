@@ -6,11 +6,11 @@
   {% for enroll, works in datas %}
   <div class="panel panel-default">
     <div class="panel-heading">{{enroll.seat}}){{enroll.student.first_name}} {{works.last.publication_date}}　　<A href="/student/forum/history/{{enroll.student_id}}/{{works.0.index}}"><img src="/static/images/edit.gif"> 歷史({{works|length}})</A></div>
-     {% if works.last %}    
+     {% if works|length > 0 %}    
     <div class="panel-body">
-
-    {{works.last.memo|memo|safe}}
-
+		{% with lwork=works|last %}
+    {{ lwork.memo|memo|safe }}
+		{% endwith %}
     <hr>
     {% if request.user.id in works.0.id|likes %}
     <a href="#" data-forumid="{{works.0.index}}" data-userid="{{ enroll.student_id }}" data-action="unlike" class="like btn btn-primary" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
