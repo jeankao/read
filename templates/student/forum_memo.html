@@ -22,16 +22,11 @@
     </a>
     <a href="" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-heart" aria-hidden="true">留言</span></a>
 <fieldset class="rating">
-    <input {% if works.0.score == 10 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star5_{{works.0.id}}" name="rating{{works.0.id}}" value="10"/><label class = "full" for="star5_{{works.0.id}}" title="太棒了 - 5顆星"></label>
-    <input {% if works.0.score == 9 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star4half_{{works.0.id}}" name="rating{{works.0.id}}" value="9" /><label class="half" for="star4half_{{works.0.id}}" title="好棒 - 4.5顆星"></label>
-    <input {% if works.0.score == 8 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star4_{{works.0.id}}" name="rating{{works.0.id}}" value="8" /><label class = "full" for="star4_{{works.0.id}}" title="好棒 - 4顆星"></label>
-    <input {% if works.0.score == 7 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star3half_{{works.0.id}}" name="rating{{works.0.id}}" value="7" /><label class="half" for="star3half_{{works.0.id}}" title="不錯 - 3.5顆星"></label>
-    <input {% if works.0.score == 6 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star3_{{works.0.id}}" name="rating{{works.0.id}}" value="6" /><label class = "full" for="star3_{{works.0.id}}" title="不錯 - 3顆星"></label>
-    <input {% if works.0.score == 5 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star2half_{{works.0.id}}" name="rating{{works.0.id}}" value="5" /><label class="half" for="star2half_{{works.0.id}}" title="再加油 - 2.5顆星"></label>
-    <input {% if works.0.score == 4 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star2_{{works.0.id}}" name="rating{{works.0.id}}" value="4" /><label class = "full" for="star2_{{works.0.id}}" title="再加油 - 2顆星"></label>
-    <input {% if works.0.score == 3 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star1half_{{works.0.id}}" name="rating{{works.0.id}}" value="3" /><label class="half" for="star1half_{{works.0.id}}" title="繼續努力 - 1.5顆星"></label>
-    <input {% if works.0.score == 2 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star1_{{works.0.id}}" name="rating{{works.0.id}}" value="2" /><label class = "full" for="star1_{{works.0.id}}" title="繼續努力 - 1顆星"></label>
-    <input {% if works.0.score == 1 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="starhalf_{{works.0.id}}" name="rating{{works.0.id}}" value="1"/><label class="half" for="starhalf_{{works.0.id}}" title="繼續努力 - 0.5顆星"></label>
+    <input {% if works.0.score == 5 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star5_{{works.0.id}}" name="rating{{works.0.id}}" value="5"/><label class = "full" for="star5_{{works.0.id}}" title="太棒了 - 5顆星"></label>
+    <input {% if works.0.score == 4 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star4_{{works.0.id}}" name="rating{{works.0.id}}" value="4" /><label class = "full" for="star4_{{works.0.id}}" title="好棒 - 4顆星"></label>
+    <input {% if works.0.score == 3 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star3_{{works.0.id}}" name="rating{{works.0.id}}" value="3" /><label class = "full" for="star3_{{works.0.id}}" title="不錯 - 3顆星"></label>
+    <input {% if works.0.score == 2 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star2_{{works.0.id}}" name="rating{{works.0.id}}" value="2" /><label class = "full" for="star2_{{works.0.id}}" title="再加油 - 2顆星"></label>
+    <input {% if works.0.score == 1 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star1_{{works.0.id}}" name="rating{{works.0.id}}" value="1" /><label class = "full" for="star1_{{works.0.id}}" title="繼續努力 - 1顆星"></label>
 </fieldset>
 
     </div>
@@ -133,7 +128,7 @@ $(document).ready(function () {
       function(data){
         if (data['status'] == 'ok')
         {
-          alert( $(launcher).val()+"分");
+          //alert( $(launcher).val()+"分");
 
         } else {
 			   	alert("hello");
