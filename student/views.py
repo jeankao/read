@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, CreateView
-from student.models import Enroll, EnrollGroup, SWork, SFWork
+from student.models import Enroll, EnrollGroup, SWork, SFWork, SFReply
 from teacher.models import Classroom, TWork, FWork, FContent, FClass
 from account.models import VisitorLog
 from student.forms import EnrollForm, GroupForm, SeatForm, GroupSizeForm, SubmitForm, ForumSubmitForm
@@ -15,6 +15,7 @@ from django.http import JsonResponse
 import json
 from django.contrib.auth.models import User
 import jieba
+
 
 # 列出選修的班級
 class ClassroomListView(ListView):
@@ -273,16 +274,21 @@ def forum_memo(request, classroom_id, index):
 	contents = FContent.objects.filter(forum_id=index).order_by("-id")
 	teacher_id = Classroom.objects.get(id=classroom_id).teacher_id
 	# 一次取得所有 SFWork
-	works_pool = SFWork.objects.filter(index=index).order_by("id")
+	works_pool = SFWork.objects.filter(index=index).order_by("-id")
+	reply_pool = SFReply.objects.filter(index=index).order_by("-id")	
 	for enroll in enrolls:
 		works = filter(lambda w: w.student_id==enroll.student_id, works_pool)
 		# 對未作答學生不特別處理，因為 filter 會傳回 []
-		datas.append([enroll, works])
+		if len(works)>0:
+			replys = filter(lambda w: w.work_id==works[-1].id, reply_pool)			
+			datas.append([enroll, works, replys])
+		else :
+			datas.append([enroll, works, replys])
 	def getKey(custom):
-			if custom[1]:
-					return custom[1][0].publication_date, -custom[0].seat
-			else:
-					return -custom[0].seat
+		if custom[1]:
+			return custom[1][0].publication_date, -custom[0].seat
+		else:
+			return -custom[0].seat
 	datas = sorted(datas, key=getKey, reverse=True)	
 
 	return render_to_response('student/forum_memo.html', {'datas': datas, 'contents':contents, 'teacher_id':teacher_id}, context_instance=RequestContext(request))
@@ -331,6 +337,35 @@ def forum_like(request):
     else:
         return JsonResponse({'status':'fail'}, safe=False)        
 
+def forum_reply(request):
+    index = request.POST.get('index')  
+    user_id = request.POST.get('userid')
+    work_id = request.POST.get('workid')		
+    text = request.POST.get('reply')
+    if index:       
+        reply = SFReply(index=index, work_id=work_id, user_id=user_id, memo=text, publication_date=timezone.now())
+        reply.save()
+        return JsonResponse({'status':'ok'}, safe=False)
+    else:
+        return JsonResponse({'status':'fail'}, safe=False)        
+
+			
+def forum_guestbook(request):
+    work_id = request.POST.get('workid')  
+    guestbooks = "<table class=table>"
+    if work_id:
+        try :
+            replys = SFReply.objects.filter(work_id=work_id).order_by("-id")
+        except ObjectDoesNotExist:
+            replys = []
+        for reply in replys:
+            user = User.objects.get(id=reply.user_id)
+            guestbooks += '<tr><td nowrap>' + user.first_name + '</td><td>' + reply.memo + "</td></tr>"
+        guestbooks += '</table>'
+        return JsonResponse({'status':'ok', 'replys': guestbooks}, safe=False)
+    else:
+        return JsonResponse({'status':'fail'}, safe=False)        
+			
 def forum_people(request):
     forum_id = request.POST.get('forumid')  
     user_id = request.POST.get('userid')

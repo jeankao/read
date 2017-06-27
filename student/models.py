@@ -68,8 +68,17 @@ class SFWork(models.Model):
     score = models.IntegerField(default=-1)
     scorer = models.IntegerField(default=0)
     likes = models.TextField(default='')
+    reply = models.IntegerField(default=0)
 		
     def __unicode__(self):
         user = User.objects.filter(id=self.student_id)[0]
         index = self.index
         return user.first_name+"("+str(index)+")"
+
+#討論留言
+class SFReply(models.Model):
+    index = models.IntegerField(default=0)
+    work_id =  models.IntegerField(default=0)
+    user_id = models.IntegerField(default=0)
+    memo =  models.TextField(default='')
+    publication_date = models.DateTimeField(default=timezone.now)

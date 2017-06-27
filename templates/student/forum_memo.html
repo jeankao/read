@@ -3,14 +3,14 @@
 {% load tag %}
 {% block content %}
 <div class="row">
-  {% for enroll, works in datas %}
+  {% for enroll, works, replys in datas %}
   <div class="panel panel-default">
-    <div class="panel-heading">{{enroll.seat}}){{enroll.student.first_name}} {{works.last.publication_date}}　　<A href="/student/forum/history/{{enroll.student_id}}/{{works.0.index}}"><img src="/static/images/edit.gif"> 歷史({{works|length}})</A></div>
-     {% if works|length > 0 %}    
+    <div class="panel-heading">{{enroll.seat}}){{enroll.student.first_name}} {{works.0.publication_date}}　　<A href="/student/forum/history/{{enroll.student_id}}/{{works.0.index}}"><img src="/static/images/edit.gif"> 歷史({{works|length}})</A>   <a href=""><img src="/static/images/icon-email.gif">私訊</a></div>
+     {% if works.0 %}    
     <div class="panel-body">
-		{% with lwork=works|last %}
-    {{ lwork.memo|memo|safe }}
-		{% endwith %}
+
+    {{works.0.memo|memo|safe}}
+
     <hr>
     {% if request.user.id in works.0.id|likes %}
     <a href="#" data-forumid="{{works.0.index}}" data-userid="{{ enroll.student_id }}" data-action="unlike" class="like btn btn-primary" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
@@ -20,7 +20,12 @@
     <a href="#" data-forumid="{{works.0.index}}" data-userid="{{ enroll.student_id }}" class="people">
     <span id="likes_count">{{works.0.likes|likes_count}}</span>人按讚
     </a>
-    <a href="" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-heart" aria-hidden="true">留言</span></a>
+    <a href="#" data-workid="{{works.0.index}}" class="btn btn-default reply" role="btn"><span class="glyphicon glyphicon-heart" aria-hidden="true">留言</span></a>
+							{% with works|last as last %}
+			<a href="#" data-workid="{{last.id}}" class="guestbooks">
+				{% endwith %}
+			<span id="reply_count">{{replys|length}}</span>則留言
+		</a>
 <fieldset class="rating">
     <input {% if works.0.score == 5 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star5_{{works.0.id}}" name="rating{{works.0.id}}" value="5"/><label class = "full" for="star5_{{works.0.id}}" title="太棒了 - 5顆星"></label>
     <input {% if works.0.score == 4 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star4_{{works.0.id}}" name="rating{{works.0.id}}" value="4" /><label class = "full" for="star4_{{works.0.id}}" title="好棒 - 4顆星"></label>
@@ -28,7 +33,21 @@
     <input {% if works.0.score == 2 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star2_{{works.0.id}}" name="rating{{works.0.id}}" value="2" /><label class = "full" for="star2_{{works.0.id}}" title="再加油 - 2顆星"></label>
     <input {% if works.0.score == 1 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star1_{{works.0.id}}" name="rating{{works.0.id}}" value="1" /><label class = "full" for="star1_{{works.0.id}}" title="繼續努力 - 1顆星"></label>
 </fieldset>
+							{% with works|last as last %}
+			        <div id="reply" style="display:none">
+							<textarea  autofocus name="reply" id="reply_memo" cols="30" rows="5" class="form-control list-group-item-text"></textarea>
+							<button class="reply_submit" data-workid={{last.id}} data-index={{works.0.index}} data-userid={{request.user.id}}>送出</button>
 
+						</div>		
+							{% endwith %}
+<div id="blockquote">
+{% for reply in replys|slice:":2" %}
+<blockquote>
+  <p>{{reply.memo}}</p>
+  <footer>{{reply.user_id|realname}} <cite title="Source Title">{{reply.publication_date}}</cite></footer>
+</blockquote>		
+{% endfor %}
+</div>
     </div>
     {% endif %}   
 </div>
@@ -52,6 +71,16 @@
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
+	
+  <div class="modal fade" tabindex="-1" role="dialog" id="guestbook_modal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+            <div id="guestbook"></div>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->	
 {% endblock %}
 
 {% block footer_script %}
@@ -136,7 +165,63 @@ $(document).ready(function () {
       }
     );
   });    
-  
+
+	$('.reply_submit').click(function(e){
+    var launcher = this;  
+    e.preventDefault();
+	  
+    $.post('/student/forum/reply/',
+      {
+        index: $(launcher).data('index'),
+        userid: $(launcher).data('userid'),
+        workid: $(launcher).data('workid'),	
+	      reply: $(launcher).parent().find("textarea").val()
+      },
+      function(data){
+        if (data['status'] == 'ok')
+        {
+            $(launcher).parent().hide();
+            blockquote = '<blockquote><p>'+ $(launcher).parent().find("textarea").val()+'</p><footer>{{request.user.id|realname}} <cite title="Source Title">'+Date().toString()+'</cite></footer></blockquote>'	
+	          $(launcher).parent().parent().find("#blockquote").html(blockquote+$(launcher).parent().parent().find("#blockquote").html());
+            reply_count = parseInt($(launcher).parent().parent().find('#reply_count').html()) + 1;
+            $(launcher).parent().parent().find('#reply_count').html(reply_count);	
+
+        } else {
+			   	alert("hello");
+	    	}
+      }
+    );
+  });  
+	
+  $('a.reply').click(function(e){
+    var launcher = this;  
+    e.preventDefault();
+	  
+		$(launcher).parent().find("#reply_memo").val("");
+    $(launcher).parent().find("#reply").show();
+	  $(launcher).parent().find("#reply_memo").focus();
+  });
+
+  $('a.guestbooks').click(function(e){
+    var launcher = this;  
+    e.preventDefault();
+    $.post('/student/forum/guestbook/',
+      {
+        workid: $(launcher).data('workid'),
+      },
+      function(data){
+        if (data['status'] == 'ok')
+        {
+            $("#guestbook").html(data['replys']);
+            $('#guestbook_modal').modal('show');
+
+        } else {
+			   	alert("hello");
+	    	}
+      }
+    );
+  });  
+	
   $('a.people').click(function(e){
     var launcher = this;  
     e.preventDefault();

@@ -30,7 +30,7 @@
       {% endspaceless %}{% endif %}
       {% spaceless %}
         {% if content.types == 1 %}
-        <a href="{{content.link}}" target="_blank">{% if work.content_title %}{{content.title}}{% else %}開啟連結{% endif %}</a>
+        <a href="{{content.link}}" target="_blank">{% if content.title %}{{content.title}}{% else %}開啟連結{% endif %}</a>
         {% elif content.types == 2 %}
           <div class="embed-responsive embed-responsive-16by9">
         <iframe width="560" height="315" src="https://www.youtube.com/embed/{{content.youtube|number}}?enablejsapi=1" frameborder="0" allowfullscreen></iframe>

@@ -3,7 +3,7 @@ from django import template
 from django.contrib.auth.models import User
 from account.models import MessagePoll
 from teacher.models import Classroom
-from student.models import Enroll, SFWork
+from student.models import Enroll, SFWork, SFReply
 from django.contrib.auth.models import Group
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -77,3 +77,5 @@ def likes_count(likes):
         likes = jsonDec.decode(likes)
         return len(likes)
     return 0
+  
+

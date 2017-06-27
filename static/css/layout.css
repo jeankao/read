@@ -402,7 +402,7 @@ table a, #comments a{background-color:inherit;}
 /* Mobile Devices
 --------------------------------------------------------------------------------------------------------------- */
 @media screen and (max-width:900px){
-	.hoc{max-width:90%;}
+	.hoc{max-width:100%;}
 
 	#header{}
 
