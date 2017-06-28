@@ -122,8 +122,9 @@ function onYouTubeIframeAPIReady() {
         }
       });
     } else {
+			vidPlayer.stopVideo();
       vidPlayer.loadVideoById(vid, tsec, 'large');
-      vidPlayer.playVideo();
+      vidPlayer.seekTo(tsec);
     }
     $('#vidModal').modal('show');
   });
