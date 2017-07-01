@@ -78,4 +78,12 @@ def likes_count(likes):
         return len(likes)
     return 0
   
-
+@register.filter()
+def is_pic(title):   
+    if title[-3:].upper() == "PNG":
+        return True
+    if title[-3:].upper() == "JPG":
+        return True   
+    if title[-3:].upper() == "GIF":
+        return True            
+    return False

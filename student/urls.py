@@ -25,6 +25,7 @@ urlpatterns = [
     #作業
     url(r'^forum/(?P<classroom_id>\d+)/$', login_required(ForumListView.as_view()), name='work-list'),  
     url(r'^forum/submit/(?P<classroom_id>\d+)/(?P<index>\d+)/$', views.forum_submit),    
+    url(r'^forum/file_delete/$', views.forum_file_delete), 	
     url(r'^forum/memo/(?P<classroom_id>\d+)/(?P<index>\d+)/$', views.forum_memo),  
     url(r'^forum/history/(?P<user_id>\d+)/(?P<index>\d+)/$', views.forum_history),  
     url(r'^forum/like/$', views.forum_like, name='like'),    
@@ -33,5 +34,7 @@ urlpatterns = [
     url(r'^forum/guestbook/$', views.forum_guestbook, name='guestbook'), 	
     url(r'^forum/score/$', views.forum_score, name='score'),   
     url(r'^forum/jieba/(?P<classroom_id>\d+)/(?P<index>\d+)/$', views.forum_jieba), 	
-    url(r'^forum/word/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<word>[^/]+)/$', views.forum_word),  	
+    url(r'^forum/word/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<word>[^/]+)/$', views.forum_word),  
+	  url(r'^forum/download/(?P<file_id>\d+)/$', views.forum_download, name='forum-download'), 
+	  url(r'^forum/showpic/(?P<file_id>\d+)/$', views.forum_showpic, name='forum-showpic'), 	
 ]

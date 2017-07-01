@@ -5,7 +5,24 @@
 {% for work in works %}
   <div class="panel panel-default">
     <div class="panel-heading"><button type="button" class="btn btn-success">{{forloop.revcounter}}</button> {{work.publication_date}}</div>
-    <div class="panel-body">{{ work.memo|memo|safe }}</div>
+    <div class="panel-body">{{ work.memo|memo|safe }}
+		{% for file in files %}
+      {% if file.work_id == work.id %}
+		  <BR><button class="btn btn-info">
+        {{forloop.revcounter}}
+        </button> 
+		  {{file.publication_date}}	
+			{% if file.title|is_pic %}
+		<a href="/student/forum/showpic/{{file.id}}" target="_blank">{{file.title}}</a>
+			{% else %}
+			<a href="/student/forum/download/{{file.id}}" target="_blank">{{file.title}}</a>
+			{% endif %}
+      {% if not file.visible %}
+        （已刪除)
+      {% endif %}
+      {% endif %}
+		{% endfor %}    
+    </div>
   </div>
 {% endfor %}
   <div class="modal fade" tabindex="-1" role="dialog" id="vidModal">

@@ -46,11 +46,11 @@ class SubmitForm(forms.ModelForm):
             self.fields['youtube'].label = "影片網址"
             self.fields['memo'].label = "心得感想"
 
-class ForumSubmitForm(forms.ModelForm):
-        class Meta:
-           model = SFWork
-           fields = ['memo']
+class ForumSubmitForm(forms.Form):
+        memo =  forms.CharField(required=False)
+        file = forms.FileField(required=False)
       
         def __init__(self, *args, **kwargs):
             super(ForumSubmitForm, self).__init__(*args, **kwargs)
             self.fields['memo'].label = "心得感想"
+            self.fields['file'].label = "檔案"

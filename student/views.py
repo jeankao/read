@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, CreateView
-from student.models import Enroll, EnrollGroup, SWork, SFWork, SFReply
+from student.models import Enroll, EnrollGroup, SWork, SFWork, SFReply, SFContent
 from teacher.models import Classroom, TWork, FWork, FContent, FClass
 from account.models import VisitorLog
 from student.forms import EnrollForm, GroupForm, SeatForm, GroupSizeForm, SubmitForm, ForumSubmitForm
@@ -15,7 +15,11 @@ from django.http import JsonResponse
 import json
 from django.contrib.auth.models import User
 import jieba
-
+from uuid import uuid4
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+from wsgiref.util import FileWrapper
+from django.http import HttpResponse
 
 # 列出選修的班級
 class ClassroomListView(ListView):
@@ -241,8 +245,19 @@ def forum_submit(request, classroom_id, index):
         fwork = FWork.objects.get(id=index)
         if request.method == 'POST':
             form = ForumSubmitForm(request.POST, request.FILES)
-            if form.is_valid():						
-                work = SFWork(index=index, student_id=request.user.id)		
+            work = SFWork(index=index, student_id=request.user.id)
+            work.save()
+            if request.FILES:
+                content = SFContent(index=index, student_id=request.user.id)
+                myfile =  request.FILES.get("file", "")
+                fs = FileSystemStorage()
+                filename = uuid4().hex
+                content.title = myfile.name
+                content.work_id = work.id
+                content.filename = str(request.user.id)+"/"+filename
+                fs.save("static/upload/"+str(request.user.id)+"/"+filename, myfile)
+                content.save()
+            if form.is_valid():							
                 work.memo=form.cleaned_data['memo']
                 work.publication_date = timezone.now()
                 work.save()
@@ -255,8 +270,9 @@ def forum_submit(request, classroom_id, index):
                 form = ForumSubmitForm()
             else:
                 work = works[0]
-                form = ForumSubmitForm(instance=works[0])
-        return render_to_response('student/forum_form.html', {'fwork':fwork, 'works':works, 'work':work, 'form':form, 'scores':scores, 'index':index, 'contents':contents}, context_instance=RequestContext(request))
+                form = ForumSubmitForm()
+            files = SFContent.objects.filter(index=index, visible=True).order_by("-id")
+        return render_to_response('student/forum_form.html', {'files':files, 'index': index, 'fwork':fwork, 'works':works, 'work':work, 'form':form, 'scores':scores, 'index':index, 'contents':contents}, context_instance=RequestContext(request))
 
 def forum_show(request, index):
 		work = []
@@ -276,14 +292,18 @@ def forum_memo(request, classroom_id, index):
 	# 一次取得所有 SFWork
 	works_pool = SFWork.objects.filter(index=index).order_by("-id")
 	reply_pool = SFReply.objects.filter(index=index).order_by("-id")	
+	file_pool = SFContent.objects.filter(index=index).order_by("-id")	
 	for enroll in enrolls:
 		works = filter(lambda w: w.student_id==enroll.student_id, works_pool)
 		# 對未作答學生不特別處理，因為 filter 會傳回 []
 		if len(works)>0:
-			replys = filter(lambda w: w.work_id==works[-1].id, reply_pool)			
-			datas.append([enroll, works, replys])
+			replys = filter(lambda w: w.work_id==works[-1].id, reply_pool)
+			files = filter(lambda w: w.student_id==enroll.student_id, file_pool)
+			datas.append([enroll, works, replys, files])
 		else :
-			datas.append([enroll, works, replys])
+			replys = []
+			files = filter(lambda w: w.student_id==enroll.student_id, file_pool)			
+			datas.append([enroll, works, replys, files])
 	def getKey(custom):
 		if custom[1]:
 			return custom[1][0].publication_date, -custom[0].seat
@@ -291,16 +311,14 @@ def forum_memo(request, classroom_id, index):
 			return -custom[0].seat
 	datas = sorted(datas, key=getKey, reverse=True)	
 
-	return render_to_response('student/forum_memo.html', {'datas': datas, 'contents':contents, 'teacher_id':teacher_id}, context_instance=RequestContext(request))
+	return render_to_response('student/forum_memo.html', {'datas': datas, 'contents':contents, 'teacher_id':teacher_id, 'classroom_id':classroom_id, 'index':index}, context_instance=RequestContext(request))
 	
 def forum_history(request, user_id, index):
 		work = []
 		contents = FContent.objects.filter(forum_id=index).order_by("-id")
-		try:
-				works = SFWork.objects.filter(index=index, student_id=user_id).order_by("-id")
-		except ObjectDoesNotExist:
-				pass
-		return render_to_response('student/forum_history.html', {'works':works, 'contents':contents}, context_instance=RequestContext(request))
+		works = SFWork.objects.filter(index=index, student_id=user_id).order_by("-id")
+		files = SFContent.objects.filter(index=index, student_id=user_id).order_by("-id")
+		return render_to_response('student/forum_history.html', {'works':works, 'contents':contents, 'files':files}, context_instance=RequestContext(request))
 
 def forum_like(request):
     forum_id = request.POST.get('forumid')  
@@ -452,4 +470,37 @@ def forum_word(request, classroom_id, index, word):
         for work, seat in datas:
             work.memo = work.memo.replace(word, '<font color=red>'+word+'</font>')          
         return render_to_response('student/forum_word.html', {'word':word, 'datas':datas, 'classroom':classroom}, context_instance=RequestContext(request))
+		
+# 下載檔案
+def forum_download(request, file_id):
+    content = SFContent.objects.get(id=file_id)
+    filename = content.title
+    download =  settings.BASE_DIR + "/static/upload/" + content.filename
+    wrapper = FileWrapper(file( download, "r" ))
+    response = HttpResponse(wrapper, content_type = 'application/force-download')
+    #response = HttpResponse(content_type='application/force-download')
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(filename.encode('utf8'))
+    # It's usually a good idea to set the 'Content-Length' header too.
+    # You can also set any other required headers: Cache-Control, etc.
+    return response
+	
+# 顯示圖片
+def forum_showpic(request, file_id):
+        content = SFContent.objects.get(id=file_id)
+        return render_to_response('student/forum_showpic.html', {'content':content}, context_instance=RequestContext(request))
+
+# ajax刪除檔案
+def forum_file_delete(request):
+    file_id = request.POST.get('fileid')  
+    if file_id:
+        try:
+            file = SFContent.objects.get(id=file_id)
+            file.visible = False
+            file.save()
+        except ObjectDoesNotExist:
+            file = []           
+        return JsonResponse({'status':'ok'}, safe=False)
+    else:
+        return JsonResponse({'status':'fail'}, safe=False)        
+
 		
