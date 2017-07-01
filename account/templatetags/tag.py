@@ -68,15 +68,7 @@ def likes(work_id):
     if sfwork.likes:
         likes = jsonDec.decode(sfwork.likes)
         return likes
-    return False
-  
-@register.filter()
-def likes_count(likes):
-    jsonDec = json.decoder.JSONDecoder()    
-    if likes:
-        likes = jsonDec.decode(likes)
-        return len(likes)
-    return 0
+    return []
   
 @register.filter()
 def is_pic(title):   

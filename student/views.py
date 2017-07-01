@@ -20,7 +20,7 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from wsgiref.util import FileWrapper
 from django.http import HttpResponse
-
+from django.db.models import F
 # 列出選修的班級
 class ClassroomListView(ListView):
     model = Enroll
@@ -228,6 +228,7 @@ class ForumListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(ForumListView, self).get_context_data(**kwargs)
         context['classroom_id'] = self.kwargs['classroom_id']
+        context['bookmark'] =  self.kwargs['bookmark']
         return context	    
 
     # 限本班同學
@@ -261,7 +262,7 @@ def forum_submit(request, classroom_id, index):
                 work.memo=form.cleaned_data['memo']
                 work.publication_date = timezone.now()
                 work.save()
-                return redirect("/student/forum/memo/"+classroom_id+"/"+index)
+                return redirect("/student/forum/memo/"+classroom_id+"/"+index+"/0")
             else:
                 return render_to_response('student/forum_form.html', {'error':form.errors}, context_instance=RequestContext(request))
         else:
@@ -272,7 +273,8 @@ def forum_submit(request, classroom_id, index):
                 work = works[0]
                 form = ForumSubmitForm()
             files = SFContent.objects.filter(index=index, visible=True).order_by("-id")
-        return render_to_response('student/forum_form.html', {'files':files, 'index': index, 'fwork':fwork, 'works':works, 'work':work, 'form':form, 'scores':scores, 'index':index, 'contents':contents}, context_instance=RequestContext(request))
+            subject = FWork.objects.get(id=index).title
+        return render_to_response('student/forum_form.html', {'classroom_id':classroom_id, 'subject':subject, 'files':files, 'index': index, 'fwork':fwork, 'works':works, 'work':work, 'form':form, 'scores':scores, 'index':index, 'contents':contents}, context_instance=RequestContext(request))
 
 def forum_show(request, index):
 		work = []
@@ -284,41 +286,56 @@ def forum_show(request, index):
 		return render_to_response('student/forum_show.html', {'work':works[0], 'contents':contents}, context_instance=RequestContext(request))
 
  # 查詢某作業所有同學心得
-def forum_memo(request, classroom_id, index):    
+def forum_memo(request, classroom_id, index, action):    
 	enrolls = Enroll.objects.filter(classroom_id=classroom_id)
 	datas = []
 	contents = FContent.objects.filter(forum_id=index).order_by("-id")
-	teacher_id = Classroom.objects.get(id=classroom_id).teacher_id
-	# 一次取得所有 SFWork
-	works_pool = SFWork.objects.filter(index=index).order_by("-id")
+	fwork = FWork.objects.get(id=index)
+	teacher_id = fwork.teacher_id
+	subject = fwork.title
+	if action == "2":
+		works_pool = SFWork.objects.filter(index=index, score=5).order_by("-id")
+	else:
+	  # 一次取得所有 SFWork	
+	  works_pool = SFWork.objects.filter(index=index).order_by("-id")
 	reply_pool = SFReply.objects.filter(index=index).order_by("-id")	
-	file_pool = SFContent.objects.filter(index=index).order_by("-id")	
+	file_pool = SFContent.objects.filter(index=index, visible=True).order_by("-id")	
 	for enroll in enrolls:
 		works = filter(lambda w: w.student_id==enroll.student_id, works_pool)
 		# 對未作答學生不特別處理，因為 filter 會傳回 []
 		if len(works)>0:
 			replys = filter(lambda w: w.work_id==works[-1].id, reply_pool)
 			files = filter(lambda w: w.student_id==enroll.student_id, file_pool)
-			datas.append([enroll, works, replys, files])
+			if action == "2" :
+			  if works[-1].score == 5:
+					datas.append([enroll, works, replys, files])
+			else :
+				datas.append([enroll, works, replys, files])
 		else :
-			replys = []
-			files = filter(lambda w: w.student_id==enroll.student_id, file_pool)			
-			datas.append([enroll, works, replys, files])
+			if not action == "2" :
+				replys = []
+				files = filter(lambda w: w.student_id==enroll.student_id, file_pool)		
+				datas.append([enroll, works, replys, files])
 	def getKey(custom):
 		if custom[1]:
-			return custom[1][0].publication_date, -custom[0].seat
+			if action == "1":
+				return custom[1][-1].like_count
+			elif action == "2":
+				return custom[1][-1].score, custom[1][0].publication_date
+			else:
+				return custom[1][0].publication_date, -custom[0].seat
 		else:
 			return -custom[0].seat
 	datas = sorted(datas, key=getKey, reverse=True)	
 
-	return render_to_response('student/forum_memo.html', {'datas': datas, 'contents':contents, 'teacher_id':teacher_id, 'classroom_id':classroom_id, 'index':index}, context_instance=RequestContext(request))
+	return render_to_response('student/forum_memo.html', {'datas': datas, 'contents':contents, 'teacher_id':teacher_id, 'subject':subject, 'classroom_id':classroom_id, 'index':index}, context_instance=RequestContext(request))
 	
-def forum_history(request, user_id, index):
+def forum_history(request, user_id, classroom_id, index):
 		work = []
 		contents = FContent.objects.filter(forum_id=index).order_by("-id")
 		works = SFWork.objects.filter(index=index, student_id=user_id).order_by("-id")
 		files = SFContent.objects.filter(index=index, student_id=user_id).order_by("-id")
-		return render_to_response('student/forum_history.html', {'works':works, 'contents':contents, 'files':files}, context_instance=RequestContext(request))
+		return render_to_response('student/forum_history.html', {'works':works, 'contents':contents, 'files':files, 'classroom_id':classroom_id, 'index':index}, context_instance=RequestContext(request))
 
 def forum_like(request):
     forum_id = request.POST.get('forumid')  
@@ -339,6 +356,7 @@ def forum_like(request):
                 else:
                     likes.append(request.user.id)
                 sfwork.likes = json.dumps(likes)
+                sfwork.like_count = len(likes)								
                 sfwork.save()
             else:
                 if sfwork.likes:
@@ -346,6 +364,7 @@ def forum_like(request):
                     if request.user.id in likes:
                         likes.remove(request.user.id)
                         sfwork.likes = json.dumps(likes)
+                        sfwork.like_count = len(likes)
                         sfwork.save()
                
         except ObjectDoesNotExist:
@@ -412,6 +431,7 @@ def forum_score(request):
     if work_id:
         sfwork = SFWork.objects.get(id=work_id)
         sfwork.score = score
+        sfwork.scorer = request.user.id
         sfwork.save()
         return JsonResponse({'status':'ok'}, safe=False)
     else:
@@ -423,7 +443,9 @@ def forum_jieba(request, classroom_id, index):
     enrolls = Enroll.objects.filter(classroom_id=classroom_id)
     works = []
     contents = FContent.objects.filter(forum_id=index).order_by("-id")
-    teacher_id = Classroom.objects.get(id=classroom_id).teacher_id
+    fwork = FWork.objects.get(id=index)
+    teacher_id = fwork.teacher_id
+    subject = fwork.title
     memo = ""
     for enroll in enrolls:
         try:
@@ -449,7 +471,7 @@ def forum_jieba(request, classroom_id, index):
             words.append([key, value])
             if count == 100:
                 break       
-    return render_to_response('student/forum_jieba.html', {'index': index, 'words':words, 'enrolls':enrolls, 'classroom':classroom}, context_instance=RequestContext(request))
+    return render_to_response('student/forum_jieba.html', {'index': index, 'words':words, 'enrolls':enrolls, 'classroom':classroom, 'subject':subject}, context_instance=RequestContext(request))
 
 # 查詢某班某詞句心得
 def forum_word(request, classroom_id, index, word):
@@ -496,6 +518,7 @@ def forum_file_delete(request):
         try:
             file = SFContent.objects.get(id=file_id)
             file.visible = False
+            file.delete_date = timezone.now()
             file.save()
         except ObjectDoesNotExist:
             file = []           

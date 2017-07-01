@@ -2,6 +2,8 @@
 {% load tag %}
 {% block title %}Create a question{% endblock %}
 {% block content %}
+<button class="btn btn-warning">{{works.0.student_id|realname}}</button>
+<a href="/student/forum/submit/{{classroom_id}}/{{index}}" class="btn btn-primary" role="btn">編輯</a>
 {% for work in works %}
   <div class="panel panel-default">
     <div class="panel-heading"><button type="button" class="btn btn-success">{{forloop.revcounter}}</button> {{work.publication_date}}</div>
@@ -18,7 +20,7 @@
 			<a href="/student/forum/download/{{file.id}}" target="_blank">{{file.title}}</a>
 			{% endif %}
       {% if not file.visible %}
-        （已刪除)
+        （{{file.delete_date}} 已刪除)
       {% endif %}
       {% endif %}
 		{% endfor %}    

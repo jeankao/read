@@ -3,6 +3,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from teacher.models import Classroom
 from django.utils import timezone
+from django.http import JsonResponse
+import json
 
 # 學生選課資料
 class Enroll(models.Model):
@@ -65,9 +67,10 @@ class SFWork(models.Model):
     index = models.IntegerField()
     memo = models.TextField(default='')
     publication_date = models.DateTimeField(default=timezone.now)
-    score = models.IntegerField(default=-1)
+    score = models.IntegerField(default=0)
     scorer = models.IntegerField(default=0)
     likes = models.TextField(default='')
+    like_count = models.IntegerField(default=0)	
     reply = models.IntegerField(default=0)
 		
     def __unicode__(self):
@@ -82,6 +85,7 @@ class SFContent(models.Model):
     title =  models.CharField(max_length=250,null=True,blank=True)
     filename = models.CharField(max_length=20,null=True,blank=True)    
     publication_date = models.DateTimeField(default=timezone.now)
+    delete_date = models.DateTimeField(default=timezone.now)		
     visible = models.BooleanField(default=True)
 
 #討論留言

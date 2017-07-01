@@ -2,12 +2,21 @@
 {% load tz %}
 {% load tag %}
 {% block content %}
+
 <div class="row">
+<a href="/student/forum/{{classroom_id}}/{{index}}/" class="btn btn-success" role="btn">{{subject}}</a>
   {% for enroll, works, replys, files in datas %}
   <div class="panel panel-default">
-    <div class="panel-heading">{{enroll.seat}}){{enroll.student.first_name}} {{works.0.publication_date}}　　
-			<span style="float:right"><A href="/student/forum/history/{{enroll.student_id}}/{{works.0.index}}"><img src="/static/images/edit.gif"> 歷史({{works|length}})</A>   <a href=""><img src="/static/images/icon-email.gif">私訊</a></span>
-		{% if enroll.student_id == request.user.id %}<a href="/student/forum/submit/{{classroom_id}}/{{index}}" class="btn btn-primary" role="btn">編輯</a>{% endif %}
+    <div class="panel-heading">{{enroll.seat}}){{enroll.student.first_name}} {{works.0.publication_date}}　
+			<span style="float:right">
+			{% if works %}
+			<A href="/student/forum/history/{{enroll.student_id}}/{{classroom_id}}/{{index}}"><img src="/static/images/edit.gif"> 歷史({{works|length}})</A>
+			{% else %}
+			<img src="/static/images/edit.gif"> 歷史({{works|length}}) 		
+			{% endif %}
+			  <a href=""><img src="/static/images/icon-email.gif">私訊</a>
+				</span>		
+			{% if enroll.student_id == request.user.id %}<a href="/student/forum/submit/{{classroom_id}}/{{index}}" class="btn btn-warning" role="btn">編輯</a>{% endif %}
 		</div>
 		{% if works.0 or files.0 %}
     <div class="panel-body">
@@ -27,16 +36,17 @@
       {% endif %}
 		{% endfor %}
     <hr>
-    {% if request.user.id in works.0.id|likes %}
+		{% with works|last as last %}						
+    {% if request.user.id in last.id|likes %}
     <a href="#" data-forumid="{{index}}" data-userid="{{ enroll.student_id }}" data-action="unlike" class="like btn btn-primary" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
     {% else %}
     <a href="#" data-forumid="{{index}}" data-userid="{{ enroll.student_id }}" data-action="like" class="like btn btn-default" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
     {% endif %}
     <a href="#" data-forumid="{{index}}" data-userid="{{ enroll.student_id }}" class="people">
-    <span id="likes_count">{{works.0.likes|likes_count}}</span>人按讚
+    <span id="likes_count">{{last.like_count}}</span>人按讚
     </a>
     <a href="#" data-workid="{{index}}" class="btn btn-default reply" role="btn"><span class="glyphicon glyphicon-heart" aria-hidden="true">留言</span></a>
-							{% with works|last as last %}
+
 			<a href="#" data-workid="{{last.id}}" class="guestbooks">
 				{% endwith %}
 			<span id="reply_count">{{replys|length}}</span>則留言
