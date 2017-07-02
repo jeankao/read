@@ -37,7 +37,7 @@ class TWork(models.Model):
     
 #討論區
 class FWork(models.Model):
-    title = models.CharField(max_length=250)
+    title = models.CharField(max_length=250,verbose_name= '討論主題')
     teacher_id = models.IntegerField(default=0)		
     classroom_id = models.IntegerField(default=0)
     time = models.DateTimeField(default=timezone.now) 

@@ -553,3 +553,11 @@ def forum_download(request, content_id):
     return response
     #return render_to_response('student/download.html', {'download':download})
 		
+class ForumEditUpdateView(UpdateView):
+    model = FWork
+    fields = ['title']
+    template_name = 'form.html'
+    #success_url = '/teacher/forum/domain/'
+    def get_success_url(self):
+        succ_url =  '/teacher/forum/'+self.kwargs['classroom_id']
+        return succ_url
