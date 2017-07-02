@@ -3,13 +3,13 @@
 {% block content %}
          <form action="" enctype="multipart/form-data"  method="post">
             <table class="table">
-           <tr><th>年級</td>
+           <tr><th nowrap>年級:</td>
                 <td>
               {% for level in levels %}
               <label class="checkbox-inline"><input type="checkbox" {% if level.id|int_to_str in classroom.levels %}checked{% endif %} value="{{level.id}}" name="levels" >{{level.title}}</label>   
               {% endfor %}
               </td>             
-              <tr><th>學習領域</td>
+              <tr><th nowrap>學習領域:</td>
                 <td>
               {% for domain in domains %}
               <label class="checkbox-inline"><input type="checkbox" {% if domain.id|int_to_str in classroom.domains %}checked{% endif %} value="{{domain.id}}" name="domains" >{{domain.title}}</label>   
@@ -17,7 +17,7 @@
               </td>
               </tr>
               
-<tr><th>班級</th><Td>
+<tr><th nowrap>班級:</th><Td>
 <div class="checkbox">
               {% for classroom in classrooms %}
 <label class="checkbox-inline"><input type="checkbox" value="{{classroom.id}}" name="classrooms" {% if classroom.id == classroom_id %}checked{% endif %}>{{classroom.name}}</label>

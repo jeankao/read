@@ -150,7 +150,7 @@ def submit(request, index):
             form = SubmitForm(request.POST, request.FILES)
             if form.is_valid():						
                 try: 
-                    work = SWork.objects.get(index=index, student_id=request.user.id)				
+                    work = SWork.objects.get(index=index, student_id=request.user.id)
                 except ObjectDoesNotExist:
                     work = SWork(index=index, student_id=request.user.id)		
                 work.youtube=form.cleaned_data['youtube']
@@ -249,7 +249,7 @@ def forum_submit(request, classroom_id, index):
         if request.method == 'POST':
             form = ForumSubmitForm(request.POST, request.FILES)
             try :
-                work = SFWork.objects.get(index=index, student_id=request.user.id)
+                works = SFWork.objects.filter(index=index, student_id=request.user.id)
             except ObjectDoesNotExist:
                 update_avatar(request.user.id, 1, 2)
             work = SFWork(index=index, student_id=request.user.id)

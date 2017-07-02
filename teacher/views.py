@@ -322,16 +322,26 @@ class ForumAllListView(ListView):
     context_object_name = 'forums'
     template_name = "teacher/forum_all.html"		
     paginate_by = 20
+		
     def get_queryset(self):
       # 年級
       if self.kwargs['categroy'] == "1":
         queryset = FWork.objects.filter(levels__contains=self.kwargs['categroy_id'])
       # 學習領域
       elif self.kwargs['categroy'] == "2":
-        queryset = FWork.objects.filter(domains__contains=self.kwargs['categroy_id'])				
+        queryset = FWork.objects.filter(domains__contains=self.kwargs['categroy_id'])        
       else:
         queryset = FWork.objects.all().order_by("-id")
-      return queryset
+      if self.request.GET.get('account') != None:
+        keyword = self.request.GET.get('account')
+        users = User.objects.filter(Q(username__icontains=keyword) | Q(first_name__icontains=keyword)).order_by('-id')
+        user_list = []
+        for user in users:
+            user_list.append(user.id)
+        forums = queryset.filter(teacher_id__in=user_list)
+        return forums
+      else:				
+        return queryset
 			
     def get_context_data(self, **kwargs):
         context = super(ForumAllListView, self).get_context_data(**kwargs)
@@ -353,7 +363,7 @@ def forum_show(request, forum_id):
     level_dict = {}
     for level in levels :
         key = level.id
-        level_dict[key] = level
+        level_dict[key] = levels
     contents = FContent.objects.filter(forum_id=forum_id)
     domains = []		
     if forum.domains:
@@ -376,6 +386,7 @@ class ForumClassListView(ListView):
     context_object_name = 'classrooms'
     template_name = "teacher/forum_class.html"		
     paginate_by = 20
+	
     def get_queryset(self):        		
         fwork = FWork.objects.get(id=self.kwargs['forum_id'])
         classroom_list = []
