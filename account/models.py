@@ -45,6 +45,8 @@ class PointHistory(models.Model):
 class Log(models.Model):
     # 使用者序號
     user_id = models.IntegerField(default=0)
+		# 班級
+    classroom_id = models.IntegerField(default=0)
     # 事件內容
     event = models.CharField(max_length=100)
 	# 發生時間 
@@ -109,3 +111,10 @@ class VisitorLog(models.Model):
     IP = models.CharField(max_length=20, default="")
     time = models.DateTimeField(auto_now_add=True)
     
+# 學習領域
+class Domain(models.Model):
+	title = models.CharField(max_length=200, default="",verbose_name= '領域名稱')
+	
+# 年級
+class Level(models.Model):
+  title = models.CharField(max_length=200, default="",verbose_name= '年級')

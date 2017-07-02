@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<a href="/account/admin/level/add" class="btn btn-warning" role="btn">新增年級</a>
+{% for level in levels %}
+<a href="/account/admin/level/edit/{{domain.id}}" class="btn btn-primary" role=btn>{{level.title}}</a>
+{% endfor %}
+{% endblock %}

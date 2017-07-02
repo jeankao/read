@@ -1,10 +1,9 @@
 {% extends "base.html" %}
 {% load tag %}
 {% block content %}
-{{teacher_list}}
          <form action="" enctype="multipart/form-data"  method="post">
             <table class="table">
-           <tr><th>年級</td>
+               <tr><th>年級</td>
                 <td>
               {% for level in levels %}
               <label class="checkbox-inline"><input type="checkbox" {% if level.id|int_to_str in classroom.levels %}checked{% endif %} value="{{level.id}}" name="levels" >{{level.title}}</label>   
@@ -17,18 +16,9 @@
               {% endfor %}
               </td>
               </tr>
-              
-<tr><th>班級</th><Td>
-<div class="checkbox">
-              {% for classroom in classrooms %}
-<label class="checkbox-inline"><input type="checkbox" value="{{classroom.id}}" name="classrooms" {% if classroom.id == classroom_id %}checked{% endif %}>{{classroom.name}}</label>
-
-              {% endfor %}
-</div>
-  </TD></tr>
-                {{ form.as_table }}              
-  </table>
-           
+                <tr><th><label for="id_name">班級名稱:</label></th><td><input id="id_name" maxlength="30" name="name" type="text" value="{{classroom.name}}"/></td></tr>
+<tr><th><label for="id_password">選課密碼:</label></th><td><input id="id_password" maxlength="30" name="password" type="text" value="{{classroom.password}}"/></td></tr>
+            </table>
             {% csrf_token %}
             <input type="submit" value="送出">
         </form>

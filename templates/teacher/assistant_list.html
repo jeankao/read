@@ -1,21 +1,21 @@
 {% extends "base.html" %}
+{% load tag %}
 {% block content %}
         <div class="row">
         {% for classroom in classrooms %}
-  		<div class="col-xs-12 col-sm-6 col-md-4">
   <div class="panel panel-default">
-  <div class="panel-heading">{{classroom.name}}({{classroom.password}})</div>
+  <div class="panel-heading">{{classroom.name}}({{classroom.password}})--{{classroom.teacher_id|realname}}</div>
   <div class="panel-body">
-                  <a href="/student/classmate/{{classroom.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> 公告</a>  
+                  <a href="/student/classmate/{{classroom.id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-phone-alt" aria-hidden="true"></span> 學生</a>
+                <a href="/student/classmate/{{classroom.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> 公告</a>  
                 <a href="/teacher/forum/{{classroom.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span> 討論區</a>        
                 <a href="/teacher/work/{{classroom.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span> 專題</a>
-                <BR>
-                <a href="/student/classmate/{{classroom.id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-phone-alt" aria-hidden="true"></span> 學生</a>
-  </div>
   </div>
   </div>
   <div>
   {% endfor %}
+    		    {% load pagination %}
+        {% get_pagination %}
           </div>
   
 {% endblock %}

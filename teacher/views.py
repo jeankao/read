@@ -2,10 +2,11 @@
 from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from teacher.models import Classroom, TWork, FWork, FClass, FContent, Assistant
 from student.models import Enroll, EnrollGroup, SWork
-from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm
+from account.models import Domain, Level
+from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm, CategroyForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
 import os
@@ -17,6 +18,7 @@ from django.http import JsonResponse
 import re
 from django.contrib.auth.models import User
 from django.db.models import Q
+import json
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
     return user.groups.filter(name='teacher').exists() and Classroom.objects.filter(teacher_id=user.id, id=classroom_id).exists()
@@ -28,7 +30,7 @@ class ClassroomListView(ListView):
     model = Classroom
     context_object_name = 'classrooms'
     template_name = 'teacher/classroom.html'
-    paginate_by = 20
+    paginate_by = 30
     def get_queryset(self):      
         queryset = Classroom.objects.filter(teacher_id=self.request.user.id).order_by("-id")
         return queryset
@@ -37,15 +39,23 @@ class ClassroomListView(ListView):
 class ClassroomCreateView(CreateView):
     model = Classroom
     form_class = ClassroomForm
-    template_name = 'form.html'    
+    template_name = 'teacher/classroom_form.html'    
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.teacher_id = self.request.user.id
+        self.object.domains = self.request.POST.getlist('domains')
+        self.object.levels = self.request.POST.getlist('levels')	
         self.object.save()
         # 將教師設為0號學生
         enroll = Enroll(classroom_id=self.object.id, student_id=self.request.user.id, seat=0)
-        enroll.save()            
-        return redirect("/teacher/classroom")        
+        enroll.save()   
+        return redirect("/teacher/classroom")   
+			
+    def get_context_data(self, **kwargs):
+        context = super(ClassroomCreateView, self).get_context_data(**kwargs)
+        context['domains'] = Domain.objects.all()
+        context['levels'] = Level.objects.all()
+        return context	
         
 # 修改選課密碼
 def classroom_edit(request, classroom_id):
@@ -58,12 +68,15 @@ def classroom_edit(request, classroom_id):
         if form.is_valid():
             classroom.name =form.cleaned_data['name']
             classroom.password = form.cleaned_data['password']
+            classroom.domains = request.POST.getlist('domains')
+            classroom.levels = request.POST.getlist('levels')	
             classroom.save()
             return redirect('/teacher/classroom')
     else:
         form = ClassroomForm(instance=classroom)
-
-    return render_to_response('form.html',{'form': form}, context_instance=RequestContext(request))        
+        domains = Domain.objects.all()
+        levels = Level.objects.all()
+    return render_to_response('teacher/classroom_form.html',{'form': form, 'classroom': classroom, 'domains':domains, 'levels':levels}, context_instance=RequestContext(request))        
     
 # 設定班級助教
 def classroom_assistant(request, classroom_id):
@@ -258,6 +271,8 @@ class ForumCreateView(CreateView):
         self.object = form.save(commit=False)
         self.object.teacher_id = self.request.user.id
         self.object.classroom_id = self.kwargs['classroom_id']
+        self.object.domains = self.request.POST.getlist('domains')
+        self.object.levels = self.request.POST.getlist('levels')	        
         self.object.save()  
         classrooms = self.request.POST.getlist('classrooms')
         for classroom in classrooms:
@@ -279,9 +294,28 @@ class ForumCreateView(CreateView):
         classrooms = Classroom.objects.filter(id__in=classroom_list).order_by("-id")
         context['classrooms'] = classrooms
         context['classroom_id'] = int(self.kwargs['classroom_id'])
+        context['classroom'] = Classroom.objects.get(id=self.kwargs['classroom_id'])
+        context['domains'] = Domain.objects.all()
+        context['levels'] = Level.objects.all()
         return context	
   
         return redirect("/teacher/forum/"+self.kwargs['classroom_id'])        
+	
+def forum_categroy(request, classroom_id, forum_id):
+    forum = FWork.objects.get(id=forum_id)
+    domains = Domain.objects.all()
+    levels = Level.objects.all()		
+    if request.method == 'POST':
+        form = CategroyForm(request.POST)
+        if form.is_valid():
+            forum.domains = request.POST.getlist('domains')
+            forum.levels = request.POST.getlist('levels')	
+            forum.save()
+            return redirect('/teacher/forum/'+classroom_id)
+    else:
+        form = CategroyForm(instance=forum)
+    return render_to_response('teacher/categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'forum':forum}, context_instance=RequestContext(request))
+	
 
 # 列出某討論主題的班級
 class ForumClassListView(ListView):

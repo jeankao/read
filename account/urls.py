@@ -14,6 +14,14 @@ urlpatterns = [
     url(r'^suss_logout/(?P<user_id>\d+)/$', views.suss_logout),    
     #列出所有帳號
     url(r'^userlist/$', login_required(views.UserListView.as_view())),      
+    #管理介面 
+    url(r'^admin/$', login_required(views.admin)),        
+    url(r'^admin/domain/$', login_required(views.DomainListView.as_view())),     
+    url(r'^admin/domain/add/$', login_required(views.DomainCreateView.as_view())),     
+    url(r'^admin/domain/edit/(?P<pk>\d+)/$', login_required(views.DomainUpdateView.as_view())),    
+    url(r'^admin/level/$', login_required(views.LevelListView.as_view())),     
+    url(r'^admin/level/add/$', login_required(views.LevelCreateView.as_view())),     
+    url(r'^admin/level/edit/(?P<pk>\d+)/$', login_required(views.LevelUpdateView.as_view())),  
     #註冊帳號
     url(r'^register/$', views.register, name='register'),   
     #個人檔案

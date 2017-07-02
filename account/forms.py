@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 from django import forms
 from django.contrib.auth.models import User
-from account.models import Log, Message, MessagePoll
+from account.models import Log, Message, MessagePoll, Domain, Level
 
 # 使用者登入表單
 class LoginForm(forms.Form):
@@ -127,3 +127,23 @@ class LineForm(forms.ModelForm):
             self.fields['content'].label = "內容"
             self.fields['content'].widget.attrs['cols'] = 50
             self.fields['content'].widget.attrs['rows'] = 20                              
+            
+#新增學習領域
+class DomainForm(forms.ModelForm):
+        class Meta:
+            model = Domain
+            fields = ['title']    
+          
+        def __init__(self, *args, **kwargs):
+            super(DomainForm, self).__init__(*args, **kwargs)
+            self.fields['title'].label = "領域名稱"          
+            
+#新增年級
+class LevelForm(forms.ModelForm):
+        class Meta:
+            model = Level
+            fields = ['title']    
+          
+        def __init__(self, *args, **kwargs):
+            super(LevelForm, self).__init__(*args, **kwargs)
+            self.fields['title'].label = "年級名稱"   

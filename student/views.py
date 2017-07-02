@@ -6,7 +6,7 @@ from django.views.generic import ListView, CreateView
 from student.models import Enroll, EnrollGroup, SWork, SFWork, SFReply, SFContent
 from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant
 from account.models import VisitorLog,  Profile
-from student.forms import EnrollForm, GroupForm, SeatForm, GroupSizeForm, SubmitForm, ForumSubmitForm
+from student.forms import EnrollForm, SeatForm, SubmitForm, ForumSubmitForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 import datetime
@@ -26,6 +26,7 @@ from account.avatar import *
 class ClassroomListView(ListView):
     model = Enroll
     context_object_name = 'enrolls'
+    paginate_by = 30
     template_name = 'student/classroom.html'
     
     def get_queryset(self):

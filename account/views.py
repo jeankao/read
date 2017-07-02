@@ -5,14 +5,14 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib.auth import authenticate, login
 from django.db.models import *
-from forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, LineForm, SchoolForm, EmailForm
+from forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, LineForm, SchoolForm, EmailForm, DomainForm, LevelForm
 from django.contrib.auth.models import User
-from account.models import Profile, PointHistory, Log, Message, MessagePoll, Visitor, VisitorLog
+from account.models import Profile, PointHistory, Log, Message, MessagePoll, Visitor, VisitorLog, Domain, Level
 from student.models import Enroll, SWork
 from teacher.models import Classroom, Assistant
 from django.core.exceptions import ObjectDoesNotExist
 #from account.templatetags import tag 
-from django.views.generic import ListView, CreateView
+from django.views.generic import ListView, CreateView, UpdateView
 from django.contrib.auth.models import Group
 from django.http import JsonResponse
 import sys, os
@@ -92,11 +92,19 @@ def user_login(request):
                                                 title = "請修改您的姓名"
                                                 url = "/account/realname"
                                                 message = Message.create(title=title, url=url, time=timezone.now())
-                                                message.save()                        
-                    
+                                                message.save()      
                                                 # message for group member
                                                 messagepoll = MessagePoll.create(message_id = message.id,reader_id=1)
                                                 messagepoll.save()                                                             
+                                                # 學習領域
+                                                domains = ['國語文','英語文','數學','社會','自然','科技','藝術', '綜合','健體']
+                                                for domain_name in domains:
+                                                    domain = Domain(title=domain_name)
+                                                    domain.save()
+                                                levels = ['國七','國八','國九']
+                                                for level_name in levels:
+                                                    level = Level(title=level_name)
+                                                    level.save()	
                                         # 登入成功，導到大廳
                                         login(request, user)
                                         # 記錄系統事件
@@ -707,15 +715,10 @@ class EventAdminClassroomListView(ListView):
         classroom = Classroom.objects.get(id=self.kwargs['classroom_id'])
         log = Log(user_id=1, event=u'管理員查看班級事件<'+classroom.name+'>')
         log.save()
-        users = []
-        enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id'])
-        for enroll in enrolls:
-            if enroll.seat > 0 :
-                users.append(enroll.student_id)
         if self.request.GET.get('q') != None:
-            queryset = Log.objects.filter(user_id__in=users, event__icontains=self.request.GET.get('q')).order_by('-id')
+            queryset = Log.objects.filter(classroom_id=self.kwargs['classroom_id'], event__icontains=self.request.GET.get('q')).order_by('-id')
         else :
-            queryset = Log.objects.filter(user_id__in=users).order_by('-id')
+            queryset = Log.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by('-id')
         return queryset
         
     def get_context_data(self, **kwargs):
@@ -927,3 +930,64 @@ def videolog(request):
 		xlist = VideoLogHelper().getLogByUserid_Lesson_Tab(request.user.id, lesson, tabName)
 		return JsonResponse({'status':'ok', 'duration':duration, 'recs':json.dumps(xlist)}, safe=False)
      
+# 管理介面 
+def admin(request):
+    return render_to_response('account/admin.html', context_instance=RequestContext(request))
+	
+# 學習領域
+class DomainListView(ListView):
+    context_object_name = 'domains'
+    template_name = 'account/domain.html'
+
+    def get_queryset(self):    
+        # 記錄系統事件
+        log = Log(user_id=1, event=u'管理員查看學習領域')
+        log.save()       
+        queryset = Domain.objects.all().order_by('-id')					
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super(DomainListView, self).get_context_data(**kwargs)
+        return context	
+
+class DomainCreateView(CreateView):
+    template_name = 'form.html'	
+    model = Domain
+    fields = ['title']
+    success_url = '/account/admin/domain/'
+
+class DomainUpdateView(UpdateView):
+    model = Domain
+    fields = ['title']
+    template_name = 'form.html'
+    success_url = '/account/admin/domain/'		
+		     
+# 年級
+class LevelListView(ListView):
+    context_object_name = 'levels'
+    template_name = 'account/level.html'
+
+    def get_queryset(self):    
+        # 記錄系統事件
+        log = Log(user_id=1, event=u'管理員查看年級')
+        log.save()       
+        queryset = Level.objects.all().order_by('-id')					
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super(LevelListView, self).get_context_data(**kwargs)
+        return context	
+
+class LevelCreateView(CreateView):
+    template_name = 'form.html'	
+    model = Level
+    fields = ['title']
+    success_url = '/account/admin/level/'
+
+class LevelUpdateView(UpdateView):
+    model = Level
+    fields = ['title']
+    template_name = 'form.html'
+    success_url = '/account/admin/level/'		
+		     
+

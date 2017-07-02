@@ -87,3 +87,7 @@ def is_pic(title):
         return True            
     return False
   
+@register.filter()
+def int_to_str(number):   
+    return str(number)
+  

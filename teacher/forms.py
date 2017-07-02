@@ -7,12 +7,21 @@ from student.models import SWork
 class ClassroomForm(forms.ModelForm):
         class Meta:
            model = Classroom
-           fields = ['name','password']
+           fields = ['name','password', 'domains', 'levels']
         
         def __init__(self, *args, **kwargs):
             super(ClassroomForm, self).__init__(*args, **kwargs)
             self.fields['name'].label = "班級名稱"
             self.fields['password'].label = "選課密碼"
+						
+# 新增一個課程表單
+class CategroyForm(forms.ModelForm):
+        class Meta:
+           model = FWork
+           fields = ['domains', 'levels']
+        
+        def __init__(self, *args, **kwargs):
+            super(CategroyForm, self).__init__(*args, **kwargs)				
 
 # 新增一個作業
 class WorkForm(forms.ModelForm):

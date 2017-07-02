@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<a href="/account/admin/domain/add" class="btn btn-warning" role="btn">新增領域</a>
+{% for domain in domains %}
+<a href="/account/admin/domain/edit/{{domain.id}}" class="btn btn-primary" role=btn>{{domain.title}}</a>
+{% endfor %}
+{% endblock %}

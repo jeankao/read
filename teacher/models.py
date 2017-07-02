@@ -11,11 +11,11 @@ class Classroom(models.Model):
     password = models.CharField(max_length=30)
     # 授課教師
     teacher_id = models.IntegerField(default=0)
-    # 是否開放分組
-    group_open = models.BooleanField(default=True)
-    # 組別人數
-    group_size = models.IntegerField(default=4)
-
+    # 學習領域
+    domains = models.TextField(default='')  
+    #年級
+    levels = models.TextField(default='') 
+    
     @property
     def teacher(self):
         return User.objects.get(id=self.teacher_id)  
@@ -41,6 +41,8 @@ class FWork(models.Model):
     teacher_id = models.IntegerField(default=0)		
     classroom_id = models.IntegerField(default=0)
     time = models.DateTimeField(default=timezone.now) 
+    domains = models.TextField(default='')    
+    levels = models.TextField(default='')    
 
 class FClass(models.Model):
     forum_id = models.IntegerField(default=0)
