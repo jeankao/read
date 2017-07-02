@@ -25,7 +25,7 @@ urlpatterns = [
     url(r'^work/edit/(?P<classroom_id>\d+)/$', login_required(views.work_edit), name='work-edit'),  
     url(r'^work/class/(?P<classroom_id>\d+)/(?P<work_id>\d+)/$', login_required(views.work_class), name='work-class'),  
     # 討論區
-    url(r'^forum/$', login_required(ForumAllListView.as_view()), name='forum-all'),  
+    url(r'^forum/(?P<categroy>\d+)/(?P<categroy_id>\d+)/$', login_required(ForumAllListView.as_view()), name='forum-all'),  
     url(r'^forum/show/(?P<forum_id>\d+)/$', login_required(views.forum_show), name='forum-show'),    
     url(r'^forum/(?P<classroom_id>\d+)/$', login_required(ForumListView.as_view()), name='forum-list'),
     url(r'^forum/add/(?P<classroom_id>\d+)/$', login_required(ForumCreateView.as_view()), name='forum-add'),

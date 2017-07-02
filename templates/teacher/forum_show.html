@@ -4,12 +4,12 @@
 <button type="button" class="btn btn-primary">{{forum.teacher_id|realname}}</button>
 <button type="button" class="btn btn-success">{{forum.title}}</button>
 <BR>
-{% for level in level_names %}
-<button type="button" class="btn btn-info">{{level}}</button>
+{% for level in levels %}
+<a href="/teacher/forum/1/{{level.id}}" class="btn btn-info" role="btn">{{level.title}}</a>
 {% endfor %}
 <BR>
-{% for domain in domain_names %}
-<button type="button" class="btn btn-warning">{{domain}}</button>
+{% for domain in domains %}
+<a href="/teacher/forum/2/{{domain.id}}" class="btn btn-warning" role="btn">{{domain.title}}</a>
 {% endfor %}
         {% for work in contents %}
  <div class="panel panel-default"> 

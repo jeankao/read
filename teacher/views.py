@@ -322,12 +322,23 @@ class ForumAllListView(ListView):
     context_object_name = 'forums'
     template_name = "teacher/forum_all.html"		
     paginate_by = 20
-    def get_queryset(self):        		
+    def get_queryset(self):
+      # 年級
+      if self.kwargs['categroy'] == "1":
+        queryset = FWork.objects.filter(levels__contains=self.kwargs['categroy_id'])
+      # 學習領域
+      elif self.kwargs['categroy'] == "2":
+        queryset = FWork.objects.filter(domains__contains=self.kwargs['categroy_id'])				
+      else:
         queryset = FWork.objects.all().order_by("-id")
-        return queryset
+      return queryset
 			
     def get_context_data(self, **kwargs):
-        context = super(ForumAllListView, self).get_context_data(**kwargs)				
+        context = super(ForumAllListView, self).get_context_data(**kwargs)
+        context['categroy'] = self.kwargs['categroy']							
+        context['categroy_id'] = self.kwargs['categroy_id']							
+        context['levels'] = Level.objects.all()				
+        context['domains'] = Domain.objects.all()
         return context	
 
 # 展示討論素材
@@ -337,26 +348,26 @@ def forum_show(request, forum_id):
     domain_dict = {}
     for domain in domains :
         key = domain.id
-        domain_dict[key] = domain.title
+        domain_dict[key] = domain
     levels = Level.objects.all()	
     level_dict = {}
     for level in levels :
         key = level.id
-        level_dict[key] = level.title
+        level_dict[key] = level
     contents = FContent.objects.filter(forum_id=forum_id)
-    domain_names = []		
+    domains = []		
     if forum.domains:
         forum_domains = ast.literal_eval(forum.domains)
         for domain in forum_domains:
             key = int(domain)
-            domain_names.append(domain_dict[key])
-    level_names = []						
+            domains.append(domain_dict[key])
+    levels = []						
     if forum.levels:
         forum_levels = ast.literal_eval(forum.levels)
         for level in forum_levels:
             key = int(level)			
-            level_names.append(level_dict[key])
-    return render_to_response('teacher/forum_show.html',{'domain_names':domain_names, 'level_names':level_names, 'contents':contents, 'forum':forum}, context_instance=RequestContext(request))
+            levels.append(level_dict[key])
+    return render_to_response('teacher/forum_show.html',{'domains':domains, 'levels':levels, 'contents':contents, 'forum':forum}, context_instance=RequestContext(request))
 
 		
 # 列出某討論主題的班級
