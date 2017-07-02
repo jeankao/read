@@ -31,6 +31,8 @@ from django.db.models import Q
 from itertools import groupby
 from collections import OrderedDict
 from .paginators import ExPaginator, DiggPaginator, QuerySetDiggPaginator
+
+
 #from helper import VideoLogHelper
 
 # 判斷是否開啟事件記錄

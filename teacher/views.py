@@ -18,7 +18,7 @@ from django.http import JsonResponse
 import re
 from django.contrib.auth.models import User
 from django.db.models import Q
-import json
+import ast
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
     return user.groups.filter(name='teacher').exists() and Classroom.objects.filter(teacher_id=user.id, id=classroom_id).exists()
@@ -315,8 +315,50 @@ def forum_categroy(request, classroom_id, forum_id):
     else:
         form = CategroyForm(instance=forum)
     return render_to_response('teacher/categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'forum':forum}, context_instance=RequestContext(request))
-	
 
+# 列出所有討論主題
+class ForumAllListView(ListView):
+    model = FWork
+    context_object_name = 'forums'
+    template_name = "teacher/forum_all.html"		
+    paginate_by = 20
+    def get_queryset(self):        		
+        queryset = FWork.objects.all().order_by("-id")
+        return queryset
+			
+    def get_context_data(self, **kwargs):
+        context = super(ForumAllListView, self).get_context_data(**kwargs)				
+        return context	
+
+# 展示討論素材
+def forum_show(request, forum_id):
+    forum = FWork.objects.get(id=forum_id)
+    domains = Domain.objects.all()
+    domain_dict = {}
+    for domain in domains :
+        key = domain.id
+        domain_dict[key] = domain.title
+    levels = Level.objects.all()	
+    level_dict = {}
+    for level in levels :
+        key = level.id
+        level_dict[key] = level.title
+    contents = FContent.objects.filter(forum_id=forum_id)
+    domain_names = []		
+    if forum.domains:
+        forum_domains = ast.literal_eval(forum.domains)
+        for domain in forum_domains:
+            key = int(domain)
+            domain_names.append(domain_dict[key])
+    level_names = []						
+    if forum.levels:
+        forum_levels = ast.literal_eval(forum.levels)
+        for level in forum_levels:
+            key = int(level)			
+            level_names.append(level_dict[key])
+    return render_to_response('teacher/forum_show.html',{'domain_names':domain_names, 'level_names':level_names, 'contents':contents, 'forum':forum}, context_instance=RequestContext(request))
+
+		
 # 列出某討論主題的班級
 class ForumClassListView(ListView):
     model = FWork

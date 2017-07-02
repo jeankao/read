@@ -5,7 +5,7 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from teacher.views import ClassroomListView, ClassroomCreateView, WorkListView, WorkCreateView
 from teacher.views import ForumListView, ForumCreateView, ForumContentListView, ForumContentCreateView, ForumClassListView
-from teacher.views import AssistantListView
+from teacher.views import AssistantListView, ForumAllListView
 
 urlpatterns = [
     # 班級
@@ -25,6 +25,8 @@ urlpatterns = [
     url(r'^work/edit/(?P<classroom_id>\d+)/$', login_required(views.work_edit), name='work-edit'),  
     url(r'^work/class/(?P<classroom_id>\d+)/(?P<work_id>\d+)/$', login_required(views.work_class), name='work-class'),  
     # 討論區
+    url(r'^forum/$', login_required(ForumAllListView.as_view()), name='forum-all'),  
+    url(r'^forum/show/(?P<forum_id>\d+)/$', login_required(views.forum_show), name='forum-show'),    
     url(r'^forum/(?P<classroom_id>\d+)/$', login_required(ForumListView.as_view()), name='forum-list'),
     url(r'^forum/add/(?P<classroom_id>\d+)/$', login_required(ForumCreateView.as_view()), name='forum-add'),
     url(r'^forum/category/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/$', login_required(views.forum_categroy), name='forum-category'),  

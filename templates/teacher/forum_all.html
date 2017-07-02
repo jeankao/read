@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load tag %}
+{% block content %}
+        <a href="/teacher/forum/add/{{classroom.id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 新增討論</a>
+        <table class="table">
+            <tr>
+ 							  <td>發佈者</td>             
+                <td>時間</td>				
+                <td>{{classroom.name}}</td>
+                <td colspan=3>功能</td>
+        {% for forum in forums %}
+            <tr>
+		  <td>{{forum.teacher_id|realname}}</td>              
+		<td>{{forum.time}}</td>
+            <td>{{forum.title}}</td>
+							<td>
+            <a href="/teacher/forum/show/{{forum.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> 素材</a>
+							</td>
+					</tr>
+        {% endfor %}
+        </table>
+        {% load pagination %}
+        {% get_pagination %}
+{% endblock %}
