@@ -13,9 +13,14 @@ Licence URI: http://www.os-templates.com/template-terms
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link href="/static/css/layout.css" rel="stylesheet" type="text/css" media="all">
+<!-- JAVASCRIPTS -->
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/jquery.backtotop.js"></script>
+<script src="/static/js/jquery.mobilemenu.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-<link href="/static/css/dropdownmenu.css" rel="stylesheet" type="text/css" media="all">
 <link href="/static/css/rating.css" rel="stylesheet" type="text/css" media="all">
 	<style>
  .btn {
@@ -62,29 +67,32 @@ Licence URI: http://www.os-templates.com/template-terms
 				{% if request.user.is_authenticated %}
 			<li><a href="/account/dashboard"><img src="/static/images/icon_message.png"> 訊息</a></li>
 			<li><a href="/student/classroom"><img src="/static/images/icon_class.png"> 班級</a></li>
-		  <li><div class="dropdown">
-	    <img  width=16 src="/static/images/icon_doc.png">檔案	
-        <div class="dropdown-content">
-            <a href="/account/profile/{{user.id}}#tab1">積分</a>
-            <a href="/account/profile/{{user.id}}#tab2">作業</a>
-            <a href="/account/profile/{{user.id}}#tab3">證書</a>
-		    <a href="/account/event/calendar/{{user.id}}">登入記錄</a>			
-		    <a href="/account/event/timeline/{{user.id}}">使用記錄</a>			
-						</div>
-						</div>
-			</li>
+						            <li class="dropdown">
+                        <a href="#" data-toggle="dropdown" class="dropdown-toggle"><img  width=16 src="/static/images/icon_doc.png">檔案	<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+													<li><a class="dropdown-item" href="/account/profile/{{user.id}}">積分</a></li>
+            <li><a class="dropdown-item" href="/account/profile/{{user.id}}#tab2">作業</a></li>
+            <li><a class="dropdown-item" href="/account/profile/{{user.id}}#tab3">證書</a></li>
+		    <li><a class="dropdown-item" href="/account/event/calendar/{{user.id}}">登入記錄</a>			</li></li>
+		    <li><a class="dropdown-item" href="/account/event/timeline/{{user.id}}">使用記錄</a></li>
+                        </ul>
+                    </li>
+						{% if request.user.id|assistant %}
+			<li><a href="/teacher/assistant"><img src="/static/images/icon_assistant.png"> 助教</a></li>
+					 {% endif %}								
 						{% if request.user|has_group:"teacher" %}
 			<li><a href="/teacher/classroom"><img src="/static/images/icon_teacher.png"> 教師</a></li>
 					 {% endif %}					
 					 {% if request.user.id == 1 %}
 			<li><a href="/account/userlist"><img src="/static/images/icon_admin.png"> 帳號</a></li>
+			<li><a href="/account/event/admin"><img  width=16 src="/static/images/icon_event.png">事件</a></li>				
 					 {% endif %}			
 			<li><strong></strong></li>
 			{%endif %}
           </ul>
           <ul class="nav navbar-nav navbar-right">
   		{% if request.user.is_authenticated %}		  
-          <li><a href="./" style="padding:0px; padding-right:10px"><img src="/static/images/s0.png" style="width:60px;margin:0px;">{{ request.user.first_name }}</a></li>
+          <li><a href="./" style="padding:0px; padding-right:10px"><img src="/static/images/s{{request.user.profile.avatar}}.png" style="width:60px;margin:0px;">{{ request.user.first_name }}</a></li>
 				<li><a href="/account/logout" class='btn btn-default' role="btn">登出</a></li>
 			{% else %}
 			<li><a href="/account/register" class='btn btn-default' role="btn">註冊新帳號</a></li>
@@ -127,12 +135,6 @@ Licence URI: http://www.os-templates.com/template-terms
 <!-- ################################################################################################ -->
 <!-- ################################################################################################ -->
 <a id="backtotop" href="#top"><i class="fa fa-chevron-up"></i></a>
-<!-- JAVASCRIPTS -->
-<script src="/static/js/jquery.min.js"></script>
-<script src="/static/js/jquery.backtotop.js"></script>
-<script src="/static/js/jquery.mobilemenu.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <!-- JAVASCRIPTS -->
 <script>
   var csrftoken = $.cookie('csrftoken');

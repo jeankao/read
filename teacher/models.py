@@ -23,6 +23,11 @@ class Classroom(models.Model):
     def __unicode__(self):
         return self.name
       
+#班級助教
+class Assistant(models.Model):
+    classroom_id = models.IntegerField(default=0)
+    user_id = models.IntegerField(default=0)
+      
 #搜查線
 class TWork(models.Model):
     title = models.CharField(max_length=250)

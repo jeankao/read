@@ -50,16 +50,6 @@ class SWork(models.Model):
         user = User.objects.filter(id=self.student_id)[0]
         index = self.index
         return user.first_name+"("+str(index)+")"		
-			
-# 小老師        
-class Assistant(models.Model):
-    student_id = models.IntegerField(default=0)
-    classroom_id = models.IntegerField(default=0)
-    lesson = models.IntegerField(default=0)
-    
-    @property        
-    def student(self):
-        return User.objects.get(id=self.student_id)   
 
 #作業
 class SFWork(models.Model):
@@ -67,6 +57,7 @@ class SFWork(models.Model):
     index = models.IntegerField()
     memo = models.TextField(default='')
     publication_date = models.DateTimeField(default=timezone.now)
+    reply_date = models.DateTimeField(default=timezone.now)
     score = models.IntegerField(default=0)
     scorer = models.IntegerField(default=0)
     likes = models.TextField(default='')

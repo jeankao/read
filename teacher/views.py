@@ -3,8 +3,8 @@ from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, DetailView, CreateView
-from teacher.models import Classroom, TWork, FWork, FClass, FContent
-from student.models import Enroll, EnrollGroup, SWork, Assistant
+from teacher.models import Classroom, TWork, FWork, FClass, FContent, Assistant
+from student.models import Enroll, EnrollGroup, SWork
 from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
@@ -15,6 +15,8 @@ from wsgiref.util import FileWrapper
 from django.http import HttpResponse
 from django.http import JsonResponse
 import re
+from django.contrib.auth.models import User
+from django.db.models import Q
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
     return user.groups.filter(name='teacher').exists() and Classroom.objects.filter(teacher_id=user.id, id=classroom_id).exists()
@@ -63,6 +65,81 @@ def classroom_edit(request, classroom_id):
 
     return render_to_response('form.html',{'form': form}, context_instance=RequestContext(request))        
     
+# 設定班級助教
+def classroom_assistant(request, classroom_id):
+    # 限本班任課教師
+    if not is_teacher(request.user, classroom_id):
+        return redirect("homepage")
+    assistants = Assistant.objects.filter(classroom_id=classroom_id).order_by("-id")
+    classroom = Classroom.objects.get(id=classroom_id)
+
+    return render_to_response('teacher/assistant.html',{'assistants': assistants, 'classroom':classroom}, context_instance=RequestContext(request))        
+
+# 教師可以查看所有帳號
+class AssistantListView(ListView):
+    context_object_name = 'users'
+    paginate_by = 20
+    template_name = 'teacher/assistant_user.html'
+    
+    def get_queryset(self):        
+        if self.request.GET.get('account') != None:
+            keyword = self.request.GET.get('account')
+            queryset = User.objects.filter(Q(username__icontains=keyword) | Q(first_name__icontains=keyword)).order_by('-id')
+        else :
+            queryset = User.objects.all().order_by('-id')				
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(AssistantListView, self).get_context_data(**kwargs)
+        context['classroom'] = Classroom.objects.get(id=self.kwargs['classroom_id'])
+        assistant_list = []
+        assistants = Assistant.objects.filter(classroom_id=self.kwargs['classroom_id'])
+        for assistant in assistants:
+            assistant_list.append(assistant.user_id)
+        context['assistants'] = assistant_list
+        return context	
+
+# 列出所有助教課程
+class AssistantClassroomListView(ListView):
+    model = Classroom
+    context_object_name = 'classrooms'
+    template_name = 'teacher/assistant_list.html'
+    paginate_by = 20
+    def get_queryset(self):      
+        assistants = Assistant.objects.filter(user_id=self.request.user.id)
+        classroom_list = []
+        for assistant in assistants:
+            classroom_list.append(assistant.classroom_id)
+        queryset = Classroom.objects.filter(id__in=classroom_list).order_by("-id")
+        return queryset
+            
+# Ajax 設為助教、取消助教
+def assistant_make(request):
+    classroom_id = request.POST.get('classroomid')	
+    user_id = request.POST.get('userid')
+    action = request.POST.get('action')
+    if user_id and action :
+        if action == 'set':            
+            try :
+                assistant = Assistant.objects.get(classroom_id=classroom_id, user_id=user_id) 	
+            except ObjectDoesNotExist :
+                assistant = Assistant(classroom_id=classroom_id, user_id=user_id) 
+                assistant.save()
+            # 將教師設為0號學生
+            enroll = Enroll(classroom_id=classroom_id, student_id=user_id, seat=0)
+            enroll.save() 
+        else : 
+            try :
+                assistant = Assistant.objects.get(classroom_id=classroom_id, user_id=user_id)
+                assistant.delete()
+                enroll = Enroll.objects.filter(classroom_id=classroom_id, student_id=user_id)
+                enroll.delete()								
+            except ObjectDoesNotExist :
+                pass             
+        return JsonResponse({'status':'ok'}, safe=False)
+    else:
+        return JsonResponse({'status':'fail'}, safe=False)
+	
 # 退選
 def unenroll(request, enroll_id, classroom_id):
     # 限本班任課教師
@@ -155,20 +232,16 @@ def work_class(request, classroom_id, work_id):
 # 列出所有討論主題
 class ForumListView(ListView):
     model = FWork
-    context_object_name = 'works'
+    context_object_name = 'forums'
     template_name = "teacher/forum_list.html"		
     paginate_by = 20
     def get_queryset(self):        
-        forums = FWork.objects.filter(teacher_id=self.request.user.id).order_by("-id")
-        fclassrooms = FClass.objects.filter(classroom_id= self.kwargs['classroom_id'])
-        forum_ids = []
-        for fclassroom in fclassrooms:
-          forum_ids.append(fclassroom.forum_id)
-        queryset = []
-        for forum in forums:
-            if forum.id in forum_ids:
-              queryset.append(forum)
-        return queryset
+        fclasses = FClass.objects.filter(classroom_id=self.kwargs['classroom_id'])
+        fclass_list = []
+        for fclass in fclasses:
+            fclass_list.append(fclass.forum_id)
+        forums = FWork.objects.filter(id__in=fclass_list).order_by("-id")
+        return forums
 			
     def get_context_data(self, **kwargs):
         context = super(ForumListView, self).get_context_data(**kwargs)
@@ -195,9 +268,17 @@ class ForumCreateView(CreateView):
         
     def get_context_data(self, **kwargs):
         context = super(ForumCreateView, self).get_context_data(**kwargs)
-        classrooms = Classroom.objects.filter(teacher_id=self.request.user.id).order_by("-id")
+        classroom_list = []
+        classrooms = Classroom.objects.filter(teacher_id=self.request.user.id)
+        for classroom in classrooms:
+            classroom_list.append(classroom.id)
+        assistants = Assistant.objects.filter(user_id=self.request.user.id)
+        for assistant in assistants:
+            if not assistant.classroom_id in classroom_list:
+                classroom_list.append(assistant.classroom_id)
+        classrooms = Classroom.objects.filter(id__in=classroom_list).order_by("-id")
         context['classrooms'] = classrooms
-        context['classroom_id'] = int(self.kwargs['classroom_id'])	        
+        context['classroom_id'] = int(self.kwargs['classroom_id'])
         return context	
   
         return redirect("/teacher/forum/"+self.kwargs['classroom_id'])        
@@ -210,8 +291,16 @@ class ForumClassListView(ListView):
     paginate_by = 20
     def get_queryset(self):        		
         fwork = FWork.objects.get(id=self.kwargs['forum_id'])
+        classroom_list = []
         classrooms = Classroom.objects.filter(teacher_id=fwork.teacher_id).order_by("-id")
-        return classrooms
+        for classroom in classrooms:
+            classroom_list.append(classroom)
+        assistants = Assistant.objects.filter(user_id=self.request.user.id)
+        for assistant in assistants:
+            classroom = Classroom.objects.get(id=assistant.classroom_id)
+            if not classroom in classroom_list:
+                classroom_list.append(classroom)
+        return classroom_list
 			
     def get_context_data(self, **kwargs):
         context = super(ForumClassListView, self).get_context_data(**kwargs)				
@@ -365,3 +454,4 @@ def forum_download(request, content_id):
     # You can also set any other required headers: Cache-Control, etc.
     return response
     #return render_to_response('student/download.html', {'download':download})
+		

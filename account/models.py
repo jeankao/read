@@ -11,9 +11,9 @@ class Profile(models.Model):
 	# 積分：上傳作業
 	work = models.IntegerField(default=0)
 	# 積分：按讚
-	like = models.IntegerField(default=0)
+	like = models.FloatField(default=0.0)
 	# 積分：留言
-	reply = models.IntegerField(default=0)
+	reply = models.FloatField(default=0.0)
 	# 大頭貼等級
 	avatar = models.IntegerField(default=0)
 	# 訪客人次

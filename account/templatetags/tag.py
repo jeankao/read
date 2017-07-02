@@ -2,7 +2,7 @@
 from django import template
 from django.contrib.auth.models import User
 from account.models import MessagePoll
-from teacher.models import Classroom
+from teacher.models import Classroom, Assistant
 from student.models import Enroll, SFWork, SFReply
 from django.contrib.auth.models import Group
 from django.utils import timezone
@@ -49,6 +49,13 @@ def has_group(user, group_name):
     except ObjectDoesNotExist:
         group = None
     return group in user.groups.all()
+  
+@register.filter(name='assistant') 
+def assistant(user_id):
+    assistants = Assistant.objects.filter(user_id=user_id)
+    if assistants:
+      return True
+    return False
 
 @register.filter()
 def number(youtube):
@@ -79,3 +86,4 @@ def is_pic(title):
     if title[-3:].upper() == "GIF":
         return True            
     return False
+  

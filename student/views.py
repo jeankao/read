@@ -4,8 +4,8 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, CreateView
 from student.models import Enroll, EnrollGroup, SWork, SFWork, SFReply, SFContent
-from teacher.models import Classroom, TWork, FWork, FContent, FClass
-from account.models import VisitorLog
+from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant
+from account.models import VisitorLog,  Profile
 from student.forms import EnrollForm, GroupForm, SeatForm, GroupSizeForm, SubmitForm, ForumSubmitForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
@@ -21,6 +21,7 @@ from django.conf import settings
 from wsgiref.util import FileWrapper
 from django.http import HttpResponse
 from django.db.models import F
+from account.avatar import *
 # 列出選修的班級
 class ClassroomListView(ListView):
     model = Enroll
@@ -33,7 +34,7 @@ class ClassroomListView(ListView):
         for enroll in enrolls :
           classroom = Classroom.objects.get(id=enroll.classroom_id)
           queryset.append([enroll, classroom.teacher_id])
-        return queryset          
+        return queryset         			
     
 # 查看可加入的班級
 def classroom_add(request):
@@ -91,11 +92,11 @@ def seat_edit(request, enroll_id, classroom_id):
 def classmate(request, classroom_id):
         enrolls = Enroll.objects.filter(classroom_id=classroom_id).order_by("seat")
         enroll_group = []
-        classroom_name=Classroom.objects.get(id=classroom_id).name
+        classroom=Classroom.objects.get(id=classroom_id)
         for enroll in enrolls:
             login_times = len(VisitorLog.objects.filter(user_id=enroll.student_id))
             enroll_group.append([enroll, login_times])
-        return render_to_response('student/classmate.html', {'classroom_name':classroom_name, 'enrolls':enroll_group}, context_instance=RequestContext(request))
+        return render_to_response('student/classmate.html', {'classroom':classroom, 'enrolls':enroll_group}, context_instance=RequestContext(request))
 
 # 登入記錄
 class LoginLogListView(ListView):
@@ -246,6 +247,10 @@ def forum_submit(request, classroom_id, index):
         fwork = FWork.objects.get(id=index)
         if request.method == 'POST':
             form = ForumSubmitForm(request.POST, request.FILES)
+            try :
+                work = SFWork.objects.get(index=index, student_id=request.user.id)
+            except ObjectDoesNotExist:
+                update_avatar(request.user.id, 1, 2)
             work = SFWork(index=index, student_id=request.user.id)
             work.save()
             if request.FILES:
@@ -260,7 +265,6 @@ def forum_submit(request, classroom_id, index):
                 content.save()
             if form.is_valid():							
                 work.memo=form.cleaned_data['memo']
-                work.publication_date = timezone.now()
                 work.save()
                 return redirect("/student/forum/memo/"+classroom_id+"/"+index+"/0")
             else:
@@ -323,7 +327,7 @@ def forum_memo(request, classroom_id, index, action):
 			elif action == "2":
 				return custom[1][-1].score, custom[1][0].publication_date
 			else:
-				return custom[1][0].publication_date, -custom[0].seat
+				return custom[1][0].reply_date, -custom[0].seat
 		else:
 			return -custom[0].seat
 	datas = sorted(datas, key=getKey, reverse=True)	
@@ -358,6 +362,7 @@ def forum_like(request):
                 sfwork.likes = json.dumps(likes)
                 sfwork.like_count = len(likes)								
                 sfwork.save()
+                update_avatar(request.user.id, 2, 0.1)
             else:
                 if sfwork.likes:
                     likes = jsonDec.decode(sfwork.likes)
@@ -366,6 +371,8 @@ def forum_like(request):
                         sfwork.likes = json.dumps(likes)
                         sfwork.like_count = len(likes)
                         sfwork.save()
+                        #積分 
+                        update_avatar(request.user.id, 2, -0.1)
                
         except ObjectDoesNotExist:
             sfworks = []            
@@ -382,6 +389,10 @@ def forum_reply(request):
     if index:       
         reply = SFReply(index=index, work_id=work_id, user_id=user_id, memo=text, publication_date=timezone.now())
         reply.save()
+        sfwork = SFWork.objects.get(id=work_id)
+        sfwork.reply_date = timezone.now()
+        sfwork.save()
+        update_avatar(request.user.id, 3, 0.2)				
         return JsonResponse({'status':'ok'}, safe=False)
     else:
         return JsonResponse({'status':'fail'}, safe=False)        
