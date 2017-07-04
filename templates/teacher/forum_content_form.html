@@ -74,8 +74,10 @@ $(function () {
          <form action=""  method="post"  enctype="multipart/form-data">
            <input type=hidden name=types value="1">
            <input type=hidden name=forum_id value={{forum_id}}>
-           文章褾題:<input id="id_content_title" maxlength="250" name="title" type="text" placeholder="開啟連結">
-           文章網址:<input id="id_content_link" maxlength="250" name="link" type="text"> {% csrf_token %}<input type="submit" value="送出">
+           文章褾題:<input id="id_content_title" maxlength="250" name="title" type="text" placeholder="開啟連結" class="form-control list-group-item-text">
+           文章網址:<input id="id_content_link" maxlength="250" name="link" type="text" class="form-control list-group-item-text">
+        說明：<textarea name="memo" id="memo" cols="30" rows="10" class="form-control list-group-item-text"></textarea>
+           {% csrf_token %}<input type="submit" value="送出">
         </form>
     </article>
 <!--------------------------------------------------------->
@@ -84,7 +86,10 @@ $(function () {
     <form action=""  method="post" enctype="multipart/form-data">
            <input type=hidden name=types value="2">
            <input type=hidden name=forum_id value={{forum_id}}>           
-           Youtube:<input id="id_content_youtube" maxlength="250" name="youtube" type="text" /><input type="submit" value="送出">
+           影片網址：<input id="id_content_youtube" maxlength="250" name="youtube" type="text" class="form-control list-group-item-text"/>
+        說明：<textarea name="memo" id="memo" cols="30" rows="10" class="form-control list-group-item-text"></textarea>
+
+      <input type="submit" value="送出">
             {% csrf_token %}         
         </form>
     </article>
@@ -94,7 +99,9 @@ $(function () {
          <form action=""  method="post" enctype="multipart/form-data" >
            <input type=hidden name="types" value="3">
            <input type=hidden name=forum_id value={{forum_id}}>           
-           檔案:<input id="content_file" name="content_file" type="file"/><input type="submit" value="送出">
+           檔案:<input id="content_file" name="content_file" type="file"/>
+        說明：<textarea name="memo" id="memo" cols="30" rows="10" class="form-control list-group-item-text"></textarea>           
+           <input type="submit" value="送出">
             {% csrf_token %}         
         </form>
     </article>

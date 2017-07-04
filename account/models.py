@@ -4,6 +4,17 @@ from django.conf import settings
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+class Site(models.Model):
+  # 訪客人次
+	home_count = models.IntegerField(default=0)
+	visitor_count = models.IntegerField(default=0)
+	# 開站時間
+	open_time = models.DateTimeField(auto_now_add=True)
+	# 網站名稱
+	site_name = models.CharField(max_length=50)
+	# 網站圖片
+	site_image =  models.CharField(max_length=20)
+
 # 個人檔案資料
 class Profile(models.Model):
 	user = models.OneToOneField(settings.AUTH_USER_MODEL,related_name="profile")
@@ -16,11 +27,6 @@ class Profile(models.Model):
 	reply = models.FloatField(default=0.0)
 	# 大頭貼等級
 	avatar = models.IntegerField(default=0)
-	# 訪客人次
-	home_count = models.IntegerField(default=0)
-	visitor_count = models.IntegerField(default=0)
-	# 開站時間
-	open_time = models.DateTimeField(auto_now_add=True)
 
 	def __unicode__(self):
 		return str(self.user_id)

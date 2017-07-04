@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 from django import forms
 from django.contrib.auth.models import User
-from account.models import Log, Message, MessagePoll, Domain, Level
+from account.models import Log, Message, MessagePoll, Domain, Level, Site
 
 # 使用者登入表單
 class LoginForm(forms.Form):
@@ -147,3 +147,10 @@ class LevelForm(forms.ModelForm):
         def __init__(self, *args, **kwargs):
             super(LevelForm, self).__init__(*args, **kwargs)
             self.fields['title'].label = "年級名稱"   
+            
+#新增年級
+class SiteImageForm(forms.ModelForm):
+        class Meta:
+            model = Site
+            fields = ['site_image']    
+            

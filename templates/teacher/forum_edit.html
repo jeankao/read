@@ -6,10 +6,10 @@
            <input type=hidden name="id" value="{{content.id}}">           
            <input type=hidden name="types" value="{{content.types}}">
          {% if content.types == 1 %}
-            文章褾題:<input id="id_title" maxlength="250" name="title" type="text" placeholder="開啟連結" value="{{content.title}}">
-           文章網址:<input id="id_link" maxlength="250" name="link" type="text" value="{{content.link}}">
+            文章褾題:<input id="id_title" maxlength="250" name="title" type="text" class="form-control list-group-item-text" placeholder="開啟連結" value="{{content.title}}">
+           文章網址:<input id="id_link" maxlength="250" name="link" type="text" value="{{content.link}}" class="form-control list-group-item-text">
         {% elif content.types == 2 %}
-            Youtube:<input id="id_content_youtube" maxlength="250" name="youtube" type="text" value={{content.youtube}}/>
+            影片網址:<input id="id_content_youtube" maxlength="250" name="youtube" type="text" value={{content.youtube}} class="form-control list-group-item-text"/>
 
       {% elif content.types == 3 %}
             檔案:<input id="id_content_file" name="content_file" type="file"/>

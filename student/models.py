@@ -56,6 +56,7 @@ class SFWork(models.Model):
     student_id = models.IntegerField(default=0)
     index = models.IntegerField()
     memo = models.TextField(default='')
+    publish = models.BooleanField(default=False)
     publication_date = models.DateTimeField(default=timezone.now)
     reply_date = models.DateTimeField(default=timezone.now)
     score = models.IntegerField(default=0)

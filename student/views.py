@@ -240,7 +240,24 @@ class ForumListView(ListView):
         except ObjectDoesNotExist :
             return redirect('/')
         return super(ForumListView, self).render_to_response(context)    
-			
+
+# 發表心得
+def forum_publish(request, classroom_id, index, action):
+    if action == "1":
+        try:
+            works = SFWork.objects.filter(index=index, student_id=request.user.id)
+            work = works[0]
+            work.publish = True
+            work.save()
+        except ObjectDoesNotExist:
+            pass
+        return redirect("/student/forum/memo/"+classroom_id+"/"+index+"/0")
+    elif action == "0":
+        return redirect("/student/forum/memo/"+classroom_id+"/"+index+"/0")
+    else :
+        return render_to_response('student/forum_publish.html', {'classroom_id': classroom_id, 'index': index}, context_instance=RequestContext(request))
+	
+
 def forum_submit(request, classroom_id, index):
         scores = []
         works = SFWork.objects.filter(index=index, student_id=request.user.id).order_by("-id")
@@ -248,9 +265,11 @@ def forum_submit(request, classroom_id, index):
         fwork = FWork.objects.get(id=index)
         if request.method == 'POST':
             form = ForumSubmitForm(request.POST, request.FILES)
+            #第一次上傳加上積分
             try :
                 works = SFWork.objects.filter(index=index, student_id=request.user.id)
             except ObjectDoesNotExist:
+                works = []
                 update_avatar(request.user.id, 1, 2)
             work = SFWork(index=index, student_id=request.user.id)
             work.save()
@@ -267,6 +286,10 @@ def forum_submit(request, classroom_id, index):
             if form.is_valid():							
                 work.memo=form.cleaned_data['memo']
                 work.save()
+                if not works:
+                    return redirect("/student/forum/publish/"+classroom_id+"/"+index+"/2")	
+                elif not works[0].publish:
+                    return redirect("/student/forum/publish/"+classroom_id+"/"+index+"/2")
                 return redirect("/student/forum/memo/"+classroom_id+"/"+index+"/0")
             else:
                 return render_to_response('student/forum_form.html', {'error':form.errors}, context_instance=RequestContext(request))

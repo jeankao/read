@@ -326,10 +326,10 @@ class ForumAllListView(ListView):
     def get_queryset(self):
       # 年級
       if self.kwargs['categroy'] == "1":
-        queryset = FWork.objects.filter(levels__contains=self.kwargs['categroy_id'])
+        queryset = FWork.objects.filter(levels__contains=self.kwargs['categroy_id']).order_by("-id")
       # 學習領域
       elif self.kwargs['categroy'] == "2":
-        queryset = FWork.objects.filter(domains__contains=self.kwargs['categroy_id'])        
+        queryset = FWork.objects.filter(domains__contains=self.kwargs['categroy_id']).order_by("-id")   
       else:
         queryset = FWork.objects.all().order_by("-id")
       if self.request.GET.get('account') != None:
@@ -497,6 +497,7 @@ class ForumContentCreateView(CreateView):
             work.title = myfile.name
             work.filename = str(self.request.user.id)+"/"+filename
             fs.save("static/upload/"+str(self.request.user.id)+"/"+filename, myfile)	
+        work.memo = self.object.memo
         work.save()         
   
         return redirect("/teacher/forum/content/"+self.kwargs['forum_id'])  

@@ -37,4 +37,5 @@ urlpatterns = [
     url(r'^forum/word/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<word>[^/]+)/$', login_required(views.forum_word)),  
 	  url(r'^forum/download/(?P<file_id>\d+)/$', login_required(views.forum_download), name='forum-download'), 
 	  url(r'^forum/showpic/(?P<file_id>\d+)/$', login_required(views.forum_showpic), name='forum-showpic'), 	
+	  url(r'^forum/publish/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<action>\d+)/$', login_required(views.forum_publish), name='forum-publish'), 	
 ]

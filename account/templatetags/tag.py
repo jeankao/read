@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 from django import template
 from django.contrib.auth.models import User
-from account.models import MessagePoll
+from account.models import MessagePoll, Site
 from teacher.models import Classroom, Assistant
 from student.models import Enroll, SFWork, SFReply
 from django.contrib.auth.models import Group
@@ -90,5 +90,7 @@ def is_pic(title):
 @register.filter()
 def int_to_str(number):   
     return str(number)
- 
-  
+
+@register.filter()
+def site_name(request):   
+    return Site.objects.get(id=1).site_name

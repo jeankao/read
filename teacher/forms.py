@@ -3,6 +3,7 @@ from django import forms
 from teacher.models import Classroom, TWork, FWork, FContent
 from student.models import SWork
 
+
 # 新增一個課程表單
 class ClassroomForm(forms.ModelForm):
         class Meta:
@@ -79,7 +80,7 @@ class ForumForm(forms.ModelForm):
 class ForumContentForm(forms.ModelForm):
         class Meta:
            model = FContent
-           fields = ['forum_id', 'types', 'title', 'link', 'youtube', 'file']
+           fields = ['forum_id', 'types', 'title', 'link', 'youtube', 'file', 'memo']
         
         def __init__(self, *args, **kwargs):
             super(ForumContentForm, self).__init__(*args, **kwargs)
@@ -88,3 +89,4 @@ class ForumContentForm(forms.ModelForm):
             self.fields['link'].required = False
             self.fields['youtube'].required = False
             self.fields['file'].required = False
+            self.fields['memo'].required = False						

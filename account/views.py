@@ -5,11 +5,11 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib.auth import authenticate, login
 from django.db.models import *
-from forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, LineForm, SchoolForm, EmailForm, DomainForm, LevelForm
+from forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, LineForm, SchoolForm, EmailForm, DomainForm, LevelForm, SiteImageForm
 from django.contrib.auth.models import User
-from account.models import Profile, PointHistory, Log, Message, MessagePoll, Visitor, VisitorLog, Domain, Level
+from account.models import Profile, PointHistory, Log, Message, MessagePoll, Visitor, VisitorLog, Domain, Level, Site
 from student.models import Enroll, SWork
-from teacher.models import Classroom, Assistant
+from teacher.models import Classroom, Assistant, FWork
 from django.core.exceptions import ObjectDoesNotExist
 #from account.templatetags import tag 
 from django.views.generic import ListView, CreateView, UpdateView
@@ -30,6 +30,8 @@ import urllib
 from django.db.models import Q
 from itertools import groupby
 from collections import OrderedDict
+from django.core.files.storage import FileSystemStorage
+from uuid import uuid4
 
 
 #from helper import VideoLogHelper
@@ -58,18 +60,20 @@ def homepage(request):
         row_count = row_count + model.objects.count()
     users = User.objects.all()
     try :
-        admin_user = User.objects.get(id=1)
-        admin_profile = Profile.objects.get(user=admin_user)
-        admin_profile.home_count = admin_profile.home_count + 1
-        admin_profile.save()
+        site = Site.objects.get(id=1)
+        site.home_count = site.home_count + 1
+        site.save()
     except ObjectDoesNotExist:
-        admin_profile = ""
+        #網站資訊
+        site = Site(site_name='南港高中', site_image='images/home.jpg')
+        site.save()
     classroom_count = Classroom.objects.all().count()
-    return render_to_response('homepage.html', {'classroom_count':classroom_count, 'row_count':row_count, 'user_count':len(users), 'admin_profile': admin_profile}, context_instance=RequestContext(request))
+    forum_count = FWork.objects.all().count()
+    return render_to_response('homepage.html', {'forum_count':forum_count, 'classroom_count':classroom_count, 'row_count':row_count, 'user_count':len(users), 'site': site}, context_instance=RequestContext(request))
 
 # 作者
-def author(request):
-    return render_to_response('account/author.html', context_instance=RequestContext(request))
+def developer(request):
+    return render_to_response('developer.html', context_instance=RequestContext(request))
 
 	
 	
@@ -106,20 +110,21 @@ def user_login(request):
                                                 for level_name in levels:
                                                     level = Level(title=level_name)
                                                     level.save()	
+                                                
                                         # 登入成功，導到大廳
                                         login(request, user)
                                         # 記錄系統事件
                                         log = Log(user_id=request.user.id, event='登入系統')
                                         log.save()
                                         # 記錄訪客資訊
-                                        admin_user = User.objects.get(id=1)
                                         try:
-                                            profile = Profile.objects.get(user=admin_user)
+                                            site = Site.objects.get(id=1)
                                         except ObjectDoesNotExist:
-                                            profile = Profile(user=admin_user)
-                                            profile.save()
-                                        profile.visitor_count = profile.visitor_count + 1
-                                        profile.save()
+                                            #網站資訊
+                                            site = Site(site_name='南港高中', site_image='images/home.jpg')
+                                            site.save()
+                                        site.visitor_count = site.visitor_count + 1
+                                        site.save()
                                         
                                         year = localtime(timezone.now()).year
                                         month =  localtime(timezone.now()).month
@@ -991,4 +996,27 @@ class LevelUpdateView(UpdateView):
     template_name = 'form.html'
     success_url = '/account/admin/level/'		
 		     
+class SitenameUpdateView(UpdateView):
+    model = Site
+    fields = ['site_name']
+    template_name = 'form.html'
+    success_url = '/account/admin/'		
 
+# 上傳首頁圖片
+def siteimage(request):
+        if request.method == 'POST':
+            form = SiteImageForm(request.POST)			
+            if form.is_valid() and request.FILES:
+                myfile =  request.FILES.get("file", "")
+                fs = FileSystemStorage()
+                filename = uuid4().hex
+                fs.save("static/upload/"+str(request.user.id)+"/"+filename, myfile)
+                site = Site.objects.get(id=1)
+                site.site_image='upload/1/'+filename
+                site.save()
+                return redirect("/")
+            else:
+      	        return render_to_response('account/siteimage_form.html', {'errors':form}, context_instance=RequestContext(request))
+        else:
+            form = SiteImageForm()
+        return render_to_response('account/siteimage_form.html', {'form':form}, context_instance=RequestContext(request))
