@@ -6,8 +6,11 @@
 <div class="row">
   <button class="btn btn-success">{{forum.title}}</button>
   <button class="btn btn-default">{{forum.teacher_id|realname}}老師</button>
-  <div class="panel panel-default">
-    <div class="panel-heading">{{user_id|realname}} --{{work.publication_date}}{% if work.publish %}(已發表){% else %}(尚未發表){% endif %}　
+	{% if user_id == request.user.id|int_to_str %}
+  <a href="/student/forum/submit/{{classroom_id}}/{{work.index}}" class="btn btn-primary" role="btn">編輯</a>	
+  {% endif %}
+	<div class="panel panel-default">
+		<div class="panel-heading">{{user_id|realname}} --{{work.publication_date}}{% if publish %}(已發表){% else %}<font color=red>(尚未發表)</font>{% endif %}　
 			<span style="float:right">
 			<A href="/student/forum/history/{{user_id}}/{{work.index}}/{{classroom_id}}"><img src="/static/images/edit.gif"> 歷史({{works|length}})</A>
 			</span>		
@@ -63,14 +66,15 @@
 </blockquote>
 	{% endfor %}
 </div>
-								</div>
-
+</div>
+			
 	
 
 {% endif %}
       </div>
     </div>
-
+<div class="row">
+<button class="btn btn-warning">素材</button>
   <ul  class="list-group">
     </li>
     {% for work in contents %}
@@ -108,6 +112,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-body">
+					 <a href="#" id="closevideo" class="btn btn-default pull-right" role="btn">關閉</a>								
             <div id="vplayer"></div>
         </div>
       </div><!-- /.modal-content -->
@@ -199,6 +204,14 @@ $(document).ready(function () {
 {% endblock %}
 
 {% block domready %}
+  $('a#closevideo').click(function(e){
+    var launcher = this;  
+    e.preventDefault();
+	  
+    $('#vidModal').modal('hide');
+
+  });		
+
   $('input:radio').change(function(e){
     var launcher = this;  
     e.preventDefault();

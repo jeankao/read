@@ -5,24 +5,29 @@
 
 <div class="row">
 <a href="/student/forum/{{classroom_id}}/{{index}}/" class="btn btn-success" role="btn">{{subject}}</a>
+<a href="/student/forum/{{classroom_id}}/{{index}}/" class="btn btn-success" role="btn">{{classroom_id|classname}}</a>
+<BR>
+	{% if action == "1" %}
+	{% for enroll, works, replys, files in datas %}
+	<a href="#{{enroll.id}}" class="seat btn {% if works.0.publish %}btn-warning{% else %}btn-default{% endif %}" role="btn">({{enroll.seat}}){{enroll.student_id|realname}}</a>
+	{% endfor %}
+	{% endif %}
   {% for enroll, works, replys, files in datas %}
+	<a id="{{enroll.id}}"></a>
   <div class="panel panel-default">
     <div class="panel-heading">{{enroll.seat}}){{enroll.student.first_name}} {{works.0.publication_date}}　
 			<span style="float:right">
-	   	{% with works|last as last %}
-		  {% if last.publish %}
-			<A href="/student/forum/history/{{enroll.student_id}}/{{index}}"><img src="/static/images/edit.gif"> 歷史({{works|length}})</A>
+		  {% if works.0.publish %}
+			<A href="/student/forum/history/{{enroll.student_id}}/{{index}}/{{classroom_id}}"><img src="/static/images/edit.gif"> 歷史({{works|length}})</A>
 			{% else %}
 			<img src="/static/images/edit.gif"> 歷史({{works|length}}) 		
 			{% endif %}
-			{% endwith %}
 			  <a href=""><img src="/static/images/icon-email.gif">私訊</a>
 				</span>		
-			{% if enroll.student_id == request.user.id %}<a href="/student/forum/submit/{{classroom_id}}/{{index}}" class="btn btn-warning" role="btn">編輯</a>{% endif %}
+			{% if enroll.student_id == request.user.id %}<a href="/student/forum/submit/{{classroom_id}}/{{index}}" class="btn btn-primary" role="btn">編輯</a>{% endif %}
 		</div>
 		{% if works.0 or files.0 %}
-	   	{% with works|last as last %}
-			{% if last.publish %}
+			{% if works.0.publish %}
     <div class="panel-body">
 		{{works.0.memo|memo|safe}}
 		<BR>
@@ -40,17 +45,17 @@
             {% endif %}
 		      {% endfor %}
     <hr>			
-          {% if request.user.id in last.id|likes %}
+          {% if request.user.id in works.0.id|likes %}
     <a href="#" data-forumid="{{index}}" data-userid="{{ enroll.student_id }}" data-action="unlike" class="like btn btn-primary" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
           {% else %}
     <a href="#" data-forumid="{{index}}" data-userid="{{ enroll.student_id }}" data-action="like" class="like btn btn-default" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
           {% endif %}
     <a href="#" data-forumid="{{index}}" data-userid="{{ enroll.student_id }}" class="people">
-    <span id="likes_count">{{last.like_count}}</span>人按讚
+    <span id="likes_count">{{works.0.like_count}}</span>人按讚
     </a>
-    <a href="#" data-workid="{{index}}" class="btn btn-default reply" role="btn"><span class="glyphicon glyphicon-heart" aria-hidden="true">留言</span></a>
+    <a href="#" data-forumid="{{index}}" data-userid="{{ enroll.student_id }}" data-workid="{{works.0.id}}" class="btn btn-default reply" role="btn"><span class="glyphicon glyphicon-heart" aria-hidden="true">留言</span></a>
 
-			<a href="#" data-workid="{{last.id}}" class="guestbooks">
+			<a href="#" data-workid="{{works.0.id}}" class="guestbooks">
 
 			<span id="reply_count">{{replys|length}}</span>則留言
 		</a>
@@ -63,7 +68,7 @@
 </fieldset>
 			        <div id="reply" style="display:none">
 							<textarea  autofocus name="reply" id="reply_memo" cols="30" rows="5" class="form-control list-group-item-text"></textarea>
-							<button class="reply_submit" data-workid={{last.id}} data-index={{works.0.index}} data-userid={{request.user.id}}>送出</button>
+							<button class="reply_submit" data-workid={{works.0.id}} data-index={{works.0.index}} data-userid={{request.user.id}}>送出</button>
 
 						</div>		
 <div id="blockquote">
@@ -76,7 +81,6 @@
 </div>
 								</div>
 	{% endif %}   
-				{% endwith %}	
 
 {% endif %}
 				
@@ -87,6 +91,9 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-body">
+					<div>
+					 <a href="#" id="closevideo" class="btn btn-default pull-right" role="btn">關閉</a>						
+					</div>
             <div id="vplayer"></div>
         </div>
       </div><!-- /.modal-content -->
@@ -178,6 +185,23 @@ $(document).ready(function () {
 {% endblock %}
 
 {% block domready %}
+  $('a.seat').click(function(e){
+    var launcher = this;
+		var url = ($(this).attr('href'));
+    e.preventDefault();
+
+		$('html, body').animate({scrollTop: $(''+url).offset().top -100 }, 'slow');
+
+  });		
+			
+  $('a#closevideo').click(function(e){
+    var launcher = this;  
+    e.preventDefault();
+	  
+    $('#vidModal').modal('hide');
+
+  });		
+			
   $('input:radio').change(function(e){
     var launcher = this;  
     e.preventDefault();

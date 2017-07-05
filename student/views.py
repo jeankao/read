@@ -23,11 +23,33 @@ from django.http import HttpResponse
 from django.db.models import F
 from account.avatar import *
 
-def is_classmate(classroom_id, request):
+def is_classmate(student_id, user_id):
+    enrolls = Enroll.objects.filter(student_id=student_id)
+    for enroll in enrolls:
+        classroom = Classroom.objects.get(id=enroll.classroom_id)
+        enrolls2 = Enroll.objects.filter(classroom_id=classroom.id)
+        for enroll2 in enrolls2:
+            if user_id == enroll2.student_id:
+                return True
+    return False
+	
+def in_classroom(classroom_id, user_id):
     enrolls = Enroll.objects.filter(classroom_id=classroom_id)
     for enroll in enrolls:
-        if request.user.id == enroll.student_id:
+        if user_id == enroll.student_id:
             return True
+    return False	
+	
+def is_parent(student_id, user_id):
+    parents = Parent.objects.filter(parent_id=user_id, student_id=student_id)
+    if len(parents)> 0:
+        return True
+    return False
+	
+def is_teacher(classroom_id, user_id):
+    classroom = Classroom.objects.get(id=classroom_id)
+    if user_id == classroom.teacher_id:
+        return True
     return False
    
 # 列出選修的班級
@@ -232,12 +254,20 @@ class ForumListView(ListView):
     template_name = 'student/forum_list.html'    
     
     def get_queryset(self):
-        #classroom = Classroom.objects.get(id=self.kwargs['classroom_id'])
-        fclasses = FClass.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("-id")
-        forum_ids = []
-        for fclass in fclasses:
-            forum_ids.append(fclass.forum_id)
-        queryset = FWork.objects.filter(id__in=forum_ids).order_by("-id")
+        queryset = []
+        fclass_dict = dict(((fclass.forum_id, fclass) for fclass in FClass.objects.filter(classroom_id=self.kwargs['classroom_id'])))	
+        #fclasses = FClass.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("-id")
+        fworks = FWork.objects.filter(id__in=fclass_dict.keys()).order_by("-id")
+        sfwork_pool = SFWork.objects.filter(student_id=self.request.user.id)
+        for fwork in fworks:
+            sfworks = filter(lambda w: w.index==fwork.id, sfwork_pool)
+            if len(sfworks)> 0 :
+                queryset.append([fwork, sfworks[0].publish, fclass_dict[fwork.id]])
+            else :
+                queryset.append([fwork, False, fclass_dict[fwork.id]])
+        def getKey(custom):
+            return custom[2].publication_date
+        queryset = sorted(queryset, key=getKey, reverse=True)	
         return queryset
         
     def get_context_data(self, **kwargs):
@@ -258,7 +288,7 @@ class ForumListView(ListView):
 def forum_publish(request, classroom_id, index, action):
     if action == "1":
         try:
-            works = SFWork.objects.filter(index=index, student_id=request.user.id)
+            works = SFWork.objects.filter(index=index, student_id=request.user.id).order_by("-id")
             work = works[0]
             work.publish = True
             work.save()
@@ -279,10 +309,13 @@ def forum_submit(request, classroom_id, index):
         if request.method == 'POST':
             form = ForumSubmitForm(request.POST, request.FILES)
             #第一次上傳加上積分
-            works = SFWork.objects.filter(index=index, student_id=request.user.id)
+            works = SFWork.objects.filter(index=index, student_id=request.user.id).order_by("-id")
+            publish = False
             if len(works)==0:
                 update_avatar(request.user.id, 1, 2)
-            work = SFWork(index=index, student_id=request.user.id)
+            else:
+                publish = works[0].publish
+            work = SFWork(index=index, student_id=request.user.id, publish=publish)
             work.save()
             if request.FILES:
                 content = SFContent(index=index, student_id=request.user.id)
@@ -311,26 +344,30 @@ def forum_submit(request, classroom_id, index):
             else:
                 work = works[0]
                 form = ForumSubmitForm()
-            files = SFContent.objects.filter(index=index, visible=True).order_by("-id")
+            files = SFContent.objects.filter(index=index, student_id=request.user.id,visible=True).order_by("-id")
             subject = FWork.objects.get(id=index).title
         return render_to_response('student/forum_form.html', {'classroom_id':classroom_id, 'subject':subject, 'files':files, 'index': index, 'fwork':fwork, 'works':works, 'work':work, 'form':form, 'scores':scores, 'index':index, 'contents':contents}, context_instance=RequestContext(request))
 
 def forum_show(request, index, user_id, classroom_id):
+		if not (is_classmate(int(user_id), request.user.id) or is_teacher(classroom_id, request.user.id) or is_parent(user_id,request.user.id)) :
+			return redirect("/")	
 		forum = FWork.objects.get(id=index)
 		work = []
 		replys = []
 		files = []
-		works = SFWork.objects.filter(index=index, student_id=user_id).order_by("-id")
-		contents = FContent.objects.filter(forum_id=index).order_by("id")		
+		works = SFWork.objects.filter(index=index, student_id=user_id).order_by("id")
+		contents = FContent.objects.filter(forum_id=index).order_by("id")
+		publish = False
 		if len(works)>0:
-			work = works[0]
+			work = works.last()
+			publish = works.last().publish
 			replys = SFReply.objects.filter(index=index, work_id=work.id).order_by("-id")	
-			files = SFContent.objects.filter(index=index, student_id=user_id, visible=True).order_by("-id")				
-		return render_to_response('student/forum_show.html', {'classroom_id':classroom_id, 'contents':contents, 'replys':replys, 'files':files, 'forum':forum, 'user_id':user_id, 'work':work, 'works':works}, context_instance=RequestContext(request))
+			files = SFContent.objects.filter(index=index, student_id=user_id, visible=True).order_by("-id")	
+		return render_to_response('student/forum_show.html', {'publish':publish, 'classroom_id':classroom_id, 'contents':contents, 'replys':replys, 'files':files, 'forum':forum, 'user_id':user_id, 'work':work, 'works':works}, context_instance=RequestContext(request))
 
  # 查詢某作業所有同學心得
-def forum_memo(request, classroom_id, index, action):    
-	if not is_classmate(classroom_id, request):
+def forum_memo(request, classroom_id, index, action):
+	if not in_classroom(classroom_id, request.user.id):
 		return redirect("/")
 	enrolls = Enroll.objects.filter(classroom_id=classroom_id)
 	datas = []
@@ -349,7 +386,7 @@ def forum_memo(request, classroom_id, index, action):
 		works = filter(lambda w: w.student_id==enroll.student_id, works_pool)
 		# 對未作答學生不特別處理，因為 filter 會傳回 []
 		if len(works)>0:
-			replys = filter(lambda w: w.work_id==works[-1].id, reply_pool)
+			replys = filter(lambda w: w.work_id==works[0].id, reply_pool)
 			files = filter(lambda w: w.student_id==enroll.student_id, file_pool)
 			if action == "2" :
 			  if works[-1].score == 5:
@@ -357,32 +394,37 @@ def forum_memo(request, classroom_id, index, action):
 			else :
 				datas.append([enroll, works, replys, files])
 		else :
+			replys = []
 			if not action == "2" :
-				replys = []
 				files = filter(lambda w: w.student_id==enroll.student_id, file_pool)		
 				datas.append([enroll, works, replys, files])
 	def getKey(custom):
 		if custom[1]:
-			if action == "1":
+			if action == "3":
 				return custom[1][-1].like_count
 			elif action == "2":
-				return custom[1][-1].score, custom[1][0].publication_date
-			else:
-				return custom[1][0].reply_date, -custom[0].seat
+				return custom[1][-1].score, custom[1][0].publication_date		
+			elif action == "1":
+				return -custom[0].seat
+			else :
+				return custom[1][0].reply_date, -custom[0].seat			
 		else:
 			return -custom[0].seat
 	datas = sorted(datas, key=getKey, reverse=True)	
 
-	return render_to_response('student/forum_memo.html', {'datas': datas, 'contents':contents, 'teacher_id':teacher_id, 'subject':subject, 'classroom_id':classroom_id, 'index':index}, context_instance=RequestContext(request))
+	return render_to_response('student/forum_memo.html', {'action':action, 'replys':replys, 'datas': datas, 'contents':contents, 'teacher_id':teacher_id, 'subject':subject, 'classroom_id':classroom_id, 'index':index}, context_instance=RequestContext(request))
 	
 def forum_history(request, user_id, index, classroom_id):
 		work = []
 		contents = FContent.objects.filter(forum_id=index).order_by("-id")
 		works = SFWork.objects.filter(index=index, student_id=user_id).order_by("-id")
 		files = SFContent.objects.filter(index=index, student_id=user_id).order_by("-id")
-		forum = FWork.objects.get(id=index)		
-		return render_to_response('student/forum_history.html', {'forum': forum, 'classroom_id':classroom_id, 'works':works, 'contents':contents, 'files':files, 'index':index}, context_instance=RequestContext(request))
-
+		forum = FWork.objects.get(id=index)
+		if len(works)> 0 :
+			if works[0].publish or user_id==str(request.user.id) :
+				return render_to_response('student/forum_history.html', {'forum': forum, 'classroom_id':classroom_id, 'works':works, 'contents':contents, 'files':files, 'index':index}, context_instance=RequestContext(request))
+		return redirect("/")
+			
 def forum_like(request):
     forum_id = request.POST.get('forumid')  
     user_id = request.POST.get('userid')
@@ -391,7 +433,7 @@ def forum_like(request):
     sfworks = []
     if forum_id:
         try:
-            sfworks = SFWork.objects.filter(index=forum_id, student_id=user_id).order_by("id")
+            sfworks = SFWork.objects.filter(index=forum_id, student_id=user_id).order_by("-id")
             sfwork = sfworks[0]
             jsonDec = json.decoder.JSONDecoder()
             if action == "like":

@@ -8,7 +8,7 @@ from django.db.models import *
 from forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, LineForm, SchoolForm, EmailForm, DomainForm, LevelForm, SiteImageForm
 from django.contrib.auth.models import User
 from account.models import Profile, PointHistory, Log, Message, MessagePoll, Visitor, VisitorLog, Domain, Level, Site, Parent
-from student.models import Enroll, SWork
+from student.models import Enroll, SWork, SFWork
 from teacher.models import Classroom, Assistant, FWork, FClass
 from django.core.exceptions import ObjectDoesNotExist
 #from account.templatetags import tag 
@@ -1030,12 +1030,19 @@ class ForumListView(ListView):
         # 記錄系統事件
         log = Log(user_id=1, event=u'查看個人討論區作業')
         log.save()       
-        classroom_ids = Enroll.objects.filter(student_id=self.kwargs['user_id'], seat__gt=0).values_list('classroom_id')
+        classroom_ids = Enroll.objects.filter(student_id=self.kwargs['user_id'], seat__gt=0).values_list('classroom_id')				
         forum_dict = dict(((fwork.id, fwork) for fwork in FWork.objects.all()))
         fclasses = FClass.objects.filter(classroom_id__in=classroom_ids).order_by("-publication_date")
-        queryset = []
+        forum_ids = []
         for fclass in fclasses:
-            queryset.append([fclass.forum_id, fclass.publication_date, fclass.classroom_id, forum_dict[fclass.forum_id]])
+            forum_ids.append(fclass.forum_id)
+        queryset = []
+        sfwork_dict = dict(((sfwork.index, sfwork.publish) for sfwork in SFWork.objects.filter(student_id=self.kwargs['user_id']).order_by("id")))
+        for fclass in fclasses:
+            if sfwork_dict.has_key(fclass.forum_id) :
+                queryset.append([fclass.forum_id, fclass.publication_date, fclass.classroom_id, forum_dict[fclass.forum_id], sfwork_dict[fclass.forum_id]])
+            else:
+                queryset.append([fclass.forum_id, fclass.publication_date, fclass.classroom_id, forum_dict[fclass.forum_id], False])
         return queryset
         
     def get_context_data(self, **kwargs):

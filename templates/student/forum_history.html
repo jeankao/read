@@ -9,7 +9,7 @@
 {% endif %}
 {% for work in works %}
   <div class="panel panel-default">
-    <div class="panel-heading"><button type="button" class="btn btn-success">{{forloop.revcounter}}</button> {{work.publication_date}}</div>
+    <div class="panel-heading"><button type="button" class="btn btn-success">{{forloop.revcounter}}</button> {{work.publication_date}} {% if work.publish %}(已發表){% else %}(未發表){% endif %}</div>
     <div class="panel-body">{{ work.memo|memo|safe }}
 		{% for file in files %}
       {% if file.work_id == work.id %}

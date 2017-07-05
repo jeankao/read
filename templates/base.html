@@ -36,6 +36,24 @@ Licence URI: http://www.os-templates.com/template-terms
   .container {
     padding-right: 0px;
     padding-left: 0px;		
+	}
+	.scrollToTop{
+	width:80px; 
+	height:90px;
+	padding:1px; 
+	text-align:left; 
+	color: #FFF;
+	text-decoration: none;
+	position:fixed;
+	bottom:0px;
+	right:10px;
+	display:none;
+	background: url('/static/images/top.png') no-repeat 0px 20px;
+}
+.scrollToTop:hover{
+	text-decoration:none;
+}	
+		
 </style>
 
   <!-- Optional theme -->
@@ -45,6 +63,7 @@ Licence URI: http://www.os-templates.com/template-terms
 <!-- Latest compiled and minified JavaScript -->
 </head>
 <body id="top">
+<a href="#" class="scrollToTop"></a>	
 <!-- ################################################################################################ -->
 <!-- ################################################################################################ -->
 <!-- ################################################################################################ -->
@@ -96,7 +115,7 @@ Licence URI: http://www.os-templates.com/template-terms
 				</ul>
           <ul class="nav navbar-nav navbar-right">
   		{% if request.user.is_authenticated %}		  
-          <li><a href="./" style="padding:0px; padding-right:10px"><img src="/static/images/s{{request.user.profile.avatar}}.png" style="width:60px;margin:0px;">{{ request.user.first_name }}</a></li>
+          <li><a href="./" style="padding:0px; padding-right:10px"><img src="/static/images/avatar/s{{request.user.profile.avatar}}.png" style="width:60px;margin:0px;">{{ request.user.first_name }}</a></li>
 				<li><a href="/account/logout" class='btn btn-default' role="btn">登出</a></li>
 			{% else %}
 			<li><a href="/account/register" class='btn btn-default' role="btn">註冊新帳號</a></li>
@@ -136,7 +155,6 @@ Licence URI: http://www.os-templates.com/template-terms
   </div>
 </div>
 <!-- ################################################################################################ -->
-<a id="backtotop" href="#top"><i class="fa fa-chevron-up"></i></a>
 <!-- JAVASCRIPTS -->
 <script>
   var csrftoken = $.cookie('csrftoken');
@@ -153,10 +171,25 @@ Licence URI: http://www.os-templates.com/template-terms
     }
   });
   $(document).ready(function(){
+		$(window).scroll(function(){
+			if ($(this).scrollTop() > 100) {
+				$('.scrollToTop').fadeIn();
+			} else {
+				$('.scrollToTop').fadeOut();
+			}
+		});
+
+		//Click event to scroll to top
+		$('.scrollToTop').click(function(){
+			$('html, body').animate({scrollTop : 0},800);
+			return false;
+		});		
+    //$('main').css('padding-top', $('.row0').height()+15+'px');		
     //$('main').css('padding-top', $('.row0').height()+15+'px');
     {% block domready %}
     {% endblock %}
   });
+	
   {% block userscript %}
   
   {% endblock %}
