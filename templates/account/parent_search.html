@@ -1,11 +1,6 @@
 {% extends "base.html" %}
-{% block title %} Teachers {% endblock %}
-{% block content %}
-    <form action="."  method="get">
- <label class="inline">搜尋帳號：<input type="text" name = "account"><input type="submit" value="送出"/></label>    
-    </form>
-        <tr>
-          
+{% load tag %}
+{% block content %}    
         <table class="table">
             <td>帳號</td>
             <td>姓名</td>
@@ -18,23 +13,22 @@
                 <td>{{user.first_name}}</td>
                 <td>{{user.last_login}}</td>
                 <td>
-                {% if user.groups.all.0.name == "teacher"  %}<a href="#" data-userid="{{ user.id }}" data-action="unset" class="teacher btn btn-info" role="button">取消教師</a>{% else %}<a href="#" data-userid="{{ user.id }}" data-action="set" class="teacher btn btn-default" role="button">設為教師</a>{% endif %}
-                <A href="/account/password/{{user.id}}" class="btn btn-success" role="button">重設密碼</a>
-                <A href="/account/realname/{{user.id}}" class="btn btn-success" role="button">設定姓名</a></td>
+                {% if user.id|parent:request.user.id %}<a href="#" data-userid="{{ user.id }}" data-studentid="{{ request.user.id }}" data-action="unset" class="parent btn btn-info" role="button">取消家長</a>{% else %}<a href="#" data-userid="{{ user.id }}" data-studentid={{request.user.id}} data-action="set" class="parent btn btn-default" role="button">設為家長</a>{% endif %}
             </tr>
+        {% empty %}
+            帳號不存在 
         {% endfor %}
         </table>
-        {% load pagination %}
-        {% get_pagination %}
 {% endblock %}
 
 {% block domready %}
-  $('a.teacher').click(function(e){
+  $('a.parent').click(function(e){
     var launcher = this;  
     e.preventDefault();
-    $.post('/account/teacher/make/',
+    $.post('/account/parent/make/',
       {
         userid: $(launcher).data('userid'),
+        studentid: $(launcher).data('studentid'),
         action: $(launcher).data('action')
       },
       function(data){
@@ -43,12 +37,12 @@
           var previous_action = $(launcher).data('action');
 		      if (previous_action == 'set') {
                $(launcher).removeClass("btn-default").addClass("btn-info");
-               $(launcher).html("取消教師");
+               $(launcher).html("取消家長");
                $(launcher).data('action', 'unset');
            } else {
                $(launcher).removeClass("btn-info").addClass("btn-default");
-               $(launcher).html("設為教師");
-               $(launcher).data('action', 'set');               
+               $(launcher).html("設為家長");
+               $(launcher).data('action', 'set');  
            }
         } else {
 			   	alert("hello");

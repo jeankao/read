@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from teacher.models import Classroom, TWork, FWork, FClass, FContent, Assistant
 from student.models import Enroll, EnrollGroup, SWork
-from account.models import Domain, Level
+from account.models import Domain, Level, Parent
 from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm, CategroyForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage

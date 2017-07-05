@@ -9,7 +9,7 @@ Licence URI: http://www.os-templates.com/template-terms
 <html lang="zh-TW">
 <!-- To declare your language - read more here: https://www.w3.org/International/questions/qa-html-language-declarations -->
 <head>
-<title>臺北市立南港高中</title>
+<title>{{ request|site_name }}閱讀網</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link href="/static/css/layout.css" rel="stylesheet" type="text/css" media="all">
@@ -66,18 +66,21 @@ Licence URI: http://www.os-templates.com/template-terms
            <li><a href="/"><img src="/static/images/icon_home.png"> 首頁</a></li>			
 				{% if request.user.is_authenticated %}
 			<li><a href="/account/dashboard"><img src="/static/images/icon_message.png"> 訊息</a></li>
+						<li><a href="/account/forum/{{user.id}}"><img src="/static/images/icon_forum.png"> 作業</a></li>				
 			<li><a href="/student/classroom"><img src="/static/images/icon_class.png"> 班級</a></li>
 						            <li class="dropdown">
                         <a href="#" data-toggle="dropdown" class="dropdown-toggle"><img  width=16 src="/static/images/icon_doc.png">檔案	<b class="caret"></b></a>
                         <ul class="dropdown-menu">
 													<li><a class="dropdown-item" href="/account/profile/{{user.id}}">積分</a></li>
-            <li><a class="dropdown-item" href="/account/profile/{{user.id}}#tab2">作業</a></li>
             <li><a class="dropdown-item" href="/account/profile/{{user.id}}#tab3">證書</a></li>
 		    <li><a class="dropdown-item" href="/account/event/calendar/{{user.id}}">登入記錄</a>			</li></li>
 		    <li><a class="dropdown-item" href="/account/event/timeline/{{user.id}}">使用記錄</a></li>
+						<li><a class="dropdown-item" href="/account/parent">設定家長</a></li>						
                         </ul>
                     </li>
-			<li><a href="/parent/classroom"><img src="/static/images/icon_male.png"> 家長</a></li>
+			{% if request.user.id|is_parent %}
+			<li><a href="/account/parent/child"><img src="/static/images/icon_male.png"> 家長</a></li>
+			{% endif %}
 						{% if request.user.id|assistant %}
 			<li><a href="/teacher/assistant"><img src="/static/images/icon_assistant.png"> 助教</a></li>
 					 {% endif %}								
@@ -85,8 +88,7 @@ Licence URI: http://www.os-templates.com/template-terms
 			<li><a href="/teacher/classroom"><img src="/static/images/icon_teacher.png"> 教師</a></li>
 					 {% endif %}					
 					 {% if request.user.id == 1 %}
-			<li><a href="/account/admin"><img src="/static/images/icon_admin.png"> 管理</a></li>
-			<li><a href="/account/event/admin"><img  width=16 src="/static/images/icon_event.png">事件</a></li>				
+			<li><a href="/account/admin"><img src="/static/images/icon_admin.png"> 管理</a></li>		
 					 {% endif %}			
 			<li><strong></strong></li>
 			{%endif %}

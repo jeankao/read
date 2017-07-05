@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.views.generic import ListView, CreateView
 from student.models import Enroll, EnrollGroup, SWork, SFWork, SFReply, SFContent
 from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant
-from account.models import VisitorLog,  Profile
+from account.models import VisitorLog,  Profile, Parent
 from student.forms import EnrollForm, SeatForm, SubmitForm, ForumSubmitForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
@@ -22,6 +22,14 @@ from wsgiref.util import FileWrapper
 from django.http import HttpResponse
 from django.db.models import F
 from account.avatar import *
+
+def is_classmate(classroom_id, request):
+    enrolls = Enroll.objects.filter(classroom_id=classroom_id)
+    for enroll in enrolls:
+        if request.user.id == enroll.student_id:
+            return True
+    return False
+   
 # 列出選修的班級
 class ClassroomListView(ListView):
     model = Enroll
@@ -92,11 +100,16 @@ def seat_edit(request, enroll_id, classroom_id):
 # 查看班級學生
 def classmate(request, classroom_id):
         enrolls = Enroll.objects.filter(classroom_id=classroom_id).order_by("seat")
+        enroll_ids = []
+        for enroll in enrolls:
+            enroll_ids.append(enroll.student_id)
         enroll_group = []
         classroom=Classroom.objects.get(id=classroom_id)
+        parent_pool = Parent.objects.filter(student_id__in=enroll_ids)
         for enroll in enrolls:
             login_times = len(VisitorLog.objects.filter(user_id=enroll.student_id))
-            enroll_group.append([enroll, login_times])
+            parents = filter(lambda w: w.student_id==enroll.student_id, parent_pool)
+            enroll_group.append([enroll, login_times, parents])	
         return render_to_response('student/classmate.html', {'classroom':classroom, 'enrolls':enroll_group}, context_instance=RequestContext(request))
 
 # 登入記錄
@@ -266,10 +279,8 @@ def forum_submit(request, classroom_id, index):
         if request.method == 'POST':
             form = ForumSubmitForm(request.POST, request.FILES)
             #第一次上傳加上積分
-            try :
-                works = SFWork.objects.filter(index=index, student_id=request.user.id)
-            except ObjectDoesNotExist:
-                works = []
+            works = SFWork.objects.filter(index=index, student_id=request.user.id)
+            if len(works)==0:
                 update_avatar(request.user.id, 1, 2)
             work = SFWork(index=index, student_id=request.user.id)
             work.save()
@@ -304,17 +315,23 @@ def forum_submit(request, classroom_id, index):
             subject = FWork.objects.get(id=index).title
         return render_to_response('student/forum_form.html', {'classroom_id':classroom_id, 'subject':subject, 'files':files, 'index': index, 'fwork':fwork, 'works':works, 'work':work, 'form':form, 'scores':scores, 'index':index, 'contents':contents}, context_instance=RequestContext(request))
 
-def forum_show(request, index):
+def forum_show(request, index, user_id, classroom_id):
+		forum = FWork.objects.get(id=index)
 		work = []
-		contents = FContent.objects.filter(forum_id=index).order_by("-id")
-		try:
-				works = SFWork.objects.filter(index=index, student_id=request.user.id).order_by("-id")
-		except ObjectDoesNotExist:
-				pass
-		return render_to_response('student/forum_show.html', {'work':works[0], 'contents':contents}, context_instance=RequestContext(request))
+		replys = []
+		files = []
+		works = SFWork.objects.filter(index=index, student_id=user_id).order_by("-id")
+		contents = FContent.objects.filter(forum_id=index).order_by("id")		
+		if len(works)>0:
+			work = works[0]
+			replys = SFReply.objects.filter(index=index, work_id=work.id).order_by("-id")	
+			files = SFContent.objects.filter(index=index, student_id=user_id, visible=True).order_by("-id")				
+		return render_to_response('student/forum_show.html', {'classroom_id':classroom_id, 'contents':contents, 'replys':replys, 'files':files, 'forum':forum, 'user_id':user_id, 'work':work, 'works':works}, context_instance=RequestContext(request))
 
  # 查詢某作業所有同學心得
 def forum_memo(request, classroom_id, index, action):    
+	if not is_classmate(classroom_id, request):
+		return redirect("/")
 	enrolls = Enroll.objects.filter(classroom_id=classroom_id)
 	datas = []
 	contents = FContent.objects.filter(forum_id=index).order_by("-id")
@@ -358,12 +375,12 @@ def forum_memo(request, classroom_id, index, action):
 
 	return render_to_response('student/forum_memo.html', {'datas': datas, 'contents':contents, 'teacher_id':teacher_id, 'subject':subject, 'classroom_id':classroom_id, 'index':index}, context_instance=RequestContext(request))
 	
-def forum_history(request, user_id, classroom_id, index):
+def forum_history(request, user_id, index, classroom_id):
 		work = []
 		contents = FContent.objects.filter(forum_id=index).order_by("-id")
 		works = SFWork.objects.filter(index=index, student_id=user_id).order_by("-id")
 		files = SFContent.objects.filter(index=index, student_id=user_id).order_by("-id")
-		return render_to_response('student/forum_history.html', {'works':works, 'contents':contents, 'files':files, 'classroom_id':classroom_id, 'index':index}, context_instance=RequestContext(request))
+		return render_to_response('student/forum_history.html', {'classroom_id':classroom_id, 'works':works, 'contents':contents, 'files':files, 'index':index}, context_instance=RequestContext(request))
 
 def forum_like(request):
     forum_id = request.POST.get('forumid')  

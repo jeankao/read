@@ -10,5 +10,4 @@ urlpatterns = [
         url(r'^account/', include('account.urls')),  
         url(r'^teacher/', include('teacher.urls')),    
         url(r'^student/', include('student.urls')),    
-        url(r'^parent/', include('parent.urls')),   
 ]

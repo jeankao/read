@@ -124,3 +124,11 @@ class Domain(models.Model):
 # 年級
 class Level(models.Model):
   title = models.CharField(max_length=200, default="",verbose_name= '年級')
+
+# 家長
+class Parent(models.Model):
+  student_id = models.IntegerField(default=0)
+  parent_id = models.IntegerField(default=0)
+	
+  class Meta:
+      unique_together = ('student_id', 'parent_id',)		

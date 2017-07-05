@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 from django import template
 from django.contrib.auth.models import User
-from account.models import MessagePoll, Site
+from account.models import MessagePoll, Site, Parent
 from teacher.models import Classroom, Assistant
 from student.models import Enroll, SFWork, SFReply
 from django.contrib.auth.models import Group
@@ -12,17 +12,27 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ObjectDoesNotExist
 import re
 import json
+
 register = template.Library()
 
 @register.filter
 def modulo(num, val):
     return num % val
   
-@register.filter
+@register.filter(takes_context=True)
 def realname(user_id):
     try: 
         user = User.objects.get(id=user_id)
         return user.first_name
+    except ObjectDoesNotExist:
+        pass
+        return ""
+      
+@register.filter
+def classname(classroom_id):
+    try: 
+        classroom = Classroom.objects.get(id=classroom_id)
+        return classroom.name
     except ObjectDoesNotExist:
         pass
         return ""
@@ -94,3 +104,19 @@ def int_to_str(number):
 @register.filter()
 def site_name(request):   
     return Site.objects.get(id=1).site_name
+  
+@register.filter()
+def parent(user_id, student_id):
+    parents = Parent.objects.filter(student_id=student_id, parent_id=user_id)
+    if len(parents)> 0 :
+      return True
+    else:
+      return False
+    
+@register.filter()
+def is_parent(user_id):
+    parents = Parent.objects.filter(parent_id=user_id)
+    if len(parents)> 0 :
+      return True
+    else:
+      return False

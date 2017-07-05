@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load tag %}
+{% block content %}
+我的小孩：
+{% for user in users %}
+<a href="/account/forum/{{user.student_id}}" class="btn btn-primary" role="btn">
+  {{user.student_id|realname}}
+</a>
+{% empty %}
+無
+{% endfor %}
+
+{% endblock %}

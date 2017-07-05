@@ -9,22 +9,32 @@
 			<td>學校</td>
             <td>座號</td>        
             <td>姓名</td>
+				{% if request.user.id == classroom.teacher_id %}
+            <td>家長</td>
+				{% endif %}					
             <td>最新登入</td>
-            <td>登入次數</td>            
+            <td>登入次數</td>
         </tr>
-        {% for enroll, login_times in enrolls %}
+        {% for enroll, login_times, parents in enrolls %}
             <tr>
 			<td>
 			{{enroll.student.last_name}}<BR>
 			{% if request.user.id == classroom.teacher_id %}
 			<A href="/teacher/unenroll/{{enroll.id}}/{{enroll.classroom_id}}" onclick="return confirm('確定要刪除嗎?')">退選</a>
 			<a href="/student/classroom/seat/{{enroll.id}}/{{enroll.classroom_id}}">座號</a>
-			<a href="/account/realname/{{enroll.student_id}}">姓名</a>
+				<a href="/account/realname/{{enroll.student_id}}">姓名</a>
 		  <a href="/account/password/{{enroll.student.id}}">密碼</a>
 			{% endif %}
 			</td>
             <td>{{enroll.seat}}</td>           
             <td>{{enroll.student.first_name}}</td>
+				{% if request.user.id == classroom.teacher_id %}
+				 <td>
+				{% for parent in parents %}
+           {{parent.parent_id|realname}}
+				{% endfor %}
+						 </td>
+				{% endif %}							
             <td>{{enroll.student.last_login}}</td>
 						<td>{% if login_times > 0 %}<a href="/student/loginlog/{{enroll.student_id}}">{{login_times}}</a>{% else %} 0 {% endif %}</td>
 					</tr>

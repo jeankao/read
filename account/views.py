@@ -7,9 +7,9 @@ from django.contrib.auth import authenticate, login
 from django.db.models import *
 from forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, LineForm, SchoolForm, EmailForm, DomainForm, LevelForm, SiteImageForm
 from django.contrib.auth.models import User
-from account.models import Profile, PointHistory, Log, Message, MessagePoll, Visitor, VisitorLog, Domain, Level, Site
+from account.models import Profile, PointHistory, Log, Message, MessagePoll, Visitor, VisitorLog, Domain, Level, Site, Parent
 from student.models import Enroll, SWork
-from teacher.models import Classroom, Assistant, FWork
+from teacher.models import Classroom, Assistant, FWork, FClass
 from django.core.exceptions import ObjectDoesNotExist
 #from account.templatetags import tag 
 from django.views.generic import ListView, CreateView, UpdateView
@@ -32,7 +32,7 @@ from itertools import groupby
 from collections import OrderedDict
 from django.core.files.storage import FileSystemStorage
 from uuid import uuid4
-
+from django.forms.models import model_to_dict
 
 #from helper import VideoLogHelper
 
@@ -1020,3 +1020,122 @@ def siteimage(request):
         else:
             form = SiteImageForm()
         return render_to_response('account/siteimage_form.html', {'form':form}, context_instance=RequestContext(request))
+
+# 討論區作業
+class ForumListView(ListView):
+    context_object_name = 'forums'
+    template_name = 'account/forum_list.html'
+    paginate_by = 10
+		
+    def get_queryset(self):    
+        # 記錄系統事件
+        log = Log(user_id=1, event=u'查看個人討論區作業')
+        log.save()       
+        classroom_ids = Enroll.objects.filter(student_id=self.kwargs['user_id'], seat__gt=0).values_list('classroom_id')
+        forum_dict = dict(((fwork.id, fwork) for fwork in FWork.objects.all()))
+        fclasses = FClass.objects.filter(classroom_id__in=classroom_ids).order_by("-publication_date")
+        queryset = []
+        for fclass in fclasses:
+            queryset.append([fclass.forum_id, fclass.publication_date, fclass.classroom_id, forum_dict[fclass.forum_id]])
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super(ForumListView, self).get_context_data(**kwargs)
+        context['user_id']= self.kwargs['user_id']
+        return context	
+			
+# 家長
+class ParentListView(ListView):
+    context_object_name = 'users'
+    template_name = 'account/parent_list.html'
+		
+    def get_queryset(self):    
+        # 記錄系統事件
+        log = Log(user_id=1, event=u'查看家長設定')
+        log.save()       
+        queryset= Parent.objects.filter(student_id=self.request.user.id)
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super(ParentListView, self).get_context_data(**kwargs)
+        return context	
+			
+# 家長
+class ParentSearchListView(ListView):
+    context_object_name = 'users'
+    template_name = 'account/parent_search.html'
+		
+    def get_queryset(self):    
+        # 記錄系統事件
+        log = Log(user_id=self.request.user.id, event=u'搜尋家長帳號')
+        log.save()
+        queryset = []
+        if self.request.GET.get('word') != None:
+            keyword = self.request.GET.get('word')
+            queryset = User.objects.filter(Q(username=keyword) | Q(first_name=keyword)).order_by('-id')
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super(ParentSearchListView, self).get_context_data(**kwargs)
+        return context	
+			
+# 家長
+class ParentChildListView(ListView):
+    context_object_name = 'users'
+    template_name = 'account/parent_child.html'
+		
+    def get_queryset(self):    
+        queryset = Parent.objects.filter(parent_id=self.request.user.id)
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super(ParentChildListView, self).get_context_data(**kwargs)
+        return context				
+			
+# Ajax 設為教師、取消教師
+def parent_make(request):
+    user_id = request.POST.get('userid')
+    student_id = request.POST.get('studentid')
+    action = request.POST.get('action')
+    if user_id and action :
+        user_id = int(user_id)
+        student_id = int(student_id)
+        user_student = User.objects.get(id=student_id)
+        user_parent = User.objects.get(id=user_id)				
+        if action == 'set':
+            parents = Parent.objects.filter(student_id=student_id, parent_id=user_id)	
+            if len(parents) == 0:
+                parent = Parent(student_id=student_id, parent_id=user_id)
+                parent.save()	
+                # 記錄系統事件
+                log = Log(user_id=student_id, event=u'<'+user_student.first_name+u'>設為家長<'+user_parent.first_name+'>')
+                log.save()                        
+                # create Message
+                title = "<" + user_student.first_name + u">設您為家長"
+                url = "/"
+                message = Message.create(title=title, url=url, time=timezone.now())
+                message.save()                        
+                    
+                # message for group member
+                messagepoll = MessagePoll.create(message_id = message.id,reader_id=user_id)
+                messagepoll.save()    
+        else : 
+            # 記錄系統事件
+            if is_event_open(request) :       							
+                log = Log(user_id=student_id, event=u'<'+user_student.first_name+u'>取消家長<'+user_parent.first_name+'>')
+                log.save()              
+            parents = Parent.objects.filter(student_id=student_id, parent_id=user_id)
+            for parent in parents:
+                parent.delete()
+            # create Message
+            title = "<"+ request.user.first_name + u">取消您為冢長"
+            url = "/"
+            message = Message.create(title=title, url=url, time=timezone.now())
+            message.save()                        
+                    
+            # message for group member
+            messagepoll = MessagePoll.create(message_id = message.id,reader_id=user_id)
+            messagepoll.save()               
+        return JsonResponse({'status':'ok'}, safe=False)
+    else:
+        return JsonResponse({'status':'fail'}, safe=False)        

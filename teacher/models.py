@@ -47,6 +47,7 @@ class FWork(models.Model):
 class FClass(models.Model):
     forum_id = models.IntegerField(default=0)
     classroom_id =  models.IntegerField(default=0)
+    publication_date = models.DateTimeField(default=timezone.now)
 
 class FContent(models.Model):
     forum_id =  models.IntegerField(default=0)

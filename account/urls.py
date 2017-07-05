@@ -65,5 +65,11 @@ urlpatterns = [
     url(r'^event/timeline/(?P<user_id>\d+)/$', login_required(views.EventTimeLineView.as_view())), 
     url(r'^event/timelog/(?P<user_id>\d+)/(?P<hour>\d+)/$', login_required(views.EventTimeLogView.as_view())),   
     url(r'^event/video/(?P<classroom_id>\d+)/$', login_required(views.EventVideoView.as_view())),   
-     
+    #討論區作業
+    url(r'^forum/(?P<user_id>\d+)/$', login_required(views.ForumListView.as_view())),	 
+    #設定家長
+    url(r'^parent/$', login_required(views.ParentListView.as_view())),
+    url(r'^parent/search/$', login_required(views.ParentSearchListView.as_view())),
+    url(r'^parent/child/$', login_required(views.ParentChildListView.as_view())),  
+    url(r'^parent/make/$', login_required(views.parent_make), name='parent_make'),      
 ]
