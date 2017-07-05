@@ -90,8 +90,10 @@ Licence URI: http://www.os-templates.com/template-terms
 			<li><a href="/account/admin"><img src="/static/images/icon_admin.png"> 管理</a></li>		
 					 {% endif %}			
 			{%endif %}
+		  {% if not request.user.id == 1 %}
 								<li><a href="/account/visitor"><img src="/static/images/icon_visitor.gif">訪客</a></li>	
-          </ul>
+       {% endif %}
+				</ul>
           <ul class="nav navbar-nav navbar-right">
   		{% if request.user.is_authenticated %}		  
           <li><a href="./" style="padding:0px; padding-right:10px"><img src="/static/images/s{{request.user.profile.avatar}}.png" style="width:60px;margin:0px;">{{ request.user.first_name }}</a></li>
