@@ -53,7 +53,7 @@ urlpatterns = [
     url(r'^line/add/(?P<classroom_id>\d+)/(?P<user_id>\d+)/$', login_required(views.LineCreateView.as_view())),
     url(r'^line/detail/(?P<classroom_id>\d+)/(?P<message_id>\d+)/$', login_required(views.line_detail)),
     #訪客
-    url(r'^visitor/$', login_required(views.VisitorListView.as_view())),    
+    url(r'^visitor/$', views.VisitorListView.as_view()),    
     url(r'^visitorlog/(?P<visitor_id>\d+)/$', login_required(views.VisitorLogListView.as_view())),             
     
 

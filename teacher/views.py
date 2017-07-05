@@ -363,7 +363,7 @@ def forum_show(request, forum_id):
     level_dict = {}
     for level in levels :
         key = level.id
-        level_dict[key] = levels
+        level_dict[key] = level
     contents = FContent.objects.filter(forum_id=forum_id)
     domains = []		
     if forum.domains:

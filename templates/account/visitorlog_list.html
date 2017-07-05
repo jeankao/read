@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %} Teachers {% endblock %}
+{% load tag %}
+{% block content %}
+<table class="table">
+        <tr>
+            <td>班級</td>					
+					  <td>姓名</td>
+            <td>時間</td>
+            <td>來源</td>
+        </tr>
+        {% for log in visitorlogs %}
+            <tr>
+							  <td>{{log.user_id|classroom}}</td>
+                <td nowrap><a href="/account/profile/{{log.user_id}}">{{log.user_id|realname}}</a></td>
+				<td nowrap>{{log.time}}</td>
+              <td nowrap>{{log.IP}}</td>
+            </tr>
+        {% endfor %}
+        </table>
+        {% load pagination %}
+        {% get_pagination %}
+        
+        <BR>  
+{% endblock %}

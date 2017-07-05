@@ -120,3 +120,23 @@ def is_parent(user_id):
       return True
     else:
       return False
+    
+@register.filter(name='week') 
+def week(date_number):
+    year = date_number / 10000
+    month = (date_number - year * 10000) / 100
+    day = date_number - year * 10000 - month * 100
+    now = datetime(year, month, day, 8, 0, 0)
+    return now.strftime("%A")
+  
+@register.filter()
+def classroom(user_id):
+    if user_id > 0 :
+        enrolls = Enroll.objects.filter(student_id=user_id).order_by("-id")[:5]
+        classroom_names = ""
+        for enroll in enrolls:
+            classroom = Classroom.objects.get(id=enroll.classroom_id)
+            classroom_names += classroom.name + "| "
+        return classroom_names
+    else : 
+        return "匿名"
