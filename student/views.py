@@ -380,7 +380,8 @@ def forum_history(request, user_id, index, classroom_id):
 		contents = FContent.objects.filter(forum_id=index).order_by("-id")
 		works = SFWork.objects.filter(index=index, student_id=user_id).order_by("-id")
 		files = SFContent.objects.filter(index=index, student_id=user_id).order_by("-id")
-		return render_to_response('student/forum_history.html', {'classroom_id':classroom_id, 'works':works, 'contents':contents, 'files':files, 'index':index}, context_instance=RequestContext(request))
+		forum = FWork.objects.get(id=index)		
+		return render_to_response('student/forum_history.html', {'forum': forum, 'classroom_id':classroom_id, 'works':works, 'contents':contents, 'files':files, 'index':index}, context_instance=RequestContext(request))
 
 def forum_like(request):
     forum_id = request.POST.get('forumid')  
