@@ -609,7 +609,7 @@ def forum_export(request, classroom_id, forum_id):
 		#word
 		document = Document()
 		docx_title=u"討論區-" + classroom.name + "-"+ str(timezone.localtime(timezone.now()).date())+".docx"
-		document.add_paragraph(request.user.first_name + u'的教學筆記')
+		document.add_paragraph(request.user.first_name + u'的討論區作業')
 		document.add_paragraph(u"班級：" + classroom.name)		
 		
 		for enroll, works, replys, files in datas:
