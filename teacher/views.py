@@ -260,11 +260,11 @@ class ForumListView(ListView):
     template_name = "teacher/forum_list.html"		
     paginate_by = 20
     def get_queryset(self):        
-        fclasses = FClass.objects.filter(classroom_id=self.kwargs['classroom_id'])
-        fclass_list = []
+        fclasses = FClass.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("-publication_date")
+        forums = []
         for fclass in fclasses:
-            fclass_list.append(fclass.forum_id)
-        forums = FWork.objects.filter(id__in=fclass_list).order_by("-id")
+            forum = FWork.objects.get(id=fclass.forum_id)
+            forums.append([forum, fclass.publication_date])
         return forums
 			
     def get_context_data(self, **kwargs):
@@ -690,22 +690,31 @@ def add_hyperlink(document, paragraph, url, name):
 
 def forum_grade(request, classroom_id):
 	forum_ids = []
+	forums = []
 	fclasses = FClass.objects.filter(classroom_id=classroom_id).order_by("publication_date")
 	for fclass in fclasses:
 		forum_ids.append(fclass.forum_id)
+		forum = FWork.objects.get(id=fclass.forum_id)
+		forums.append(forum.title)
 	enrolls = Enroll.objects.filter(classroom_id=classroom_id).order_by("seat")
 	datas = {}
 	for enroll in enrolls:
-			sfworks = SFWork.objects.filter(index__in=forum_ids, student_id=enroll.student_id).order_by("-index", "id")
+			sfworks = SFWork.objects.filter(index__in=forum_ids, student_id=enroll.student_id).order_by("id")
 			if len(sfworks) > 0:
-				if enroll.student_id in datas:
-					for fclass in fclasses:
+				for fclass in fclasses:
 						works = filter(lambda w: w.index==fclass.forum_id, sfworks)
-						if len(works) > 0:
-							datas[enroll.student_id].append(sfworks[0].score)
-						else :
-							datas[enroll.student_id].append(0)
-				else :
-					datas[enroll.student_id] = []
-	return render_to_response('teacher/forum_grade.html',{'datas':datas}, context_instance=RequestContext(request))
+						if enroll.student_id in datas:
+							if len(works) > 0 :
+								datas[enroll.student_id].append(works[-1].score)
+							else :
+								datas[enroll.student_id].append("")
+						else:
+							if len(works) > 0:
+								datas[enroll.student_id] = [works[-1].score]
+							else :
+								datas[enroll.student_id] = [""]
+	results = []
+	for enroll in enrolls:
+		results.append([enroll.seat, enroll.student_id, datas[enroll.student_id]])
+	return render_to_response('teacher/forum_grade.html',{'results':results, 'forums':forums, 'fclasses':fclasses}, context_instance=RequestContext(request))
 			
