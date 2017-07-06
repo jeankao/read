@@ -38,7 +38,8 @@ urlpatterns = [
     url(r'^forum/content/edit/(?P<forum_id>\d+)/(?P<content_id>\d+)/$', login_required(views.forum_edit), name='forum-content-edit'),    
     #url(r'^forum/class/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/$', views.forum_class, name='forum-class'),  
     url(r'^forum/class/(?P<forum_id>\d+)/$',  login_required(ForumClassListView.as_view()), name='forum-class'),    
-    url(r'^forum/export/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/$', login_required(views.forum_export), name='forum-edit'),   
+    url(r'^forum/export/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/$', login_required(views.forum_export), name='forum-export'),   
+    url(r'^forum/grade/(?P<classroom_id>\d+)/$', login_required(views.forum_grade), name='forum-grade'),   
     #設定班級
     url(r'^forum/class/switch/$', login_required(views.forum_switch), name='make'),    
 ]

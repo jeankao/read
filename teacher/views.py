@@ -687,3 +687,25 @@ def add_hyperlink(document, paragraph, url, name):
     r.font.underline = True
 
     return None
+
+def forum_grade(request, classroom_id):
+	forum_ids = []
+	fclasses = FClass.objects.filter(classroom_id=classroom_id).order_by("publication_date")
+	for fclass in fclasses:
+		forum_ids.append(fclass.forum_id)
+	enrolls = Enroll.objects.filter(classroom_id=classroom_id).order_by("seat")
+	datas = {}
+	for enroll in enrolls:
+			sfworks = SFWork.objects.filter(index__in=forum_ids, student_id=enroll.student_id).order_by("-index", "id")
+			if len(sfworks) > 0:
+				if enroll.student_id in datas:
+					for fclass in fclasses:
+						works = filter(lambda w: w.index==fclass.forum_id, sfworks)
+						if len(works) > 0:
+							datas[enroll.student_id].append(sfworks[0].score)
+						else :
+							datas[enroll.student_id].append(0)
+				else :
+					datas[enroll.student_id] = []
+	return render_to_response('teacher/forum_grade.html',{'datas':datas}, context_instance=RequestContext(request))
+			
