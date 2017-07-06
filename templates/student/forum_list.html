@@ -14,16 +14,14 @@
 							<a href="/student/forum/jieba/{{classroom_id}}/{{work.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-signal" aria-hidden="true"></span> 詞句統計</a>		
 							<a href="/student/forum/memo/{{classroom_id}}/{{work.id}}/2" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-star" aria-hidden="true"></span> 五顆星</a>						
 							<a href="/student/forum/memo/{{classroom_id}}/{{work.id}}/3" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> 人氣榜</a>	
+{% if request.user.id == work.teacher_id %}	
+<a href="/teacher/forum/{{classroom_id}}/#{{work.id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> 教師</a>	
+{% endif %}
 	</div>
 </div>
-
-
-
         {% endfor %}
-
 {% endblock %}
 
 {% block domready %}
-$('html, body').animate({scrollTop: $('#{{bookmark}}').offset().top -100 }, 'slow');
-
+		$('html, body').animate({scrollTop: $(''+$(location).attr('hash')).offset().top -100 }, 'slow');
 {% endblock %}

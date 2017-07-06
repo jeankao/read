@@ -598,7 +598,8 @@ def forum_export(request, classroom_id, forum_id):
 			else:
 				replys = []
 			files = filter(lambda w: w.student_id==enroll.student_id, file_pool)
-			datas.append([enroll, works, replys, files])
+			if enroll.seat > 0:
+				datas.append([enroll, works, replys, files])
 		def getKey(custom):
 			return -custom[0].seat
 		datas = sorted(datas, key=getKey, reverse=True)	
