@@ -258,7 +258,7 @@ class ForumListView(ListView):
         fclass_dict = dict(((fclass.forum_id, fclass) for fclass in FClass.objects.filter(classroom_id=self.kwargs['classroom_id'])))	
         #fclasses = FClass.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("-id")
         fworks = FWork.objects.filter(id__in=fclass_dict.keys()).order_by("-id")
-        sfwork_pool = SFWork.objects.filter(student_id=self.request.user.id)
+        sfwork_pool = SFWork.objects.filter(student_id=self.request.user.id).order_by("-id")
         for fwork in fworks:
             sfworks = filter(lambda w: w.index==fwork.id, sfwork_pool)
             if len(sfworks)> 0 :
@@ -266,7 +266,7 @@ class ForumListView(ListView):
             else :
                 queryset.append([fwork, False, fclass_dict[fwork.id]])
         def getKey(custom):
-            return custom[2].publication_date
+            return custom[2].publication_date, custom[2].forum_id
         queryset = sorted(queryset, key=getKey, reverse=True)	
         return queryset
         
@@ -274,6 +274,7 @@ class ForumListView(ListView):
         context = super(ForumListView, self).get_context_data(**kwargs)
         context['classroom_id'] = self.kwargs['classroom_id']
         context['bookmark'] =  self.kwargs['bookmark']
+        context['fclasses'] = dict(((fclass.forum_id, fclass) for fclass in FClass.objects.filter(classroom_id=self.kwargs['classroom_id'])))
         return context	    
 
     # 限本班同學

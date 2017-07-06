@@ -263,7 +263,7 @@ class ForumListView(ListView):
     template_name = "teacher/forum_list.html"		
     paginate_by = 20
     def get_queryset(self):        
-        fclasses = FClass.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("-publication_date")
+        fclasses = FClass.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("-publication_date", "-forum_id")
         forums = []
         for fclass in fclasses:
             forum = FWork.objects.get(id=fclass.forum_id)
@@ -608,7 +608,7 @@ def forum_export(request, classroom_id, forum_id):
 		datas = sorted(datas, key=getKey, reverse=True)	
 		#word
 		document = Document()
-		docx_title=u"討論區-"  + "-"+ str(timezone.localtime(timezone.now()).date())+".docx"
+		docx_title=u"討論區-" + classroom.name + "-"+ str(timezone.localtime(timezone.now()).date())+".docx"
 		document.add_paragraph(request.user.first_name + u'的教學筆記')
 		document.add_paragraph(u"班級：" + classroom.name)		
 		
@@ -646,7 +646,7 @@ def forum_export(request, classroom_id, forum_id):
 			f.getvalue(),
 			content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 		)
-		response['Content-Disposition'] = 'attachment; filename=' + docx_title
+		response['Content-Disposition'] = 'attachment; filename={0}'.format(docx_title.encode('utf8')) 
 		response['Content-Length'] = length
 		return response
 
@@ -695,7 +695,7 @@ def forum_grade(request, classroom_id, action):
 	classroom = Classroom.objects.get(id=classroom_id)
 	forum_ids = []
 	forums = []
-	fclasses = FClass.objects.filter(classroom_id=classroom_id).order_by("publication_date")
+	fclasses = FClass.objects.filter(classroom_id=classroom_id).order_by("publication_date", "forum_id")
 	for fclass in fclasses:
 		forum_ids.append(fclass.forum_id)
 		forum = FWork.objects.get(id=fclass.forum_id)
