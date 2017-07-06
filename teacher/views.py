@@ -4,8 +4,8 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from teacher.models import Classroom, TWork, FWork, FClass, FContent, Assistant
-from student.models import Enroll, EnrollGroup, SWork
-from account.models import Domain, Level, Parent
+from student.models import Enroll, EnrollGroup, SWork, SFWork, SFReply, SFContent
+from account.models import Domain, Level, Parent, Log
 from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm, CategroyForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
@@ -19,11 +19,22 @@ import re
 from django.contrib.auth.models import User
 from django.db.models import Q
 import ast
+from docx import *
+from docx.shared import Inches
+from docx.shared import RGBColor
+from django.utils import timezone
+from docx.oxml.shared import OxmlElement, qn
+from docx.opc.constants import RELATIONSHIP_TYPE as RT
+from docx.enum.dml import MSO_THEME_COLOR_INDEX
+import StringIO
+from shutil import copyfile
+
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
     return user.groups.filter(name='teacher').exists() and Classroom.objects.filter(teacher_id=user.id, id=classroom_id).exists()
 
-
+def is_event_open(request):
+		return True
 
 # 列出所有課程
 class ClassroomListView(ListView):
@@ -562,3 +573,116 @@ class ForumEditUpdateView(UpdateView):
     def get_success_url(self):
         succ_url =  '/teacher/forum/'+self.kwargs['classroom_id']
         return succ_url
+	
+def forum_export(request, classroom_id, forum_id):
+	if not is_teacher(request.user, classroom_id):
+		return redirect("/")
+	classroom = Classroom.objects.get(id=classroom_id)
+	# 記錄系統事件
+	if is_event_open(request) :       
+		log = Log(user_id=request.user.id, event=u'匯出討論區作業<'+classroom.name+u'>到Word')
+		log.save()  
+	try:
+		fwork = FWork.objects.get(id=forum_id)
+		enrolls = Enroll.objects.filter(classroom_id=classroom_id)
+		datas = []
+		contents = FContent.objects.filter(forum_id=forum_id).order_by("-id")
+		fwork = FWork.objects.get(id=forum_id)
+		works_pool = SFWork.objects.filter(index=forum_id).order_by("-id")
+		reply_pool = SFReply.objects.filter(index=forum_id).order_by("-id")	
+		file_pool = SFContent.objects.filter(index=forum_id, visible=True).order_by("-id")	
+		for enroll in enrolls:
+			works = filter(lambda w: w.student_id==enroll.student_id, works_pool)
+			if len(works)>0:
+				replys = filter(lambda w: w.work_id==works[0].id, reply_pool)
+			else:
+				replys = []
+			files = filter(lambda w: w.student_id==enroll.student_id, file_pool)
+			datas.append([enroll, works, replys, files])
+		def getKey(custom):
+			return -custom[0].seat
+		datas = sorted(datas, key=getKey, reverse=True)	
+		#word
+		document = Document()
+		docx_title=u"討論區-"  + "-"+ str(timezone.localtime(timezone.now()).date())+".docx"
+		document.add_paragraph(request.user.first_name + u'的教學筆記')
+		document.add_paragraph(u"班級：" + classroom.name)		
+		
+		for enroll, works, replys, files in datas:
+			user = User.objects.get(id=enroll.student_id)
+			run = document.add_paragraph().add_run(str(enroll.seat)+")"+user.first_name)
+			font = run.font
+			font.color.rgb = RGBColor(0xFA, 0x24, 0x00)
+			if len(works)>0:
+				document.add_paragraph(str(works[0].publication_date)[:19]+'\n'+works[0].memo)
+			if len(replys)>0:
+				for reply in replys:
+					user = User.objects.get(id=reply.user_id)
+					run = document.add_paragraph().add_run(user.first_name+u'>'+str(reply.publication_date)[:19]+u'>留言:\n'+reply.memo)
+					font = run.font
+					font.color.rgb = RGBColor(0x42, 0x24, 0xE9)		
+			if len(files)>0:
+				for file in files:
+					if file.visible:
+						if file.title[-3:].upper() == "PNG" or file.title[-3:].upper() == "JPG":
+							copyfile('static/upload/'+file.filename, 'static/upload/file.png')					
+							document.add_picture('static/upload/file.png',width=Inches(6.0))
+						else:
+							p = document.add_paragraph()
+							full_url = request.build_absolute_uri()
+							index = full_url.find("/",9)
+							url = full_url[:index] + "/student/forum/download/" + str(file.id) 
+							add_hyperlink(document, p, url, file.title)
+		# Prepare document for download        
+		f = StringIO.StringIO()
+		document.save(f)
+		length = f.tell()
+		f.seek(0)
+		response = HttpResponse(
+			f.getvalue(),
+			content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+		)
+		response['Content-Disposition'] = 'attachment; filename=' + docx_title
+		response['Content-Length'] = length
+		return response
+
+	except ObjectDoesNotExist:
+		pass
+	return True
+        
+def add_hyperlink(document, paragraph, url, name):
+    """
+    Add a hyperlink to a paragraph.
+
+    :param document: The Document being edited.
+    :param paragraph: The Paragraph the hyperlink is being added to.
+    :param url: The url to be added to the link.
+    :param name: The text for the link to be displayed in the paragraph
+    :return: None
+    """
+
+    part = document.part
+    rId = part.relate_to(url, RT.HYPERLINK, is_external=True)
+
+    init_hyper = OxmlElement('w:hyperlink')
+    init_hyper.set(qn('r:id'), rId, )
+    init_hyper.set(qn('w:history'), '1')
+
+    new_run = OxmlElement('w:r')
+
+    rPr = OxmlElement('w:rPr')
+
+    rStyle = OxmlElement('w:rStyle')
+    rStyle.set(qn('w:val'), 'Hyperlink')
+
+    rPr.append(rStyle)
+    new_run.append(rPr)
+    new_run.text = name
+    init_hyper.append(new_run)
+
+    r = paragraph.add_run()
+    r._r.append(init_hyper)
+    r.font.color.theme_color = MSO_THEME_COLOR_INDEX.HYPERLINK
+    r.font.underline = True
+
+    return None

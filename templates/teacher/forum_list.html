@@ -19,7 +19,7 @@
 						<a href="/teacher/forum/category/{{classroom.id}}/{{forum.id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-check" aria-hidden="true"></span> 分類</a>
 						<a href="/teacher/forum/class/{{forum.id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span> 班級</a>
             <a href="/teacher/forum/content/{{forum.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> 素材</a>
-            <a href="/teacher/forum/class/{{classroom.id}}/{{forum.id}}" class="btn" role="btn"><span class="glyphicon glyphicon-sunglasses" aria-hidden="true"></span> 評分</a>		
+            <a href="/teacher/forum/export/{{classroom.id}}/{{forum.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span> 匯出</a>		
 						{% else %}
             <a href="/teacher/forum/show/{{forum.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> 素材</a>								
 						{% endif %}
