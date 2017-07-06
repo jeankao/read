@@ -628,8 +628,7 @@ def forum_export(request, classroom_id, forum_id):
 					m = re.match('\[m_(\d+)#(\d+):(\d+):(\d+)\]', token)
 					if m: # 若為時間標記，則插入連結
 						vid = filter(lambda material: material.id == int(m.group(1)), contents)[0]
-						start = (int(m.group(2))*3600)+(int(m.group(3))*60)+int(m.group(4))
-						add_hyperlink(p, vid.youtube+"&t="+str(start), "["+m.group(2)+":"+m.group(3)+":"+m.group(4)+"]")
+						add_hyperlink(p, vid.youtube+"&t="+m.group(2)+"h"+m.group(3)+"m"+m.group(4)+"s", "["+m.group(2)+":"+m.group(3)+":"+m.group(4)+"]")
 					else: # 以一般文字插入
 						p.add_run(token)
 			if len(replys)>0:
