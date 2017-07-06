@@ -31,6 +31,7 @@ from shutil import copyfile
 import xlsxwriter
 from django.utils.timezone import localtime
 from datetime import datetime
+import docx 
 
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
@@ -618,7 +619,19 @@ def forum_export(request, classroom_id, forum_id):
 			font = run.font
 			font.color.rgb = RGBColor(0xFA, 0x24, 0x00)
 			if len(works)>0:
-				document.add_paragraph(str(works[0].publication_date)[:19]+'\n'+works[0].memo)
+				#p = document.add_paragraph(str(works[0].publication_date)[:19]+'\n'+works[0].memo)
+				p = document.add_paragraph(str(works[0].publication_date)[:19]+'\n')
+				# 將 memo 以時間標記為切割點，切分為一堆 tokens
+				tokens = re.split('(\[m_\d+#\d+:\d+:\d+\])', works[0].memo)
+				# 依續比對 token 格式
+				for token in tokens:
+					m = re.match('\[m_(\d+)#(\d+):(\d+):(\d+)\]', token)
+					if m: # 若為時間標記，則插入連結
+						vid = filter(lambda material: material.id == int(m.group(1)), contents)[0]
+						start = (int(m.group(2))*3600)+(int(m.group(3))*60)+int(m.group(4))
+						add_hyperlink(p, vid.youtube+"&t="+str(start), "["+m.group(2)+":"+m.group(3)+":"+m.group(4)+"]")
+					else: # 以一般文字插入
+						p.add_run(token)
 			if len(replys)>0:
 				for reply in replys:
 					user = User.objects.get(id=reply.user_id)
@@ -653,43 +666,37 @@ def forum_export(request, classroom_id, forum_id):
 	except ObjectDoesNotExist:
 		pass
 	return True
-        
-def add_hyperlink(document, paragraph, url, name):
+
+def add_hyperlink(paragraph, url, text):
     """
-    Add a hyperlink to a paragraph.
+    A function that places a hyperlink within a paragraph object.
 
-    :param document: The Document being edited.
-    :param paragraph: The Paragraph the hyperlink is being added to.
-    :param url: The url to be added to the link.
-    :param name: The text for the link to be displayed in the paragraph
-    :return: None
+    :param paragraph: The paragraph we are adding the hyperlink to.
+    :param url: A string containing the required url
+    :param text: The text displayed for the url
+    :return: The hyperlink object
     """
+    # This gets access to the document.xml.rels file and gets a new relation id value
+    part = paragraph.part
+    r_id = part.relate_to(url, RT.HYPERLINK, is_external=True)
 
-    part = document.part
-    rId = part.relate_to(url, RT.HYPERLINK, is_external=True)
+    # Create the w:hyperlink tag and add needed values
+    hyperlink = OxmlElement('w:hyperlink')
+    hyperlink.set(qn('r:id'), r_id, )
 
-    init_hyper = OxmlElement('w:hyperlink')
-    init_hyper.set(qn('r:id'), rId, )
-    init_hyper.set(qn('w:history'), '1')
-
+    # Create a w:r element
     new_run = OxmlElement('w:r')
 
+    # Create a new w:rPr element
     rPr = OxmlElement('w:rPr')
 
-    rStyle = OxmlElement('w:rStyle')
-    rStyle.set(qn('w:val'), 'Hyperlink')
-
-    rPr.append(rStyle)
+	  # Join all the xml elements together add add the required text to the w:r element
     new_run.append(rPr)
-    new_run.text = name
-    init_hyper.append(new_run)
+    new_run.text = text
+    hyperlink.append(new_run)
 
-    r = paragraph.add_run()
-    r._r.append(init_hyper)
-    r.font.color.theme_color = MSO_THEME_COLOR_INDEX.HYPERLINK
-    r.font.underline = True
-
-    return None
+    paragraph._p.append(hyperlink)
+    return hyperlink
 
 def forum_grade(request, classroom_id, action):
 	classroom = Classroom.objects.get(id=classroom_id)
