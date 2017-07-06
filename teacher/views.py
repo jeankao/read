@@ -28,6 +28,9 @@ from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from docx.enum.dml import MSO_THEME_COLOR_INDEX
 import StringIO
 from shutil import copyfile
+import xlsxwriter
+from django.utils.timezone import localtime
+from datetime import datetime
 
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
@@ -688,7 +691,8 @@ def add_hyperlink(document, paragraph, url, name):
 
     return None
 
-def forum_grade(request, classroom_id):
+def forum_grade(request, classroom_id, action):
+	classroom = Classroom.objects.get(id=classroom_id)
 	forum_ids = []
 	forums = []
 	fclasses = FClass.objects.filter(classroom_id=classroom_id).order_by("publication_date")
@@ -705,16 +709,65 @@ def forum_grade(request, classroom_id):
 						works = filter(lambda w: w.index==fclass.forum_id, sfworks)
 						if enroll.student_id in datas:
 							if len(works) > 0 :
-								datas[enroll.student_id].append(works[-1].score)
+								datas[enroll.student_id].append(works[0])
 							else :
-								datas[enroll.student_id].append("")
+								datas[enroll.student_id].append(SFWork())
 						else:
 							if len(works) > 0:
-								datas[enroll.student_id] = [works[-1].score]
+								datas[enroll.student_id] = [works[0]]
 							else :
-								datas[enroll.student_id] = [""]
+								datas[enroll.student_id] = [SFWork()]
 	results = []
 	for enroll in enrolls:
-		results.append([enroll.seat, enroll.student_id, datas[enroll.student_id]])
-	return render_to_response('teacher/forum_grade.html',{'results':results, 'forums':forums, 'fclasses':fclasses}, context_instance=RequestContext(request))
-			
+		student_name = User.objects.get(id=enroll.student_id).first_name
+		results.append([enroll, student_name, datas[enroll.student_id]])
+	
+	#下載Excel
+	if action == "1":
+		classroom = Classroom.objects.get(id=classroom_id)
+		# 記錄系統事件
+		if is_event_open(request) :       
+			log = Log(user_id=request.user.id, event=u'下載成績到Excel')
+			log.save()        
+		output = StringIO.StringIO()
+		workbook = xlsxwriter.Workbook(output)    
+		worksheet = workbook.add_worksheet(classroom.name)
+		date_format = workbook.add_format({'num_format': 'yy/mm/dd'})
+		
+		row = 1
+		worksheet.write(row, 1, u'座號')
+		worksheet.write(row, 2, u'姓名')
+		index = 3
+		for forum in forums:
+			worksheet.write(row, index, forum)
+			index += 1
+		
+		row += 1
+		index = 3
+		for fclass in fclasses:
+			worksheet.write(row, index, datetime.strptime(str(fclass.publication_date)[:19],'%Y-%m-%d %H:%M:%S'), date_format)
+			index += 1			
+
+		for enroll, student_name, works in results:
+			row += 1
+			worksheet.write(row, 1, enroll.seat)
+			worksheet.write(row, 2, student_name)
+			index = 3
+			for work in works:
+				if work.id:
+					worksheet.write(row, index, work.score)
+				else:
+					worksheet.write(row, index, '')
+				index +=1 
+
+		workbook.close()
+		# xlsx_data contains the Excel file
+		response = HttpResponse(content_type='application/vnd.ms-excel')
+		filename = classroom.name + '-' + str(localtime(timezone.now()).date()) + '.xlsx'
+		response['Content-Disposition'] = 'attachment; filename={0}'.format(filename.encode('utf8'))
+		xlsx_data = output.getvalue()
+		response.write(xlsx_data)
+		return response
+	else :
+		return render_to_response('teacher/forum_grade.html',{'results':results, 'forums':forums, 'classroom_id':classroom_id, 'fclasses':fclasses}, context_instance=RequestContext(request))
+	

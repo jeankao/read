@@ -352,6 +352,7 @@ def forum_show(request, index, user_id, classroom_id):
 		if not (is_classmate(int(user_id), request.user.id) or is_teacher(classroom_id, request.user.id) or is_parent(user_id,request.user.id)) :
 			return redirect("/")	
 		forum = FWork.objects.get(id=index)
+		teacher_id = forum.teacher_id
 		work = []
 		replys = []
 		files = []
@@ -363,7 +364,7 @@ def forum_show(request, index, user_id, classroom_id):
 			publish = works.last().publish
 			replys = SFReply.objects.filter(index=index, work_id=work.id).order_by("-id")	
 			files = SFContent.objects.filter(index=index, student_id=user_id, visible=True).order_by("-id")	
-		return render_to_response('student/forum_show.html', {'publish':publish, 'classroom_id':classroom_id, 'contents':contents, 'replys':replys, 'files':files, 'forum':forum, 'user_id':user_id, 'work':work, 'works':works}, context_instance=RequestContext(request))
+		return render_to_response('student/forum_show.html', {'publish':publish, 'classroom_id':classroom_id, 'contents':contents, 'replys':replys, 'files':files, 'forum':forum, 'user_id':user_id, 'work':work, 'works':works, 'teacher_id':teacher_id}, context_instance=RequestContext(request))
 
  # 查詢某作業所有同學心得
 def forum_memo(request, classroom_id, index, action):
