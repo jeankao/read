@@ -1,23 +1,28 @@
 {% extends "base.html" %}
-{% block title %} Teachers {% endblock %}
+{% load tag %}
 {% block header %}
 <link href="/static/css/toggle.css" rel="stylesheet" type="text/css" media="all">	
 {% endblock %}
 {% block content %}
 <button type="button" class="btn btn-success">{{fwork.title}}</button>
         <div class="row">
-        {% for classroom in classrooms %}
+        {% for classroom, open, deadline, deadline_date in classrooms %}
   		<div class="col-xs-12 col-sm-4 col-md-3">
 <div class="panel panel-default">
-  <div class="panel-heading">{{classroom.name}}</div>
+  <div class="panel-heading">{{classroom.id|classname}}</div>
   <div class="panel-body"><div class="onoffswitch">
-    <input data-forumid="{{fwork.id}}" data-classroomid="{{classroom.id}}" type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch{{classroom.id}}" {% if classroom.id in classroom_ids %}checked{% endif %}>
+    <input data-forumid="{{forum_id}}" data-classroomid="{{classroom.id}}" type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch{{classroom.id}}" {% if open %}checked{% endif %}>
     <label class="onoffswitch-label" for="myonoffswitch{{classroom.id}}">
         <span class="onoffswitch-inner"></span>
         <span class="onoffswitch-switch"></span>
     </label>
-</div></div>
 </div>
+    <div>
+    <a href="/teacher/forum/deadline/{{classroom.id}}/{{forum_id}}">期限:{% if deadline %}{{deadline_date}}{% else %}無{% endif %}</a>
+    </div>         
+</div>
+        </div>
+
           </div>
         {% endfor %}
 </div>

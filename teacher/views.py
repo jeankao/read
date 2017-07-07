@@ -6,7 +6,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from teacher.models import Classroom, TWork, FWork, FClass, FContent, Assistant
 from student.models import Enroll, EnrollGroup, SWork, SFWork, SFReply, SFContent
 from account.models import Domain, Level, Parent, Log
-from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm, CategroyForm
+from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm, CategroyForm, DeadlineForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
 import os
@@ -33,6 +33,7 @@ from django.utils.timezone import localtime
 from datetime import datetime
 import docx 
 import os.path
+from django.utils.dateparse import parse_date
 
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
@@ -332,6 +333,7 @@ def forum_categroy(request, classroom_id, forum_id):
         form = CategroyForm(instance=forum)
     return render_to_response('teacher/categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'forum':forum}, context_instance=RequestContext(request))
 
+	
 # 列出所有討論主題
 class ForumAllListView(ListView):
     model = FWork
@@ -404,27 +406,29 @@ class ForumClassListView(ListView):
     paginate_by = 20
 	
     def get_queryset(self):        		
-        fwork = FWork.objects.get(id=self.kwargs['forum_id'])
+        fclass_dict = dict(((fclass.classroom_id, fclass) for fclass in FClass.objects.filter(forum_id=self.kwargs['forum_id'])))		
         classroom_list = []
-        classrooms = Classroom.objects.filter(teacher_id=fwork.teacher_id).order_by("-id")
+        classrooms = Classroom.objects.filter(teacher_id=self.request.user.id).order_by("-id")
         for classroom in classrooms:
-            classroom_list.append(classroom)
+            if classroom.id in fclass_dict:
+                classroom_list.append([classroom, True, fclass_dict[classroom.id].deadline, fclass_dict[classroom.id].deadline_date])
+            else :
+                classroom_list.append([classroom, False, False, timezone.now()])
         assistants = Assistant.objects.filter(user_id=self.request.user.id)
         for assistant in assistants:
             classroom = Classroom.objects.get(id=assistant.classroom_id)
             if not classroom in classroom_list:
-                classroom_list.append(classroom)
+                if classroom.id in fclass_dict:
+                    classroom_list.append([classroom, True, fclass_dict[classroom.id].deadline, fclass_dict[classroom.id].deadline_date])
+                else :
+                    classroom_list.append([classroom, False, False, timezone.now()])
         return classroom_list
 			
     def get_context_data(self, **kwargs):
         context = super(ForumClassListView, self).get_context_data(**kwargs)				
         fwork = FWork.objects.get(id=self.kwargs['forum_id'])
-        fclassrooms = FClass.objects.filter(forum_id=fwork.id)
-        classroom_ids = []
-        for fclassroom in fclassrooms:
-            classroom_ids.append(fclassroom.classroom_id)
         context['fwork'] = fwork
-        context['classroom_ids'] = classroom_ids
+        context['forum_id'] = self.kwargs['forum_id']
         return context	
 	
 # Ajax 開放班取、關閉班級
@@ -784,4 +788,48 @@ def forum_grade(request, classroom_id, action):
 		return response
 	else :
 		return render_to_response('teacher/forum_grade.html',{'results':results, 'forums':forums, 'classroom_id':classroom_id, 'fclasses':fclasses}, context_instance=RequestContext(request))
+def forum_deadline(request, classroom_id, forum_id):
+    forum = FWork.objects.get(id=forum_id)
+    if request.method == 'POST':
+        form = CategroyForm(request.POST)
+        if form.is_valid():
+            forum.domains = request.POST.getlist('domains')
+            forum.levels = request.POST.getlist('levels')	
+            forum.save()
+            return redirect('/teacher/forum/'+classroom_id)
+    else:
+        fclass = FClass.objects.get(classroom_id=classroom_id, forum_id=forum_id)
+        form = DeadlineForm(instance=fclass)
+    return render_to_response('teacher/forum_deadline_form.html',{'fclass':fclass}, context_instance=RequestContext(request))
+
+	
+# Ajax 設定期限、取消期限
+def forum_deadline_set(request):
+    forum_id = request.POST.get('forumid')
+    classroom_id = request.POST.get('classroomid')		
+    status = request.POST.get('status')
+    try:
+        fclass = FClass.objects.get(forum_id=forum_id, classroom_id=classroom_id)
+    except ObjectDoesNotExist:
+        fclass = Fclass(forum_id=forum_id, classroom_id=classroom_id)
+    if status == 'True':
+        fclass.deadline = True
+    else :
+        fclass.deadline = False
+    fclass.save()
+    return JsonResponse({'status':status}, safe=False)        
+
+# Ajax 設定期限日期
+def forum_deadline_date(request):
+    forum_id = request.POST.get('forumid')
+    classroom_id = request.POST.get('classroomid')		
+    deadline_date = request.POST.get('deadlinedate')
+    try:
+        fclass = FClass.objects.get(forum_id=forum_id, classroom_id=classroom_id)
+    except ObjectDoesNotExist:
+        fclass = FClass(forum_id=forum_id, classroom_id=classroom_id)
+    #fclass.deadline_date = deadline_date.strftime('%d/%m/%Y')
+    fclass.deadline_date = datetime.strptime(deadline_date, '%Y %B %d - %I:%M %p')
+    fclass.save()
+    return JsonResponse({'status':deadline_date}, safe=False)        
 	

@@ -7,7 +7,7 @@
   <button class="btn btn-success">{{forum.title}}</button>
   <button class="btn btn-default">{{forum.teacher_id|realname}}老師</button>
 	{% if user_id == request.user.id|int_to_str %}
-  <a href="/student/forum/submit/{{classroom_id}}/{{work.index}}" class="btn btn-primary" role="btn">編輯</a>	
+  <a href="/student/forum/submit/{{classroom_id}}/{{forum.id}}" class="btn btn-primary" role="btn">編輯</a>	
   {% endif %}
 	<div class="panel panel-default">
 		<div class="panel-heading">{{user_id|realname}} --{{work_new.publication_date}}{% if publish %}(已發表){% else %}<font color=red>(尚未發表)</font>{% endif %}　

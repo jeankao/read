@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from teacher.models import Classroom, TWork, FWork, FContent
+from teacher.models import Classroom, TWork, FWork, FContent, FClass
 from student.models import SWork
 
 
@@ -22,7 +22,16 @@ class CategroyForm(forms.ModelForm):
            fields = ['domains', 'levels']
         
         def __init__(self, *args, **kwargs):
-            super(CategroyForm, self).__init__(*args, **kwargs)				
+            super(CategroyForm, self).__init__(*args, **kwargs)			
+						
+# 新增一個繳交期長表單
+class DeadlineForm(forms.ModelForm):
+        class Meta:
+           model = FClass
+           fields = ['deadline', 'deadline_date']
+        
+        def __init__(self, *args, **kwargs):
+            super(DeadlineForm, self).__init__(*args, **kwargs)			
 
 # 新增一個作業
 class WorkForm(forms.ModelForm):

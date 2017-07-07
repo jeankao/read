@@ -2,7 +2,7 @@
 from django import template
 from django.contrib.auth.models import User
 from account.models import MessagePoll, Site, Parent
-from teacher.models import Classroom, Assistant
+from teacher.models import Classroom, Assistant, FClass
 from student.models import Enroll, SFWork, SFReply
 from django.contrib.auth.models import Group
 from django.utils import timezone
@@ -141,3 +141,13 @@ def classroom(user_id):
     else : 
         return "匿名"
 		
+@register.filter
+def in_deadline(forum_id, classroom_id):
+    try:
+        fclass = FClass.objects.get(forum_id=forum_id, classroom_id=classroom_id)
+    except ObjectDoesNotExist:
+        fclass = FClass(forum_id=forum_id, classroom_id=classroom_id)
+    if fclass.deadline:
+        if timezone.now() > fclass.deadline_date:
+            return fclass.deadline_date
+    return ""
