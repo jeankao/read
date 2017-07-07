@@ -10,15 +10,15 @@
   <a href="/student/forum/submit/{{classroom_id}}/{{work.index}}" class="btn btn-primary" role="btn">編輯</a>	
   {% endif %}
 	<div class="panel panel-default">
-		<div class="panel-heading">{{user_id|realname}} --{{work.publication_date}}{% if publish %}(已發表){% else %}<font color=red>(尚未發表)</font>{% endif %}　
+		<div class="panel-heading">{{user_id|realname}} --{{work_new.publication_date}}{% if publish %}(已發表){% else %}<font color=red>(尚未發表)</font>{% endif %}　
 			<span style="float:right">
 			<A href="/student/forum/history/{{user_id}}/{{work.index}}/{{classroom_id}}"><img src="/static/images/edit.gif"> 歷史({{works|length}})</A>
 			</span>		
 			{% if user_id == request.user.id or user_id|parent:request.user.id %}<a href="/student/forum/submit/{{classroom_id}}/{{index}}" class="btn btn-warning" role="btn">編輯</a>{% endif %}
 		</div>
-		{% if works.0 or files %}
+		{% if work_new or files %}
     <div class="panel-body">
-		{{work.memo|memo|safe}}
+		{{work_new.memo|memo|safe}}
 		<BR>
 		      {% for file in files %}
 			      {% if file.visible %}
@@ -34,24 +34,24 @@
             {% endif %}
 		      {% endfor %}
     <hr>			
-          {% if request.user.id in work.id|likes %}
-    <a href="#" data-forumid="{{work.index}}" data-userid="{{ user_id }}" data-action="unlike" class="like btn btn-primary" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
+          {% if request.user.id in work_first.id|likes %}
+    <a href="#" data-forumid="{{work_first.index}}" data-userid="{{ user_id }}" data-action="unlike" class="like btn btn-primary" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
           {% else %}
-    <a href="#" data-forumid="{{work.index}}" data-userid="{{ user_id }}" data-action="like" class="like btn btn-default" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
+    <a href="#" data-forumid="{{work_first.index}}" data-userid="{{ user_id }}" data-action="like" class="like btn btn-default" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
           {% endif %}
-    <a href="#" data-forumid="{{work.index}}" data-userid="{{user_id }}" class="people">
-    <span id="likes_count">{{work.like_count}}</span>人按讚
+    <a href="#" data-forumid="{{work_first.index}}" data-userid="{{user_id }}" class="people">
+    <span id="likes_count">{{work_new.like_count}}</span>人按讚
     </a>
-    <a {% if request.user.id == user_id %}href="#"{% endif %} data-workid="{{work.index}}" class="btn btn-default reply" role="btn"><span class="glyphicon glyphicon-heart" aria-hidden="true">留言</span></a>
-			<a href="#" data-workid="{{work.id}}" class="guestbooks">
+    <a {% if request.user.id == user_id %}href="#"{% endif %} data-workid="{{work_first.index}}" class="btn btn-default reply" role="btn"><span class="glyphicon glyphicon-heart" aria-hidden="true">留言</span></a>
+			<a href="#" data-workid="{{work_first.id}}" class="guestbooks">
 			<span id="reply_count">{{replys|length}}</span>則留言
 		</a>
 <fieldset class="rating">
-    <input {% if works.0.score == 5 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star5_{{works.0.id}}" name="rating{{works.0.id}}" value="5"/><label class = "full" for="star5_{{works.0.id}}" title="太棒了 - 5顆星"></label>
-    <input {% if works.0.score == 4 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star4_{{works.0.id}}" name="rating{{works.0.id}}" value="4" /><label class = "full" for="star4_{{works.0.id}}" title="好棒 - 4顆星"></label>
-    <input {% if works.0.score == 3 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star3_{{works.0.id}}" name="rating{{works.0.id}}" value="3" /><label class = "full" for="star3_{{works.0.id}}" title="不錯 - 3顆星"></label>
-    <input {% if works.0.score == 2 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star2_{{works.0.id}}" name="rating{{works.0.id}}" value="2" /><label class = "full" for="star2_{{works.0.id}}" title="再加油 - 2顆星"></label>
-    <input {% if works.0.score == 1 %}checked{% endif %} data-workid="{{works.0.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star1_{{works.0.id}}" name="rating{{works.0.id}}" value="1" /><label class = "full" for="star1_{{works.0.id}}" title="繼續努力 - 1顆星"></label>
+    <input {% if work_first.score == 5 %}checked{% endif %} data-workid="{{work_first.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star5_{{work_first.id}}" name="rating{{work_first.id}}" value="5"/><label class = "full" for="star5_{{work_first.id}}" title="太棒了 - 5顆星"></label>
+    <input {% if work_first.score == 4 %}checked{% endif %} data-workid="{{work_first.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star4_{{work_first.id}}" name="rating{{work_first.id}}" value="4" /><label class = "full" for="star4_{{work_first.id}}" title="好棒 - 4顆星"></label>
+    <input {% if work_first.score == 3 %}checked{% endif %} data-workid="{{work_first.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star3_{{work_first.id}}" name="rating{{work_first.id}}" value="3" /><label class = "full" for="star3_{{work_first.id}}" title="不錯 - 3顆星"></label>
+    <input {% if work_first.score == 2 %}checked{% endif %} data-workid="{{work_first.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star2_{{work_first.id}}" name="rating{{work_first.id}}" value="2" /><label class = "full" for="star2_{{work_first.id}}" title="再加油 - 2顆星"></label>
+    <input {% if work_first.score == 1 %}checked{% endif %} data-workid="{{work_first.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star1_{{work_first.id}}" name="rating{{work_first.id}}" value="1" /><label class = "full" for="star1_{{work_first.id}}" title="繼續努力 - 1顆星"></label>
 </fieldset>
 			        <div id="reply" style="display:none">
 							<textarea  autofocus name="reply" id="reply_memo" cols="30" rows="5" class="form-control list-group-item-text"></textarea>

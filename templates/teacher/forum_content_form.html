@@ -62,7 +62,8 @@ $(function () {
 </script>
 {% endblock %}
 {% block content %}
-  <ul class="tabs">
+<section class="wrapper">
+<ul class="tabs">
     <li><a href="#tab1">外部網址</a></li>
     <li><a href="#tab2">Youtube影片</a></li>
     <li><a href="#tab3">上傳檔案</a></li>
@@ -105,5 +106,6 @@ $(function () {
             {% csrf_token %}         
         </form>
     </article>
+</section>
 </section>
 {% endblock %}
