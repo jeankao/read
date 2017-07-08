@@ -18,7 +18,7 @@
     </label>
 </div>
     <div>
-    <a href="/teacher/forum/deadline/{{classroom.id}}/{{forum_id}}">期限:{% if deadline %}{{deadline_date}}{% else %}無{% endif %}</a>
+    <a href="/teacher/forum/deadline/{{classroom.id}}/{{forum_id}}">期限:{% if deadline %}{{deadline_date|date:"Y/m/d H:i:s"}}{% else %}無{% endif %}</a>
     </div>         
 </div>
         </div>
@@ -28,7 +28,7 @@
 </div>
 {% endblock %}
 {% block domready %}
-{% for classroom in classrooms %}
+{% for classroom, open, deadline, deadline_date in classrooms %}
     $('#myonoffswitch{{classroom.id}}').click(function(e){
     var launcher = this;  
     e.preventDefault();

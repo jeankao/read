@@ -270,7 +270,7 @@ class ForumListView(ListView):
         forums = []
         for fclass in fclasses:
             forum = FWork.objects.get(id=fclass.forum_id)
-            forums.append([forum, fclass.publication_date])
+            forums.append([forum, fclass])
         return forums
 			
     def get_context_data(self, **kwargs):
@@ -328,9 +328,10 @@ def forum_categroy(request, classroom_id, forum_id):
             forum.domains = request.POST.getlist('domains')
             forum.levels = request.POST.getlist('levels')	
             forum.save()
-            return redirect('/teacher/forum/'+classroom_id)
+            return redirect('/teacher/forum/'+classroom_id+'/#'+str(forum.id))
     else:
         form = CategroyForm(instance=forum)
+        
     return render_to_response('teacher/categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'forum':forum}, context_instance=RequestContext(request))
 
 	
@@ -526,7 +527,7 @@ class ForumContentCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         ctx = super(ForumContentCreateView, self).get_context_data(**kwargs)
-        ctx['forum_id'] = self.kwargs['forum_id']
+        ctx['forum'] = FWork.objects.get(id=self.kwargs['forum_id'])
         return ctx
 
 def forum_delete(request, forum_id, content_id):

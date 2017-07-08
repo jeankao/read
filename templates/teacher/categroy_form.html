@@ -1,19 +1,22 @@
 {% extends "base.html" %}
 {% load tag %}
+{% block header %}
+<link href="/static/css/checkbox.css" rel="stylesheet" type="text/css" media="all">
+{% endblock %}
 {% block content %}
-{{teacher_list}}
-         <form action="" enctype="multipart/form-data"  method="post">
+<a href="/teacher/forum/{{classroom_id}}/#{{forum.id}}" class="btn btn-success" role="btn">{{forum.title}}</a>
+         <form action="" enctype="multipart/form-data"  method="POST">
             <table class="table">
-           <tr><th>年級</td>
+           <tr><th nowrap>年級:</td>
                 <td>
               {% for level in levels %}
-              <label class="checkbox-inline"><input type="checkbox" {% if level.id|int_to_str in forum.levels %}checked{% endif %} value="{{level.id}}" name="levels" >{{level.title}}</label>   
+              <label for="level{{forloop.counter}}" class="btn btn-warning">{{level.title}}<input  {% if level.id|int_to_str in forum.levels %}checked{% endif %} value="{{level.id}}" name="levels" type="checkbox" id="level{{forloop.counter}}" class="badgebox" value="{{level.id}}"><span class="badge">&check;</span></label>
               {% endfor %}
               </td>             
-              <tr><th>學習領域</td>
+              <tr><th nowrap>學習領域:</td>
                 <td>
               {% for domain in domains %}
-              <label class="checkbox-inline"><input type="checkbox" {% if domain.id|int_to_str in forum.domains %}checked{% endif %} value="{{domain.id}}" name="domains" >{{domain.title}}</label>   
+              <label for="domain{{forloop.counter}}" class="btn btn-primary">{{domain.title}}<input  {% if domain.id|int_to_str in forum.domains %}checked{% endif %} value="{{domain.id}}" name="domains" type="checkbox" id="domain{{forloop.counter}}" class="badgebox" value="{{domain.id}}" ><span class="badge">&check;</span></label>
               {% endfor %}
               </td>
               </tr>

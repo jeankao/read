@@ -12,8 +12,9 @@ class ClassroomForm(forms.ModelForm):
         
         def __init__(self, *args, **kwargs):
             super(ClassroomForm, self).__init__(*args, **kwargs)
-            self.fields['name'].label = "班級名稱"
+            self.fields['name'].label = "班級名稱1"
             self.fields['password'].label = "選課密碼"
+            self.fields['name'].widget.attrs.update({'class' : 'form-control list-group-item-text'})						
 						
 # 新增一個課程表單
 class CategroyForm(forms.ModelForm):
@@ -84,6 +85,7 @@ class ForumForm(forms.ModelForm):
         def __init__(self, *args, **kwargs):
             super(ForumForm, self).__init__(*args, **kwargs)
             self.fields['title'].label = "討論主題"
+            self.fields['title'].widget.attrs.update({'class' : 'form-control list-group-item-text'})									
 						
 # 新增一個作業
 class ForumContentForm(forms.ModelForm):

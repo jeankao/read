@@ -1037,12 +1037,9 @@ class ForumListView(ListView):
         for fclass in fclasses:
             forum_ids.append(fclass.forum_id)
         queryset = []
-        sfwork_dict = dict(((sfwork.index, sfwork.publish) for sfwork in SFWork.objects.filter(student_id=self.kwargs['user_id']).order_by("id")))
+        sfwork_pool = SFWork.objects.filter(student_id=self.kwargs['user_id']).order_by("id")
         for fclass in fclasses:
-            if sfwork_dict.has_key(fclass.forum_id) :
-                queryset.append([fclass.forum_id, fclass.publication_date, fclass.classroom_id, forum_dict[fclass.forum_id], sfwork_dict[fclass.forum_id]])
-            else:
-                queryset.append([fclass.forum_id, fclass.publication_date, fclass.classroom_id, forum_dict[fclass.forum_id], False])
+            queryset.append([fclass, forum_dict[fclass.forum_id], filter(lambda w: w.index==fclass.forum_id, sfwork_pool)])
         return queryset
         
     def get_context_data(self, **kwargs):

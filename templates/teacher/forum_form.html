@@ -1,31 +1,32 @@
 {% extends "base.html" %}
 {% load tag %}
+{% block header %}
+<link href="/static/css/checkbox.css" rel="stylesheet" type="text/css" media="all">
+{% endblock %}
 {% block content %}
+
          <form action="" enctype="multipart/form-data"  method="post">
             <table class="table">
            <tr><th nowrap>年級:</td>
                 <td>
               {% for level in levels %}
-              <label class="checkbox-inline"><input type="checkbox" {% if level.id|int_to_str in classroom.levels %}checked{% endif %} value="{{level.id}}" name="levels" >{{level.title}}</label>   
+              <label for="level{{forloop.counter}}" class="btn btn-warning">{{level.title}}<input  {% if level.id|int_to_str in classroom.levels %}checked{% endif %} value="{{level.id}}" name="levels" type="checkbox" id="level{{forloop.counter}}" class="badgebox" value="{{level.id}}"><span class="badge">&check;</span></label>
               {% endfor %}
               </td>             
               <tr><th nowrap>學習領域:</td>
                 <td>
               {% for domain in domains %}
-              <label class="checkbox-inline"><input type="checkbox" {% if domain.id|int_to_str in classroom.domains %}checked{% endif %} value="{{domain.id}}" name="domains" >{{domain.title}}</label>   
+              <label for="domain{{forloop.counter}}" class="btn btn-primary">{{domain.title}}<input  {% if domain.id|int_to_str in classroom.domains %}checked{% endif %} value="{{domain.id}}" name="domains" type="checkbox" id="domain{{forloop.counter}}" class="badgebox" value="{{domain.id}}" ><span class="badge">&check;</span></label>
               {% endfor %}
               </td>
               </tr>
               
 <tr><th nowrap>班級:</th><Td>
-<div class="checkbox">
               {% for classroom in classrooms %}
-<label class="checkbox-inline"><input type="checkbox" value="{{classroom.id}}" name="classrooms" {% if classroom.id == classroom_id %}checked{% endif %}>{{classroom.name}}</label>
-
+             <label for="class{{forloop.counter}}" class="btn btn-danger">{{classroom.name}}<input  {% if classroom.id == classroom_id %}checked{% endif %} value="{{classroom.id}}" name="classrooms" type="checkbox" id="class{{forloop.counter}}" class="badgebox" value="{{classroom.id}}}"><span class="badge">&check;</span></label>
               {% endfor %}
-</div>
   </TD></tr>
-                {{ form.as_table }}              
+            <tr><th><label for="id_title">討論主題:</label></th><td><input class="form-control list-group-item-text" id="id_title" maxlength="250" name="title" type="text" />
   </table>
            
             {% csrf_token %}

@@ -262,9 +262,9 @@ class ForumListView(ListView):
         for fwork in fworks:
             sfworks = filter(lambda w: w.index==fwork.id, sfwork_pool)
             if len(sfworks)> 0 :
-                queryset.append([fwork, sfworks[0].publish, fclass_dict[fwork.id]])
+                queryset.append([fwork, sfworks[0].publish, fclass_dict[fwork.id], len(sfworks)])
             else :
-                queryset.append([fwork, False, fclass_dict[fwork.id]])
+                queryset.append([fwork, False, fclass_dict[fwork.id], 0])
         def getKey(custom):
             return custom[2].publication_date, custom[2].forum_id
         queryset = sorted(queryset, key=getKey, reverse=True)	

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load tag %}
 {% block header %}
 <style class="cp-pen-styles">
 ul.tabs {
@@ -62,6 +63,7 @@ $(function () {
 </script>
 {% endblock %}
 {% block content %}
+<a href="" class="btn btn-success" role="btn">{{forum.title}}</a>
 <section class="wrapper">
 <ul class="tabs">
     <li><a href="#tab1">外部網址</a></li>
@@ -74,7 +76,7 @@ $(function () {
       <BR>
          <form action=""  method="post"  enctype="multipart/form-data">
            <input type=hidden name=types value="1">
-           <input type=hidden name=forum_id value={{forum_id}}>
+           <input type=hidden name=forum_id value={{forum.id}}>
            文章褾題:<input id="id_content_title" maxlength="250" name="title" type="text" placeholder="開啟連結" class="form-control list-group-item-text">
            文章網址:<input id="id_content_link" maxlength="250" name="link" type="text" class="form-control list-group-item-text">
         說明：<textarea name="memo" id="memo" cols="30" rows="10" class="form-control list-group-item-text"></textarea>
@@ -86,7 +88,7 @@ $(function () {
       <BR>
     <form action=""  method="post" enctype="multipart/form-data">
            <input type=hidden name=types value="2">
-           <input type=hidden name=forum_id value={{forum_id}}>           
+           <input type=hidden name=forum_id value={{forum.id}}>           
            影片網址：<input id="id_content_youtube" maxlength="250" name="youtube" type="text" class="form-control list-group-item-text"/>
         說明：<textarea name="memo" id="memo" cols="30" rows="10" class="form-control list-group-item-text"></textarea>
 
@@ -99,7 +101,7 @@ $(function () {
           <BR>
          <form action=""  method="post" enctype="multipart/form-data" >
            <input type=hidden name="types" value="3">
-           <input type=hidden name=forum_id value={{forum_id}}>           
+           <input type=hidden name=forum_id value={{forum.id}}>           
            檔案:<input id="content_file" name="content_file" type="file"/>
         說明：<textarea name="memo" id="memo" cols="30" rows="10" class="form-control list-group-item-text"></textarea>           
            <input type="submit" value="送出">
