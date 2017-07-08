@@ -39,6 +39,12 @@ from django.utils.dateparse import parse_date
 def is_teacher(user, classroom_id):
     return user.groups.filter(name='teacher').exists() and Classroom.objects.filter(teacher_id=user.id, id=classroom_id).exists()
 
+def is_assistant(user, classroom_id):
+    assistants = Assistant.objects.filter(classroom_id=classroom_id, user_id=user.id)
+    if len(assistants)>0 :
+        return True
+    return False	
+	
 def is_event_open(request):
 		return True
 
@@ -872,7 +878,7 @@ class AnnounceCreateView(CreateView):
             # 班級學生訊息
             enrolls = Enroll.objects.filter(classroom_id=classroom_id)
             for enroll in enrolls:
-                messagepoll = MessagePoll(message_id=message.id, reader_id=enroll.student_id, classroom_id=classroom_id)
+                messagepoll = MessagePoll(message_type=1, message_id=message.id, reader_id=enroll.student_id, classroom_id=classroom_id)
                 messagepoll.save()
         # 記錄系統事件
         if is_event_open(self.request) :            
@@ -883,11 +889,21 @@ class AnnounceCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(AnnounceCreateView, self).get_context_data(**kwargs)
         context['class'] = Classroom.objects.get(id=self.kwargs['classroom_id'])
-        context['classrooms'] = Classroom.objects.filter(teacher_id=self.request.user.id).order_by("-id")
+        classroom_list = []
+        classrooms = Classroom.objects.filter(teacher_id=self.request.user.id)
+        for classroom in classrooms:
+            classroom_list.append(classroom.id)
+        assistants = Assistant.objects.filter(user_id=self.request.user.id)
+        for assistant in assistants:
+            if not assistant.classroom_id in classroom_list:
+                classroom_list.append(assistant.classroom_id)
+        classrooms = Classroom.objects.filter(id__in=classroom_list).order_by("-id")
+        context['classrooms'] = classrooms
         return context	   
         
     # 限本班任課教師        
     def render_to_response(self, context):
         if not is_teacher(self.request.user, self.kwargs['classroom_id']):
-            return redirect('/')
+            if not is_assistant(self.request.user, self.kwargs['classroom_id']) :
+                return redirect('/')
         return super(AnnounceCreateView, self).render_to_response(context)        

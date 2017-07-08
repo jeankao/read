@@ -93,6 +93,7 @@ class MessageContent(models.Model):
 
 # 訊息    
 class MessagePoll(models.Model):
+    message_type = models.IntegerField(default=0)
     message_id = models.IntegerField(default=0)
     reader_id = models.IntegerField(default=0)
     classroom_id = models.IntegerField(default=0)

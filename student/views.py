@@ -56,6 +56,12 @@ def is_teacher(classroom_id, user_id):
     if user_id == classroom.teacher_id:
         return True
     return False
+	
+def is_assistant(classroom_id, user_id):
+    assistants = Assistant.objects.filter(classroom_id=classroom_id, user_id=user_id)
+    if len(assistants)>0 :
+        return True
+    return False	
    
 # 列出選修的班級
 class ClassroomListView(ListView):
@@ -680,7 +686,7 @@ class AnnounceListView(ListView):
         if is_event_open(self.request) :    
             log = Log(user_id=self.request.user.id, event='查看班級公告')
             log.save()        
-        queryset = Message.objects.filter(classroom_id=self.kwargs['classroom_id'], author_id=self.request.user.id).order_by("-id")
+        queryset = Message.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("-id")
         return queryset
         
     def get_context_data(self, **kwargs):
@@ -691,5 +697,7 @@ class AnnounceListView(ListView):
     # 限本班任課教師        
     def render_to_response(self, context):
         if not is_teacher(self.kwargs['classroom_id'], self.request.user.id ):
-            return redirect('/')
+            if not is_assistant(self.kwargs['classroom_id'], self.request.user.id ):
+              if not is_classmate(self.kwargs['classroom_id'], self.request.user.id ):
+                  return redirect('/')
         return super(AnnounceListView, self).render_to_response(context)   

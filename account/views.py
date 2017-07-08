@@ -174,16 +174,20 @@ class MessageListView(ListView):
         query = []
         #公告
         if self.kwargs['action'] == "1":
-            pass
+            messagepolls = MessagePoll.objects.filter(reader_id=self.request.user.id, message_type=1).order_by('-message_id')
         #私訊
         elif self.kwargs['action'] == "2":
-            pass
+            messagepolls = MessagePoll.objects.filter(reader_id=self.request.user.id, message_type=2).order_by('-message_id')
         else :
             messagepolls = MessagePoll.objects.filter(reader_id=self.request.user.id).order_by('-message_id')
         for messagepoll in messagepolls:
             query.append([messagepoll, messagepoll.message])
         return query
         
+    def get_context_data(self, **kwargs):
+        context = super(MessageListView, self).get_context_data(**kwargs)
+        context['action'] = self.kwargs['action']
+        return context
 # 註冊帳號                  
 def register(request):
     if request.method == 'POST':
@@ -527,6 +531,7 @@ class LineCreateView(CreateView):
         self.object.title = u"[私訊]" + user_name + ":" + self.object.title
         self.object.author_id = self.request.user.id
         self.object.reader_id = self.kwargs['user_id']
+        self.object.type = 2
         self.object.save()
         self.object.url = "/account/line/detail/" + self.kwargs['classroom_id'] + "/" + str(self.object.id)
         self.object.classroom_id = 0 - int(self.kwargs['classroom_id'])
@@ -542,7 +547,7 @@ class LineCreateView(CreateView):
                 fs.save("static/upload/"+str(self.request.user.id)+"/"+filename, file)
                 content.save()
         # 訊息
-        messagepoll = MessagePoll(message_id=self.object.id, reader_id=self.kwargs['user_id'], classroom_id=0-int(self.kwargs['classroom_id']))
+        messagepoll = MessagePoll(message_id=self.object.id, reader_id=self.kwargs['user_id'], message_type=2, classroom_id=0-int(self.kwargs['classroom_id']))
         messagepoll.save()
         # 記錄系統事件
         if is_event_open(self.request) :            

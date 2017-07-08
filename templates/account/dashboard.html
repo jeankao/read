@@ -3,10 +3,10 @@
 {% load tag %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-  <a href="/account/dashboard/0" class="btn btn-success" role="btn">所有訊息</a>
-  <a href="/account/dashboard/1" class="btn btn-success" role="btn">課程公告</a>
-  <a href="/account/dashboard/2" class="btn btn-success" role="btn">私訊</a>
-  <Table class="table">
+<a href="/account/dashboard/0" class="btn btn-{% if action == '0' %}primary{% else %}default{% endif %}" role="btn">所有訊息</a>
+<a href="/account/dashboard/1" class="btn btn-{% if action == '1' %}primary{% else %}default{% endif %}" role="btn">課程公告</a>
+<a href="/account/dashboard/2" class="btn btn-{% if action == '2' %}primary{% else %}default{% endif %}" role="btn">私訊</a>
+<Table class="table">
 {% for messagepoll, message in messages %}<Tr><td><img src="/static/images/scratch{{forloop.counter|modulo:3}}.png"> {{ message.time| date:"DATE_FORMAT"}}
 <a href="/account/message/{{ messagepoll.id }}">
 {% if message.title|img == "line"%}

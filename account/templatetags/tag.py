@@ -128,7 +128,15 @@ def is_teacher(user_id, classroom_id):
       return True
     else:
       return False
-    
+
+@register.filter()
+def is_assistant(user_id, classroom_id):
+    assistants = Assistant.objects.filter(classroom_id=classroom_id, user_id=user_id)
+    if len(assistants) > 0 :
+      return True
+    else:
+      return False
+		
 @register.filter(name='week') 
 def week(date_number):
     year = date_number / 10000
