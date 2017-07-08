@@ -408,16 +408,18 @@ class ForumClassListView(ListView):
     def get_queryset(self):        		
         fclass_dict = dict(((fclass.classroom_id, fclass) for fclass in FClass.objects.filter(forum_id=self.kwargs['forum_id'])))		
         classroom_list = []
+        classroom_ids = []
         classrooms = Classroom.objects.filter(teacher_id=self.request.user.id).order_by("-id")
         for classroom in classrooms:
             if classroom.id in fclass_dict:
                 classroom_list.append([classroom, True, fclass_dict[classroom.id].deadline, fclass_dict[classroom.id].deadline_date])
             else :
                 classroom_list.append([classroom, False, False, timezone.now()])
+            classroom_ids.append(classroom.id)
         assistants = Assistant.objects.filter(user_id=self.request.user.id)
         for assistant in assistants:
             classroom = Classroom.objects.get(id=assistant.classroom_id)
-            if not classroom in classroom_list:
+            if not classroom.id in classroom_ids:
                 if classroom.id in fclass_dict:
                     classroom_list.append([classroom, True, fclass_dict[classroom.id].deadline, fclass_dict[classroom.id].deadline_date])
                 else :
