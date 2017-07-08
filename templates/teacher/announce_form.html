@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Create a question{% endblock %}
+{% block header %}
+<link href="/static/css/checkbox.css" rel="stylesheet" type="text/css" media="all">
+<script type="text/javascript" src="//cdn.ckeditor.com/4.5.9/standard-all/ckeditor.js"></script>
+<script>
+
+CKEDITOR.plugins.add('dreamerpasteimage', {
+    init: function(editor) {
+        editor.on('paste', function(e) {
+            var reader = new FileReader();
+            reader.onload = function(evt) {
+                var img = CKEDITOR.dom.element.createFromHtml("<img src='"+evt.target.result+"' />");
+                e.editor.insertElement(img);
+            }
+            e.data.dataTransfer._.files.forEach(function(file, index) {
+                console.log('paste: '+index);
+                reader.readAsDataURL(file);
+            });
+        });
+    },
+});
+</script>
+{% endblock %}
+{% block content %}
+        <h1>班級名稱：{{class.name}}</h1>
+         <form action="" enctype="multipart/form-data"  method="post">
+            <table class="table">
+<tr><th nowrap>班級:</th><Td>
+              {% for classroom in classrooms %}
+             <label for="class{{forloop.counter}}" class="btn btn-danger">{{classroom.name}}<input  {% if classroom.id == class.id %}checked{% endif %} value="{{classroom.id}}" name="classrooms" type="checkbox" id="class{{forloop.counter}}" class="badgebox" value="{{classroom.id}}}"><span class="badge">&check;</span></label>
+              {% endfor %}
+  </TD></tr>
+               {{ form.as_table }} 
+      
+           <tr><th>檔案:</td><td><input id="file" name="files" type="file"  multiple/><input id="submit" type="submit" value="送出"><td</tr>
+            </table>
+            {% csrf_token %}
+
+        </form>
+        </form>
+{% endblock %}
+{% block domready %}
+    CKEDITOR.replace("id_content", {
+        extraPlugins: 'colorbutton,colordialog,dreamerpasteimage',
+    } );	
+{% endblock %}

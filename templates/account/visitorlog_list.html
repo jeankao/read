@@ -12,7 +12,11 @@
         {% for log in visitorlogs %}
             <tr>
 							  <td>{{log.user_id|classroom}}</td>
+							  {% if request.user.id == 1 %}
                 <td nowrap><a href="/account/profile/{{log.user_id}}">{{log.user_id|realname}}</a></td>
+							  {% else %}
+							  <td nowrap>{{log.user_id|realname}}</td>
+							  {% endif %}
 				<td nowrap>{{log.time}}</td>
               <td nowrap>{{log.IP}}</td>
             </tr>

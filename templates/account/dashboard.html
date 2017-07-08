@@ -2,10 +2,11 @@
 {% load tz %}
 {% load tag %}
 {% block title %}Dashboard{% endblock %}
-
 {% block content %}
-  <h1>訊息</h1>
-  <Table>
+  <a href="/account/dashboard/0" class="btn btn-success" role="btn">所有訊息</a>
+  <a href="/account/dashboard/1" class="btn btn-success" role="btn">課程公告</a>
+  <a href="/account/dashboard/2" class="btn btn-success" role="btn">私訊</a>
+  <Table class="table">
 {% for messagepoll, message in messages %}<Tr><td><img src="/static/images/scratch{{forloop.counter|modulo:3}}.png"> {{ message.time| date:"DATE_FORMAT"}}
 <a href="/account/message/{{ messagepoll.id }}">
 {% if message.title|img == "line"%}

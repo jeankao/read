@@ -125,8 +125,10 @@ class LineForm(forms.ModelForm):
             self.fields['title'].label = "主旨"
             self.fields['title'].widget.attrs['size'] = 50
             self.fields['content'].label = "內容"
+            self.fields['content'].required = False            
             self.fields['content'].widget.attrs['cols'] = 50
-            self.fields['content'].widget.attrs['rows'] = 20                              
+            self.fields['content'].widget.attrs['rows'] = 20                
+            self.fields['title'].widget.attrs.update({'class' : 'form-control list-group-item-text'})           
             
 #新增學習領域
 class DomainForm(forms.ModelForm):

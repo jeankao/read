@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login
 from django.db.models import *
 from forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, LineForm, SchoolForm, EmailForm, DomainForm, LevelForm, SiteImageForm
 from django.contrib.auth.models import User
-from account.models import Profile, PointHistory, Log, Message, MessagePoll, Visitor, VisitorLog, Domain, Level, Site, Parent
+from account.models import Profile, PointHistory, Log, Message, MessageContent, MessagePoll, Visitor, VisitorLog, Domain, Level, Site, Parent
 from student.models import Enroll, SWork, SFWork
 from teacher.models import Classroom, Assistant, FWork, FClass
 from django.core.exceptions import ObjectDoesNotExist
@@ -33,8 +33,11 @@ from collections import OrderedDict
 from django.core.files.storage import FileSystemStorage
 from uuid import uuid4
 from django.forms.models import model_to_dict
-
+from django.conf import settings
+from wsgiref.util import FileWrapper
+from django.http import HttpResponse
 #from helper import VideoLogHelper
+
 
 # 判斷是否開啟事件記錄
 def is_event_open(request):
@@ -140,7 +143,7 @@ def user_login(request):
                                         visitorlog = VisitorLog(visitor_id=visitor.id, user_id=user.id, IP=request.META.get('REMOTE_ADDR'))
                                         visitorlog.save()
                                         
-                                        return redirect('dashboard')
+                                        return redirect('/account/dashboard/0')
                                 else:
                                         message = "Your user is inactive"
                         else:
@@ -169,7 +172,14 @@ class MessageListView(ListView):
 
     def get_queryset(self):             
         query = []
-        messagepolls = MessagePoll.objects.filter(reader_id=self.request.user.id).order_by('-message_id')
+        #公告
+        if self.kwargs['action'] == "1":
+            pass
+        #私訊
+        elif self.kwargs['action'] == "2":
+            pass
+        else :
+            messagepolls = MessagePoll.objects.filter(reader_id=self.request.user.id).order_by('-message_id')
         for messagepoll in messagepolls:
             query.append([messagepoll, messagepoll.message])
         return query
@@ -516,10 +526,21 @@ class LineCreateView(CreateView):
         user_name = User.objects.get(id=self.request.user.id).first_name
         self.object.title = u"[私訊]" + user_name + ":" + self.object.title
         self.object.author_id = self.request.user.id
+        self.object.reader_id = self.kwargs['user_id']
         self.object.save()
         self.object.url = "/account/line/detail/" + self.kwargs['classroom_id'] + "/" + str(self.object.id)
         self.object.classroom_id = 0 - int(self.kwargs['classroom_id'])
         self.object.save()
+        if self.request.FILES:
+            for file in self.request.FILES.getlist('files'):
+                content = MessageContent()
+                fs = FileSystemStorage()
+                filename = uuid4().hex
+                content.title = file.name
+                content.message_id = self.object.id
+                content.filename = str(self.request.user.id)+"/"+filename
+                fs.save("static/upload/"+str(self.request.user.id)+"/"+filename, file)
+                content.save()
         # 訊息
         messagepoll = MessagePoll(message_id=self.object.id, reader_id=self.kwargs['user_id'], classroom_id=0-int(self.kwargs['classroom_id']))
         messagepoll.save()
@@ -545,14 +566,34 @@ class LineCreateView(CreateView):
 # 查看私訊內容
 def line_detail(request, classroom_id, message_id):
     message = Message.objects.get(id=message_id)
-    messes = Message.objects.filter(author_id=message.author_id, classroom_id__lt=0).order_by("-id")
+    files = MessageContent.objects.filter(message_id=message_id)
+    messes = Message.objects.filter(author_id=message.author_id, reader_id=request.user.id).order_by("-id")
     try:
-        messagepoll = MessagePoll.objects.get(message_id=message_id)
+        messagepoll = MessagePoll.objects.get(message_id=message_id, reader_id=request.user.id)
     except :
-        pass
-    return render_to_response('account/line_detail.html', {'lists':messes, 'classroom_id':classroom_id, 'message':message, 'messagepoll':messagepoll}, context_instance=RequestContext(request))
+        messagepoll = MessagePoll()
+    return render_to_response('account/line_detail.html', {'files':files, 'lists':messes, 'classroom_id':classroom_id, 'message':message, 'messagepoll':messagepoll}, context_instance=RequestContext(request))
 
+# 下載檔案
+def line_download(request, file_id):
+    content = MessageContent.objects.get(id=file_id)
+    filename = content.title
+    download =  settings.BASE_DIR + "/static/upload/" + content.filename
+    wrapper = FileWrapper(file( download, "r" ))
+    response = HttpResponse(wrapper, content_type = 'application/force-download')
+    #response = HttpResponse(content_type='application/force-download')
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(filename.encode('utf8'))
+    # It's usually a good idea to set the 'Content-Length' header too.
+    # You can also set any other required headers: Cache-Control, etc.
+    return response
+	
+# 顯示圖片
+def line_showpic(request, file_id):
+        content = MessageContent.objects.get(id=file_id)
+        return render_to_response('student/forum_showpic.html', {'content':content}, context_instance=RequestContext(request))
 
+	
+	
 # 列出所有日期訪客
 class VisitorListView(ListView):
     model = Visitor
@@ -1039,7 +1080,11 @@ class ForumListView(ListView):
         queryset = []
         sfwork_pool = SFWork.objects.filter(student_id=self.kwargs['user_id']).order_by("id")
         for fclass in fclasses:
-            queryset.append([fclass, forum_dict[fclass.forum_id], filter(lambda w: w.index==fclass.forum_id, sfwork_pool)])
+            sfworks = filter(lambda w: w.index==fclass.forum_id, sfwork_pool)
+            if len(sfworks) > 0 :
+                 queryset.append([fclass, forum_dict[fclass.forum_id], sfworks[0].publish, len(sfworks)])
+            else :
+                 queryset.append([fclass, forum_dict[fclass.forum_id], False, 0])
         return queryset
         
     def get_context_data(self, **kwargs):

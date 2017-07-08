@@ -5,8 +5,8 @@ from django.template import RequestContext
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from teacher.models import Classroom, TWork, FWork, FClass, FContent, Assistant
 from student.models import Enroll, EnrollGroup, SWork, SFWork, SFReply, SFContent
-from account.models import Domain, Level, Parent, Log
-from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm, CategroyForm, DeadlineForm
+from account.models import Domain, Level, Parent, Log, Message, MessagePoll, MessageContent
+from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm, CategroyForm, DeadlineForm, AnnounceForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
 import os
@@ -838,5 +838,56 @@ def forum_deadline_date(request):
     #fclass.deadline_date = deadline_date.strftime('%d/%m/%Y')
     fclass.deadline_date = datetime.strptime(deadline_date, '%Y %B %d - %I:%M %p')
     fclass.save()
-    return JsonResponse({'status':deadline_date}, safe=False)        
-	
+    return JsonResponse({'status':deadline_date}, safe=False)             
+        
+#新增一個公告
+class AnnounceCreateView(CreateView):
+    model = Message
+    form_class = AnnounceForm
+    template_name = 'teacher/announce_form.html'     
+    def form_valid(self, form):
+        self.object = form.save(commit=False)			
+        classrooms = self.request.POST.getlist('classrooms')
+        for classroom_id in classrooms:
+            message = Message()
+            message.title = u"[公告]" + self.object.title
+            message.author_id = self.request.user.id	
+            message.type = 1 #公告
+            message.classroom_id = classroom_id
+            message.content = self.object.content
+            message.save()
+            message.url = "/account/line/detail/" + classroom_id + "/" + str(message.id)
+            message.save()
+            if self.request.FILES:
+                for file in self.request.FILES.getlist('files'):
+                    content = MessageContent()
+                    fs = FileSystemStorage()
+                    filename = uuid4().hex
+                    content.title = file.name
+                    content.message_id = message.id
+                    content.filename = str(self.request.user.id)+"/"+filename
+                    fs.save("static/upload/"+str(self.request.user.id)+"/"+filename, file)
+                    content.save()
+
+            # 班級學生訊息
+            enrolls = Enroll.objects.filter(classroom_id=classroom_id)
+            for enroll in enrolls:
+                messagepoll = MessagePoll(message_id=message.id, reader_id=enroll.student_id, classroom_id=classroom_id)
+                messagepoll.save()
+        # 記錄系統事件
+        if is_event_open(self.request) :            
+            log = Log(user_id=self.request.user.id, event=u'新增公告<'+self.object.title+'>')
+            log.save()                
+        return redirect("/student/announce/"+self.kwargs['classroom_id']) 
+			
+    def get_context_data(self, **kwargs):
+        context = super(AnnounceCreateView, self).get_context_data(**kwargs)
+        context['class'] = Classroom.objects.get(id=self.kwargs['classroom_id'])
+        context['classrooms'] = Classroom.objects.filter(teacher_id=self.request.user.id).order_by("-id")
+        return context	   
+        
+    # 限本班任課教師        
+    def render_to_response(self, context):
+        if not is_teacher(self.request.user, self.kwargs['classroom_id']):
+            return redirect('/')
+        return super(AnnounceCreateView, self).render_to_response(context)        

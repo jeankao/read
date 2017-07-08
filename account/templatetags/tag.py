@@ -120,6 +120,14 @@ def is_parent(user_id):
       return True
     else:
       return False
+		
+@register.filter()
+def is_teacher(user_id, classroom_id):
+    classroom = Classroom.objects.get(id=classroom_id)
+    if user_id == classroom.teacher_id :
+      return True
+    else:
+      return False
     
 @register.filter(name='week') 
 def week(date_number):
@@ -151,3 +159,19 @@ def in_deadline(forum_id, classroom_id):
         if timezone.now() > fclass.deadline_date:
             return fclass.deadline_date
     return ""
+
+@register.filter()
+def reader_name(message_id):
+    try:
+        poll = MessagePoll.objects.get(message_id=message_id)
+        user = User.objects.get(id=poll.reader_id)
+        if poll.read :
+            return user.first_name+u"(已讀)"
+        else :
+            return user.first_name
+    except :
+        return "noname"
+			
+@register.filter(name='unread') 
+def unread(user_id):
+    return MessagePoll.objects.filter(reader_id=user_id, read=False).count()

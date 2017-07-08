@@ -16,7 +16,7 @@
 	{% with works|last as last %}
 	<a id="{{enroll.id}}"></a>
   <div class="panel panel-default">
-    <div class="panel-heading">{{enroll.seat}}){{enroll.student.first_name}} {{works.0.publication_date}}　
+		<div class="panel-heading">{{enroll.seat}}){{enroll.student.first_name}} {{works.0.publication_date}}　{% if works and not works.0.publish %}<font color=red>尚未發表</font>{% endif %}
 			<span style="float:right">
 		  {% if works.0.publish %}
 			<A href="/student/forum/history/{{enroll.student_id}}/{{index}}/{{classroom_id}}"><img src="/static/images/edit.gif"> 歷史({{works|length}})</A>

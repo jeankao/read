@@ -3,7 +3,7 @@ from django.conf.urls import url
 from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
-from student.views import WorkListView, ForumListView
+from student.views import WorkListView, ForumListView, AnnounceListView
 
 urlpatterns = [
     # 選課
@@ -39,4 +39,6 @@ urlpatterns = [
 	  url(r'^forum/download/(?P<file_id>\d+)/$', views.forum_download, name='forum-download'), 
 	  url(r'^forum/showpic/(?P<file_id>\d+)/$', login_required(views.forum_showpic), name='forum-showpic'), 	
 	  url(r'^forum/publish/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<action>\d+)/$', login_required(views.forum_publish), name='forum-publish'), 	
+    #公告
+    url(r'^announce/(?P<classroom_id>\d+)/$', login_required(AnnounceListView.as_view()), name='announce-list'),
 ]

@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.views.generic import ListView, CreateView
 from student.models import Enroll, EnrollGroup, SWork, SFWork, SFReply, SFContent
 from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant
-from account.models import VisitorLog,  Profile, Parent, Log
+from account.models import VisitorLog,  Profile, Parent, Log, Message
 from student.forms import EnrollForm, SeatForm, SubmitForm, ForumSubmitForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
@@ -384,7 +384,7 @@ def forum_submit(request, classroom_id, index):
                 return render_to_response('student/forum_form.html', {'error':form.errors}, context_instance=RequestContext(request))
         else:
             if not works.exists():
-                work = SFWork(index=0)
+                work = SFWork(index=0, publish=False)
                 form = ForumSubmitForm()
             else:
                 work = works[0]
@@ -668,4 +668,28 @@ def forum_file_delete(request):
     else:
         return JsonResponse({'status':'fail'}, safe=False)        
 
-		
+# 列出所有公告
+class AnnounceListView(ListView):
+    model = Message
+    context_object_name = 'messages'
+    template_name = 'student/announce_list.html'    
+    paginate_by = 20
+    def get_queryset(self):
+
+        # 記錄系統事件
+        if is_event_open(self.request) :    
+            log = Log(user_id=self.request.user.id, event='查看班級公告')
+            log.save()        
+        queryset = Message.objects.filter(classroom_id=self.kwargs['classroom_id'], author_id=self.request.user.id).order_by("-id")
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super(AnnounceListView, self).get_context_data(**kwargs)
+        context['classroom'] = Classroom.objects.get(id=self.kwargs['classroom_id'])
+        return context	    
+
+    # 限本班任課教師        
+    def render_to_response(self, context):
+        if not is_teacher(self.kwargs['classroom_id'], self.request.user.id ):
+            return redirect('/')
+        return super(AnnounceListView, self).render_to_response(context)   

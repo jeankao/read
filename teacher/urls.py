@@ -5,7 +5,7 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from teacher.views import ClassroomListView, ClassroomCreateView, WorkListView, WorkCreateView
 from teacher.views import ForumListView, ForumCreateView, ForumContentListView, ForumContentCreateView, ForumClassListView
-from teacher.views import AssistantListView, ForumAllListView, ForumEditUpdateView
+from teacher.views import AssistantListView, ForumAllListView, ForumEditUpdateView, AnnounceCreateView
 
 urlpatterns = [
     # 班級
@@ -45,5 +45,7 @@ urlpatterns = [
     url(r'^forum/export/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/$', login_required(views.forum_export), name='forum-export'),   
     url(r'^forum/grade/(?P<classroom_id>\d+)/(?P<action>\d+)/$', login_required(views.forum_grade), name='forum-grade'),   
     #設定班級
-    url(r'^forum/class/switch/$', login_required(views.forum_switch), name='make'),    
+    url(r'^forum/class/switch/$', login_required(views.forum_switch), name='make'),        
+    #公告
+    url(r'^announce/add/(?P<classroom_id>\d+)/$', login_required(AnnounceCreateView.as_view()), name='announce-add'), 
 ]

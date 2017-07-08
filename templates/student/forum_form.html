@@ -2,6 +2,9 @@
 {% load tag %}
 {% block content %}
 <a href="/student/forum/{{classroom_id}}/{{index}}/" class="btn btn-success" role="btn">{{subject}}</a>
+{% if work.index > 0 and not work.publish %}
+<a href="/student/forum/publish/{{classroom_id}}/{{index}}/1/" class="btn btn-primary" role="btn">發表心得</a>
+{% endif %}
   <ul class="list-group">
     <li class="list-group-item">
       <h4 class="list-group-item-heading">心得</h4>
@@ -29,7 +32,7 @@
             {% csrf_token %}         
         </form>       
 				{% else %}
-				超過繳交期限 {{work.index|in_deadline:classroom_id}} ，無法繳交作業。
+				<font color=red>超過繳交期限 {{work.index|in_deadline:classroom_id}} ，無法繳交作業。</font>
 				{% endif %}
       </div>
 

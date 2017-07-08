@@ -68,6 +68,8 @@ class Log(models.Model):
 # 大廳訊息	
 class Message(models.Model):
     author_id = models.IntegerField(default=0)
+    reader_id = models.IntegerField(default=0)
+    type = models.IntegerField(default=0)
     classroom_id = models.IntegerField(default=0)
     title = models.CharField(max_length=250)
     content = models.TextField(default='')
@@ -81,6 +83,13 @@ class Message(models.Model):
     def create(cls, title, url, time):
         message = cls(title=title, url=url, time=time)
         return message
+			
+class MessageContent(models.Model):
+    message_id =  models.IntegerField(default=0)
+    user_id = models.IntegerField(default=0)
+    title =  models.CharField(max_length=250,null=True,blank=True)
+    filename = models.CharField(max_length=20,null=True,blank=True)    
+    publication_date = models.DateTimeField(default=timezone.now)
 
 # 訊息    
 class MessagePoll(models.Model):
