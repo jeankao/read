@@ -619,6 +619,7 @@ def forum_export(request, classroom_id, forum_id):
 		document = Document()
 		docx_title=u"討論區-" + classroom.name + "-"+ str(timezone.localtime(timezone.now()).date())+".docx"
 		document.add_paragraph(request.user.first_name + u'的討論區作業')
+		document.add_paragraph(u'主題：'+fwork.title)		
 		document.add_paragraph(u"班級：" + classroom.name)		
 		
 		for enroll, works, replys, files in datas:
@@ -738,6 +739,8 @@ def forum_grade(request, classroom_id, action):
 								datas[enroll.student_id] = [works[0]]
 							else :
 								datas[enroll.student_id] = [SFWork()]
+			else :
+				datas[enroll.student_id] = [SFWork()]
 	results = []
 	for enroll in enrolls:
 		student_name = User.objects.get(id=enroll.student_id).first_name
@@ -791,6 +794,7 @@ def forum_grade(request, classroom_id, action):
 		return response
 	else :
 		return render_to_response('teacher/forum_grade.html',{'results':results, 'forums':forums, 'classroom_id':classroom_id, 'fclasses':fclasses}, context_instance=RequestContext(request))
+
 def forum_deadline(request, classroom_id, forum_id):
     forum = FWork.objects.get(id=forum_id)
     if request.method == 'POST':

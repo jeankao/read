@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.views.generic import ListView, CreateView
 from student.models import Enroll, EnrollGroup, SWork, SFWork, SFReply, SFContent
 from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant
-from account.models import VisitorLog,  Profile, Parent
+from account.models import VisitorLog,  Profile, Parent, Log
 from student.forms import EnrollForm, SeatForm, SubmitForm, ForumSubmitForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
@@ -22,6 +22,11 @@ from wsgiref.util import FileWrapper
 from django.http import HttpResponse
 from django.db.models import F
 from account.avatar import *
+from django.db.models import Q
+
+def is_event_open(request):
+		return True
+
 
 def is_classmate(student_id, user_id):
     enrolls = Enroll.objects.filter(student_id=student_id)
@@ -68,8 +73,47 @@ class ClassroomListView(ListView):
         return queryset         			
     
 # 查看可加入的班級
+class ClassroomAddListView(ListView):
+    context_object_name = 'classroom_teachers'
+    paginate_by = 20
+    template_name = 'student/classroom_add.html'
+    
+    def get_queryset(self):
+        # 記錄系統事件
+        if is_event_open(self.request) :           
+            log = Log(user_id=self.request.user.id, event='查看加入班級')
+            log.save()         
+        if self.request.GET.get('classroom') != None:
+            keyword = self.request.GET.get('classroom')
+            teacher_ids = []
+            teachers = User.objects.filter(first_name__icontains=keyword)
+            for teacher in teachers:
+                teacher_ids.append(teacher.id)
+            classrooms = Classroom.objects.filter(Q(name__icontains=keyword) | Q(teacher_id__in=teacher_ids)).order_by('-id')
+        else :
+            classrooms = Classroom.objects.all().order_by('-id')
+        classroom_teachers = []						
+        for classroom in classrooms:
+            enroll = Enroll.objects.filter(student_id=self.request.user.id, classroom_id=classroom.id)
+            if enroll.exists():
+                classroom_teachers.append([classroom,classroom.teacher.first_name,1])
+            else:
+                classroom_teachers.append([classroom,classroom.teacher.first_name,0]) 
+        return classroom_teachers
+
+    def get_context_data(self, **kwargs):
+        context = super(ClassroomAddListView, self).get_context_data(**kwargs)
+        classroom = self.request.GET.get('classroom')
+        context.update({'classroom': classroom})
+        return context	
+			
 def classroom_add(request):
-        classrooms = Classroom.objects.all().order_by('-id')
+        if self.request.GET.get('classroom') != None:
+            keyword = self.request.GET.get('classroom')
+            classrooms = Classroom.objects.filter(Q(username__icontains=keyword) | Q(first_name__icontains=keyword)).order_by('-id')
+            classrooms = Classroom.objects.all().order_by('-id')
+        else :
+            queryset = User.objects.all().order_by('-id')					
         classroom_teachers = []
         for classroom in classrooms:
             enroll = Enroll.objects.filter(student_id=request.user.id, classroom_id=classroom.id)

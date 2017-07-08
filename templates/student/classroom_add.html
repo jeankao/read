@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% block title %} Teachers {% endblock %}
 {% block content %}
-<table>
+    <form action="."  method="get">
+ <label class="inline">搜尋課程或教師：<input type="text" name = "classroom"><input type="submit" value="送出"/></label>    
+    </form>
+<table class="table">
 <tr>
     <td>班級</td>
     <td>教師</td>
