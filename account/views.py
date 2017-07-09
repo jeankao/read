@@ -266,7 +266,7 @@ def password(request, user_id):
             return redirect('homepage')
     else:
         canEdit = False
-        if request.user.id == user_id:
+        if request.user.id == int(user_id):
             canEdit = True
         else :
             enrolls = Enroll.objects.filter(student_id=user_id)
@@ -490,12 +490,11 @@ class LineListView(ListView):
         if is_event_open(self.request) :    
             log = Log(user_id=self.request.user.id, event='查看所有私訊')
             log.save()        
-        queryset = Message.objects.filter(author_id=self.request.user.id, classroom_id=0-int(self.kwargs['classroom_id'])).order_by("-id")
+        queryset = Message.objects.filter(author_id=self.request.user.id, type=2).order_by("-id")
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super(LineListView, self).get_context_data(**kwargs)
-        context['classroom_id'] = self.kwargs['classroom_id']
         return context	 
         
 # 列出同學以私訊
@@ -1165,7 +1164,7 @@ def parent_make(request):
                 log.save()                        
                 # create Message
                 title = "<" + user_student.first_name + u">設您為家長"
-                url = "/"
+                url = "/account/forum/"+ str(student_id)
                 message = Message.create(title=title, url=url, time=timezone.now())
                 message.save()                        
                     

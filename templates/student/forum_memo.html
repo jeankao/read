@@ -18,12 +18,12 @@
   <div class="panel panel-default">
 		<div class="panel-heading">{{enroll.seat}}){{enroll.student.first_name}} {{works.0.publication_date}}　{% if works and not works.0.publish %}<font color=red>尚未發表</font>{% endif %}
 			<span style="float:right">
-		  {% if works.0.publish %}
-			<A href="/student/forum/history/{{enroll.student_id}}/{{index}}/{{classroom_id}}"><img src="/static/images/edit.gif"> 歷史({{works|length}})</A>
+		  {% if works.0.publish or request.user.id|is_teacher:enroll.classroom_id %}
+			{% if works|length > 0 %}<A href="/student/forum/history/{{enroll.student_id}}/{{index}}/{{classroom_id}}">{% endif %}<img src="/static/images/edit.gif"> 歷史({{works|length}}){% if works|length > 0 %}</A>{% endif %}
 			{% else %}
 			<img src="/static/images/edit.gif"> 歷史({{works|length}}) 		
 			{% endif %}
-			  <a href=""><img src="/static/images/icon-email.gif">私訊</a>
+			  <a href="/account/line/add/{{classroom_id}}/{{enroll.student_id}}"><img src="/static/images/icon-email.gif">私訊</a>
 				</span>		
 			{% if enroll.student_id == request.user.id %}<a href="/student/forum/submit/{{classroom_id}}/{{index}}" class="btn btn-primary" role="btn">編輯</a>{% endif %}
 		</div>

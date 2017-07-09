@@ -2,19 +2,19 @@
 {% block title %} Teachers {% endblock %}
 {% load tag %}
 {% block content %}
-{% if message.message_type == 0 %}
+{% if message.type == 2 %}
         <h1>私訊來源：<a href="/account/profile/{{message.author_id}}">{{message.author_id|realname}}</a></h1>
         <h1>私訊對象：{{messagepoll.reader_id|realname}}{% if messagepoll.read %}(已讀){% else %}(未讀){% endif %}</h1>
 {% endif %} 
-<table>
+<table class="table">
             <tr>
-                <td>時間</td><td>{{message.time| date:"DATE_FORMAT"}}</td>
+                <td>時間</td><td>{{message.time| date:"Y/m/d H:i"}}</td>
             </tr>
             <tr>
                 <td>主旨</td> <td>{{message.title}}</td>
             </tr>
             <tr>
-                <td>內容</td><td>{{message.content|safe}}</td>
+                <td>內容</td><td>{% if message.content %}{{message.content|safe}}{% else %}無{% endif %}</td>
             </tr>
            
         </table>
@@ -30,12 +30,12 @@
 			        {% endif %}
 		      {% endfor %}
 
-{% if not request.user.id == message.author_id and message.type == 0 %}
+{% if not request.user.id == message.author_id and message.type == 2 %}
 <h1><a href="/account/line/add/{{classroom_id}}/{{message.author_id}}">回覆訊息</a></h1>
 {% endif %}
-{% if lists and message.type == 0 %}
+{% if lists and message.type == 2 %}
         <h1>歷史私訊</h1>
-        <table>
+        <table class="table">
         {% for list in lists %}
         <tr><td>{{list.time}}<a href="/account/line/detail/{{classroom_id}}/{{list.id}}">{{list.title}}</a></td></tr>
         {% empty %}

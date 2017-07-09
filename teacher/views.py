@@ -856,7 +856,7 @@ class AnnounceCreateView(CreateView):
         classrooms = self.request.POST.getlist('classrooms')
         for classroom_id in classrooms:
             message = Message()
-            message.title = u"[公告]" + self.object.title
+            message.title = u"[公告]" + self.request.user.first_name + ":" + self.object.title
             message.author_id = self.request.user.id	
             message.type = 1 #公告
             message.classroom_id = classroom_id

@@ -113,6 +113,7 @@ class AnnounceForm(forms.ModelForm):
             super(AnnounceForm, self).__init__(*args, **kwargs)
             self.fields['title'].label = "公告主旨"
             self.fields['title'].widget.attrs['size'] = 50	
+            self.fields['content'].required = False							
             self.fields['content'].label = "公告內容"
             self.fields['content'].widget.attrs['cols'] = 50
             self.fields['content'].widget.attrs['rows'] = 20        

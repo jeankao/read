@@ -12,7 +12,7 @@
 	<div class="panel panel-default">
 		<div class="panel-heading">{{user_id|realname}} --{{work_new.publication_date}}{% if publish %}(已發表){% else %}<font color=red>(尚未發表)</font>{% endif %}　
 			<span style="float:right">
-			<A href="/student/forum/history/{{user_id}}/{{work.index}}/{{classroom_id}}"><img src="/static/images/edit.gif"> 歷史({{works|length}})</A>
+			<A href="/student/forum/history/{{user_id}}/{{forum.id}}/{{classroom_id}}"><img src="/static/images/edit.gif"> 歷史({{works|length}})</A>
 			</span>		
 			{% if user_id == request.user.id or user_id|parent:request.user.id %}<a href="/student/forum/submit/{{classroom_id}}/{{index}}" class="btn btn-warning" role="btn">編輯</a>{% endif %}
 		</div>

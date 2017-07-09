@@ -2,7 +2,7 @@
 {% block title %} Teachers {% endblock %}
 {% load tag %}
 {% block content %}
-        <table>
+        <table class="table">
             <tr>
                 <td>時間</td>
                 <td>對象</td>                
@@ -10,8 +10,8 @@
             </tr>
         {% for message in messages %}
             <tr>
-            <td>{{message.time}}</td>
-            <td>{{message.id|reader_name}}</td>
+            <td>{{message.time|date:"Y/m/d H:i"}}</td>
+              <td><a href="/account/profile/{{message.reader_id}}">{{message.id|reader_name}}</a></td>
             <td><a href="/account/line/detail/{{classroom_id}}/{{message.id}}">{{message.title}}</a></td>
             </tr>
         {% endfor %}

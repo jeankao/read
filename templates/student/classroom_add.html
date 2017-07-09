@@ -6,14 +6,15 @@
     </form>
 <table class="table">
 <tr>
-    <td>班級</td>
     <td>教師</td>
+    <td>班級</td>
     <td>狀況</td>
 </tr>
         {% for classroom, teacher_name, enroll in classroom_teachers %}
             <tr>
-                <td>{{classroom.name}}</td>
                 <td>{{teacher_name}}</td>
+                <td>{{classroom.name}}</td>
+
                 <td>
                 {% if enroll == 1 %}
                 已加入
