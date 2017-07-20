@@ -9,5 +9,6 @@ urlpatterns = [
         url(r'^accounts/login', views.user_login, name='login'),  
         url(r'^account/', include('account.urls')),  
         url(r'^teacher/', include('teacher.urls')),    
-        url(r'^student/', include('student.urls')),    
+        url(r'^student/', include('student.urls')),
+        url(r'^annotate/', include('annotate.urls')),
 ]

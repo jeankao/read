@@ -18,8 +18,12 @@ Licence URI: http://www.os-templates.com/template-terms
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-<link href="/static/css/rating.css" rel="stylesheet" type="text/css" media="all">
-<link href="/static/css/layout2.css" rel="stylesheet" type="text/css" media="all">
+<link href="/static/css/rating.css" rel="stylesheet" type="text/css" media="all" />
+<link href="/static/css/layout2.css" rel="stylesheet" type="text/css" media="all" />
+{% if request.user.is_authenticated %}
+<link rel="stylesheet" href="/static/js/annotator/annotator.min.css" type="text/css" media="all" />
+<script type="text/javascript" src="/static/js/annotator/annotator-full.min.js"></script>
+{% endif %}
 {% block header %}{% endblock %}		
 <style>
  .btn {
@@ -183,7 +187,21 @@ Licence URI: http://www.os-templates.com/template-terms
 		$('.scrollToTop').click(function(){
 			$('html, body').animate({scrollTop : 0},800);
 			return false;
-		});		
+		});
+		{% if request.user.is_authenticated %}
+		var content = $('#content').annotator();
+		var re = /https?:\/\/[^\/]+([^\?]*)/;
+		var page_path = re.exec(window.location.href)[1];
+		content.annotator('addPlugin', 'Store', {
+			prefix: '/annotate',
+			annotationData: {
+				'page_path': page_path,
+			},
+			loadFromSearch: {
+				'page_path': page_path,
+			},
+		});
+		{% endif %}
     //$('main').css('padding-top', $('.row0').height()+15+'px');		
     //$('main').css('padding-top', $('.row0').height()+15+'px');
     {% block domready %}
