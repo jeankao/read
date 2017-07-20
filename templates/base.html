@@ -23,6 +23,8 @@ Licence URI: http://www.os-templates.com/template-terms
 {% if request.user.is_authenticated %}
 <link rel="stylesheet" href="/static/js/annotator/annotator.min.css" type="text/css" media="all" />
 <script type="text/javascript" src="/static/js/annotator/annotator-full.min.js"></script>
+<link rel="stylesheet" href="/static/js/annotator/annotator.touch.css" type="text/css" media="all" />
+<script type="text/javascript" src="/static/js/annotator/annotator.touch.min.js"></script>
 {% endif %}
 {% block header %}{% endblock %}		
 <style>
@@ -200,7 +202,7 @@ Licence URI: http://www.os-templates.com/template-terms
 			loadFromSearch: {
 				'page_path': page_path,
 			},
-		});
+		}).annotator('addPlugin', 'Touch');
 		{% endif %}
     //$('main').css('padding-top', $('.row0').height()+15+'px');		
     //$('main').css('padding-top', $('.row0').height()+15+'px');
