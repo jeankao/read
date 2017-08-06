@@ -25,7 +25,7 @@
 			{% endif %}
 			  <a href="/account/line/add/{{classroom_id}}/{{enroll.student_id}}"><img src="/static/images/icon-email.gif">私訊</a>
 				</span>		
-			{% if enroll.student_id == request.user.id %}<a href="/student/forum/submit/{{classroom_id}}/{{index}}" class="btn btn-primary" role="btn">編輯</a>{% endif %}
+			<!--{% if enroll.student_id == request.user.id %}<a href="/student/forum/submit/{{classroom_id}}/{{index}}" class="btn btn-primary" role="btn">編輯</a>{% endif %}-->
 		</div>
 		{% if works.0 or files.0 %}
 			{% if works.0.publish %}
