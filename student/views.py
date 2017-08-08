@@ -435,7 +435,7 @@ def forum_memo(request, classroom_id, index, action):
 		works_pool = SFWork.objects.filter(index=index, score=5).order_by("-id")
 	else:
 	  # 一次取得所有 SFWork	
-	  works_pool = SFWork.objects.filter(index=index).order_by("-id")
+	  works_pool = SFWork.objects.filter(index=index).order_by("-id", "publish")
 	reply_pool = SFReply.objects.filter(index=index).order_by("-id")	
 	file_pool = SFContent.objects.filter(index=index, visible=True).order_by("-id")	
 	for enroll in enrolls:
@@ -489,7 +489,7 @@ def forum_like(request):
     sfworks = []
     if forum_id:
         try:
-            sfworks = SFWork.objects.filter(index=forum_id, student_id=user_id).order_by("-id")
+            sfworks = SFWork.objects.filter(index=forum_id, student_id=user_id)
             sfwork = sfworks[0]
             jsonDec = json.decoder.JSONDecoder()
             if action == "like":
