@@ -241,7 +241,7 @@ $(document).ready(function () {
 				'stuid': userid,
 			}
 		})
-		.annotator('addPlugin', 'Touch')
+		{% if is_teacher %}.annotator('addPlugin', 'Touch'){% endif %}
 		.annotator('addPlugin', 'Message');		
 	});
 });

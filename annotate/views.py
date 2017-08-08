@@ -70,7 +70,7 @@ def single_annotation(request, annotation_id):
 def search(request):
   findex = request.GET.get('findex')
   stuid = request.GET.get('stuid')
-  annotations = [a for a in Annotation.objects.filter(user_id=request.user.id, findex=findex, stuid=stuid).order_by('id')]
+  annotations = [a for a in Annotation.objects.filter(findex=findex, stuid=stuid).order_by('id')]
   total = len(annotations)
   rows = []
   for annotation in annotations:
