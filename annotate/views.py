@@ -3,6 +3,7 @@
 from django.http import JsonResponse
 from django.http.response import HttpResponse, HttpResponseRedirectBase, HttpResponseNotFound
 from django.utils import timezone
+from django.contrib.auth.models import User
 from models import Annotation
 import json
 
@@ -18,9 +19,11 @@ def root(request):
 def annotations(request):
   if request.method == "POST":
     received_annotation = json.loads(request.body)
-    page_path = received_annotation['page_path']
-    del received_annotation['page_path']
-    annotation = Annotation(user_id=request.user.id, page_path=page_path, annotation=json.dumps(received_annotation))
+    findex = received_annotation['findex']
+    stuid = received_annotation['stuid']
+    del received_annotation['findex']
+    del received_annotation['stuid']
+    annotation = Annotation(user_id=request.user.id, findex=findex, stuid=stuid, annotation=json.dumps(received_annotation))
     annotation.save()
     return HttpResponseSeeOtherRedirect('/annotate/annotations/'+str(annotation.id))
 
@@ -43,15 +46,19 @@ def single_annotation(request, annotation_id):
       response = HttpResponse(status=204)
     elif request.method == "PUT":
       received_annotation = json.loads(request.body)
-      page_path = received_annotation['page_path']
-      del received_annotation['page_path']
+      findex = received_annotation['findex']
+      stuid = received_annotation['stuid']
+      del received_annotation['findex']
+      del received_annotation['stuid']
       annotation.annotation = json.dumps(received_annotation)
       annotation.updated = timezone.now()
       annotation.save()
       response = HttpResponseSeeOtherRedirect('/annotate/annotations/'+str(annotation.id))
     else: # GET
       result = json.loads(annotation.annotation)
+      user = User.objects.filter(id=annotation.user_id)[0]
       result['id'] = annotation.id
+      result['supervisor']=user.first_name
       response = JsonResponse(result, safe=False)
   except Annotation.DoesNotExist:
     response = HttpResponseNotFound()
@@ -61,13 +68,16 @@ def single_annotation(request, annotation_id):
 #
 #
 def search(request):
-  page_path = request.GET.get('page_path')
-  annotations = [a for a in Annotation.objects.filter(user_id=request.user.id, page_path=page_path).order_by('id')]
+  findex = request.GET.get('findex')
+  stuid = request.GET.get('stuid')
+  annotations = [a for a in Annotation.objects.filter(user_id=request.user.id, findex=findex, stuid=stuid).order_by('id')]
   total = len(annotations)
   rows = []
   for annotation in annotations:
     anno = json.loads(annotation.annotation)
     anno['id'] = annotation.id
+    user = User.objects.filter(id=annotation.user_id)[0]
+    anno['supervisor'] = user.first_name
     rows.append(anno)
   data = {
     "total": total, 

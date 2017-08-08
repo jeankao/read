@@ -416,7 +416,7 @@ def forum_show(request, index, user_id, classroom_id):
 			publish = work_first.publish
 			replys = SFReply.objects.filter(index=index, work_id=work_first.id).order_by("-id")	
 			files = SFContent.objects.filter(index=index, student_id=user_id, visible=True).order_by("-id")	
-			return render_to_response('student/forum_show.html', {'publish':publish, 'classroom_id':classroom_id, 'contents':contents, 'replys':replys, 'files':files, 'forum':forum, 'user_id':user_id, 'work_first':work_first, 'work_new':work_new, 'teacher_id':teacher_id, 'works': works}, context_instance=RequestContext(request))
+			return render_to_response('student/forum_show.html', {'publish':publish, 'classroom_id':classroom_id, 'contents':contents, 'replys':replys, 'files':files, 'forum':forum, 'user_id':user_id, 'work_first':work_first, 'work_new':work_new, 'teacher_id':teacher_id, 'works': works, 'is_teacher':is_teacher(classroom_id, request.user.id)}, context_instance=RequestContext(request))
 		else :
 			message = "尚無作品"
 			return render_to_response('message.html', {'message':message}, context_instance=RequestContext(request))
@@ -468,7 +468,7 @@ def forum_memo(request, classroom_id, index, action):
 			return -custom[0].seat
 	datas = sorted(datas, key=getKey, reverse=True)	
 
-	return render_to_response('student/forum_memo.html', {'action':action, 'replys':replys, 'datas': datas, 'contents':contents, 'teacher_id':teacher_id, 'subject':subject, 'classroom_id':classroom_id, 'index':index}, context_instance=RequestContext(request))
+	return render_to_response('student/forum_memo.html', {'action':action, 'replys':replys, 'datas': datas, 'contents':contents, 'teacher_id':teacher_id, 'subject':subject, 'classroom_id':classroom_id, 'index':index, 'is_teacher':is_teacher(classroom_id, request.user.id)}, context_instance=RequestContext(request))
 	
 def forum_history(request, user_id, index, classroom_id):
 		work = []

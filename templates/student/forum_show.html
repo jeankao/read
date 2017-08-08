@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 {% load tz %}
 {% load tag %}
+
+{% block header %}
+<link rel="stylesheet" href="/static/js/annotator/annotator.min.css" type="text/css" media="all" />
+<script type="text/javascript" src="/static/js/annotator/annotator-full.min.js"></script>
+{% if is_teacher %}
+<link rel="stylesheet" href="/static/js/annotator/annotator.touch.css" type="text/css" media="all" />
+<script type="text/javascript" src="/static/js/annotator/annotator.touch.min.js"></script>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 
 <div class="row">
@@ -18,7 +28,9 @@
 		</div>
 		{% if work_new or files %}
     <div class="panel-body">
-		{{work_new.memo|memo|safe}}
+			<div class="memo-content" data-userid="{{user_id}}">
+				{{work_new.memo|memo|safe}}
+			</div>
 		<BR>
 		      {% for file in files %}
 			      {% if file.visible %}
@@ -75,7 +87,7 @@
     </div>
 <div class="row">
 <button class="btn btn-warning">素材</button>
-  <ul  class="list-group">
+  <ul  class="list-group">2/1/16/
     </li>
     {% for work in contents %}
     <li class="list-group-item material" id="m_{{ work.id }}">
@@ -199,7 +211,41 @@ $(document).ready(function () {
   tag.src = 'https://www.youtube.com/iframe_api';
   var firstScriptTag = document.getElementsByTagName('script')[0];
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);  
+	// Annotator
+	Annotator.Plugin.Message = function (element) {
+		var plugin = {};
+		plugin.pluginInit = function () {
+				this.annotator.viewer.addField({
+					load: function (field, annotation) {
+						field.innerHTML = "標註者: " + annotation.supervisor;
+					}
+				})
+		};
+		return plugin;
+	}
+	var re = /https?:\/\/[^\/]+([^\?]*)/;
+	var page_path = re.exec(window.location.href)[1];
+	$('.memo-content').each(function(index, element) {
+		var userid = $(element).data('userid');
+		$(element).annotator({% if not is_teacher %}
+			{readOnly: true}
+		{% endif %})
+		.annotator('addPlugin', 'Store', {
+			prefix: '/annotate', 
+			annotationData: {
+				'findex': {{forum.id}},
+				'stuid': userid,
+			},
+			loadFromSearch: {
+				'findex': {{forum.id}}, 
+				'stuid': userid,
+			}
+		})
+		.annotator('addPlugin', 'Touch')
+		.annotator('addPlugin', 'Message');		
+	});
 });
+	 
 </script>
 {% endblock %}
 
@@ -338,4 +384,6 @@ $(document).ready(function () {
       }
     );
   });
+
+
 {% endblock %}
