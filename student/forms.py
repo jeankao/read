@@ -36,3 +36,12 @@ class ForumSubmitForm(forms.Form):
             super(ForumSubmitForm, self).__init__(*args, **kwargs)
             self.fields['memo'].label = "心得感想"
             self.fields['file'].label = "檔案"
+
+class SpeculationSubmitForm(forms.Form):
+        memo =  forms.CharField(required=False)
+        file = forms.FileField(required=False)
+      
+        def __init__(self, *args, **kwargs):
+            super(SpeculationSubmitForm, self).__init__(*args, **kwargs)
+            self.fields['memo'].label = "心得感想"
+            self.fields['file'].label = "檔案"

@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from teacher.views import ClassroomListView, ClassroomCreateView, WorkListView, WorkCreateView
 from teacher.views import ForumListView, ForumCreateView, ForumContentListView, ForumContentCreateView, ForumClassListView
 from teacher.views import AssistantListView, ForumAllListView, ForumEditUpdateView, AnnounceCreateView
+from teacher.views import SpeculationListView, SpeculationCreateView, SpeculationContentListView, SpeculationContentCreateView, SpeculationClassListView
+from teacher.views import SpeculationAllListView, SpeculationEditUpdateView, SpeculationAnnotationListView, SpeculationAnnotationCreateView
 
 urlpatterns = [
     # 班級
@@ -47,5 +49,33 @@ urlpatterns = [
     #設定班級
     url(r'^forum/class/switch/$', login_required(views.forum_switch), name='make'),        
     #公告
-    url(r'^announce/add/(?P<classroom_id>\d+)/$', login_required(AnnounceCreateView.as_view()), name='announce-add'), 
+    url(r'^announce/add/(?P<classroom_id>\d+)/$', login_required(AnnounceCreateView.as_view()), name='announce-add'),
+    # 思辨區
+    url(r'^speculation/(?P<categroy>\d+)/(?P<categroy_id>\d+)/$', login_required(SpeculationAllListView.as_view()), name='forum-all'),  
+    url(r'^speculation/show/(?P<forum_id>\d+)/$', login_required(views.speculation_show), name='forum-show'),    
+    url(r'^speculation/edit/(?P<classroom_id>\d+)/(?P<pk>\d+)/$', login_required(SpeculationEditUpdateView.as_view()), name='forum-edit'),   
+    url(r'^speculation/(?P<classroom_id>\d+)/$', login_required(SpeculationListView.as_view()), name='forum-list'),
+    url(r'^speculation/add/(?P<classroom_id>\d+)/$', login_required(SpeculationCreateView.as_view()), name='forum-add'),
+    url(r'^speculation/category/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/$', login_required(views.speculation_categroy), name='forum-category'),  
+    url(r'^speculation/deadline/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/$', login_required(views.speculation_deadline), name='forum-deadline'),  
+    url(r'^speculation/deadline/set/$', login_required(views.speculation_deadline_set), name='forum-deatline-set'), 
+    url(r'^speculation/deadline/date/$', login_required(views.speculation_deadline_date), name='forum-deatline-date'),   
+    url(r'^speculation/deadline/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/$', login_required(views.speculation_deadline), name='forum-category'),   
+    url(r'^speculation/download/(?P<content_id>\d+)/$', views.speculation_download, name='forum-download'),  
+    url(r'^speculation/content/(?P<forum_id>\d+)/$', login_required(SpeculationContentListView.as_view()), name='forum-content'), 
+    url(r'^speculation/content/add/(?P<forum_id>\d+)/$', login_required(SpeculationContentCreateView.as_view()), name='forum-content-add'),
+    url(r'^speculation/content/delete/(?P<forum_id>\d+)/(?P<content_id>\d+)/$', login_required(views.speculation_delete), name='forum-content-delete'),   
+    url(r'^speculation/content/edit/(?P<forum_id>\d+)/(?P<content_id>\d+)/$', login_required(views.speculation_edit), name='forum-content-edit'),    
+    #url(r'^forum/class/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/$', views.forum_class, name='forum-class'),  
+    url(r'^speculation/class/(?P<forum_id>\d+)/$',  login_required(SpeculationClassListView.as_view()), name='forum-class'),    
+    url(r'^speculation/export/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/$', login_required(views.speculation_export), name='forum-export'),   
+    url(r'^speculation/grade/(?P<classroom_id>\d+)/(?P<action>\d+)/$', login_required(views.speculation_grade), name='forum-grade'),   
+    #設定班級
+    url(r'^speculation/class/switch/$', login_required(views.speculation_switch), name='make'),
+    #文字註記
+    url(r'^speculation/annotation/(?P<forum_id>\d+)/$', login_required(SpeculationAnnotationListView.as_view()), name='make'),   
+    url(r'^speculation/annotation/add/(?P<forum_id>\d+)/$', login_required(SpeculationAnnotationCreateView.as_view()), name='forum-content-add'),
+    url(r'^speculation/annotation/delete/(?P<forum_id>\d+)/(?P<content_id>\d+)/$', login_required(views.speculation_annotation_delete), name='forum-content-delete'),   
+    url(r'^speculation/annotation/edit/(?P<forum_id>\d+)/(?P<content_id>\d+)/$', login_required(views.speculation_annotation_edit), name='forum-content-edit'),    
+
 ]

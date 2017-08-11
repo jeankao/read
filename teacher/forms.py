@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from account.models import Message
-from teacher.models import Classroom, TWork, FWork, FContent, FClass
+from teacher.models import Classroom, TWork, FWork, FContent, FClass, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation
 from student.models import SWork
 
 
@@ -118,3 +118,38 @@ class AnnounceForm(forms.ModelForm):
             self.fields['content'].widget.attrs['cols'] = 50
             self.fields['content'].widget.attrs['rows'] = 20        
             self.fields['title'].widget.attrs.update({'class' : 'form-control list-group-item-text'})      						
+						
+
+# 新增一個文章
+class SpeculationForm(forms.ModelForm):
+        class Meta:
+           model = SpeculationWork
+           fields = ['title']
+        
+        def __init__(self, *args, **kwargs):
+            super(SpeculationForm, self).__init__(*args, **kwargs)
+            self.fields['title'].label = "文章主題"
+            self.fields['title'].widget.attrs.update({'class' : 'form-control list-group-item-text'})									
+						
+# 新增一個文章
+class SpeculationContentForm(forms.ModelForm):
+        class Meta:
+           model = SpeculationContent
+           fields = ['forum_id', 'types', 'text', 'youtube', 'file', 'memo']
+        
+        def __init__(self, *args, **kwargs):
+            super(SpeculationContentForm, self).__init__(*args, **kwargs)
+            self.fields['forum_id'].required = False		
+            self.fields['text'].required = False
+            self.fields['youtube'].required = False
+            self.fields['file'].required = False
+            self.fields['memo'].required = False						
+
+# 新增一個註記類別
+class SpeculationAnnotationForm(forms.ModelForm):
+        class Meta:
+           model = SpeculationAnnotation
+           fields = ['forum_id', 'kind', 'color']
+        
+        def __init__(self, *args, **kwargs):
+            super(SpeculationAnnotationForm, self).__init__(*args, **kwargs)

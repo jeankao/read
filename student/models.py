@@ -87,3 +87,32 @@ class SFReply(models.Model):
     user_id = models.IntegerField(default=0)
     memo =  models.TextField(default='')
     publication_date = models.DateTimeField(default=timezone.now)
+		
+#思辨文章
+class SSpeculationWork(models.Model):
+    student_id = models.IntegerField(default=0)
+    index = models.IntegerField()
+    memo = models.TextField(default='')
+    publish = models.BooleanField(default=False)
+    publication_date = models.DateTimeField(default=timezone.now)
+    reply_date = models.DateTimeField(default=timezone.now)
+    score = models.IntegerField(default=0)
+    scorer = models.IntegerField(default=0)
+    likes = models.TextField(default='')
+    like_count = models.IntegerField(default=0)	
+    reply = models.IntegerField(default=0)
+		
+    def __unicode__(self):
+        user = User.objects.filter(id=self.student_id)[0]
+        index = self.index
+        return user.first_name+"("+str(index)+")"
+
+class SSpeculationContent(models.Model):
+    index =  models.IntegerField(default=0)
+    student_id = models.IntegerField(default=0)
+    work_id = models.IntegerField(default=0)
+    title =  models.CharField(max_length=250,null=True,blank=True)
+    filename = models.CharField(max_length=20,null=True,blank=True)    
+    publication_date = models.DateTimeField(default=timezone.now)
+    delete_date = models.DateTimeField(default=timezone.now)		
+    visible = models.BooleanField(default=True)

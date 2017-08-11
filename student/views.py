@@ -3,8 +3,8 @@ from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, CreateView
-from student.models import Enroll, EnrollGroup, SWork, SFWork, SFReply, SFContent
-from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant
+from student.models import Enroll, EnrollGroup, SWork, SFWork, SFReply, SFContent, SSpeculationWork, SSpeculationContent
+from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant, SpeculationClass, SpeculationWork, SpeculationContent
 from account.models import VisitorLog,  Profile, Parent, Log, Message
 from student.forms import EnrollForm, SeatForm, SubmitForm, ForumSubmitForm
 from django.core.exceptions import ObjectDoesNotExist
@@ -704,3 +704,93 @@ class AnnounceListView(ListView):
               if not is_classmate(self.kwargs['classroom_id'], self.request.user.id ):
                   return redirect('/')
         return super(AnnounceListView, self).render_to_response(context)   
+			
+
+'''
+--------------------思辨區
+'''
+# 列出所有討論主題
+class SpeculationListView(ListView):
+    model = SSpeculationWork
+    context_object_name = 'works'
+    template_name = 'student/speculation_list.html'    
+    
+    def get_queryset(self):
+        queryset = []
+        fclass_dict = dict(((fclass.forum_id, fclass) for fclass in SpeculationClass.objects.filter(classroom_id=self.kwargs['classroom_id'])))	
+        #fclasses = FClass.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("-id")
+        fworks = SpeculationWork.objects.filter(id__in=fclass_dict.keys()).order_by("-id")
+        sfwork_pool = SSpeculationWork.objects.filter(student_id=self.request.user.id).order_by("-id")
+        for fwork in fworks:
+            sfworks = filter(lambda w: w.index==fwork.id, sfwork_pool)
+            if len(sfworks)> 0 :
+                queryset.append([fwork, sfworks[0].publish, fclass_dict[fwork.id], len(sfworks)])
+            else :
+                queryset.append([fwork, False, fclass_dict[fwork.id], 0])
+        def getKey(custom):
+            return custom[2].publication_date, custom[2].forum_id
+        queryset = sorted(queryset, key=getKey, reverse=True)	
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super(SpeculationListView, self).get_context_data(**kwargs)
+        context['classroom_id'] = self.kwargs['classroom_id']
+        context['bookmark'] =  self.kwargs['bookmark']
+        context['fclasses'] = dict(((fclass.forum_id, fclass) for fclass in FClass.objects.filter(classroom_id=self.kwargs['classroom_id'])))
+        return context	    
+
+    # 限本班同學
+    def render_to_response(self, context):
+        try:
+            enroll = Enroll.objects.get(student_id=self.request.user.id, classroom_id=self.kwargs['classroom_id'])
+        except ObjectDoesNotExist :
+            return redirect('/')
+        return super(SpeculationListView, self).render_to_response(context)    
+
+
+def speculation_submit(request, classroom_id, index):
+        scores = []
+        works = SSpeculationWork.objects.filter(index=index, student_id=request.user.id).order_by("-id")
+        contents = SpeculationContent.objects.filter(forum_id=index)
+        fwork = SpeculationWork.objects.get(id=index)
+        if request.method == 'POST':
+            form = SpeculationSubmitForm(request.POST, request.FILES)
+            #第一次上傳加上積分
+            works = SSpeculationWork.objects.filter(index=index, student_id=request.user.id).order_by("-id")
+            publish = False
+            if len(works)==0:
+                update_avatar(request.user.id, 1, 2)
+            else:
+                publish = works[0].publish
+            work = SSpeculationWork(index=index, student_id=request.user.id, publish=publish)
+            work.save()
+            if request.FILES:
+                content = SSpeculationContent(index=index, student_id=request.user.id)
+                myfile =  request.FILES.get("file", "")
+                fs = FileSystemStorage()
+                filename = uuid4().hex
+                content.title = myfile.name
+                content.work_id = work.id
+                content.filename = str(request.user.id)+"/"+filename
+                fs.save("static/upload/"+str(request.user.id)+"/"+filename, myfile)
+                content.save()
+            if form.is_valid():							
+                work.memo=form.cleaned_data['memo']
+                work.save()
+                if not works:
+                    return redirect("/student/forum/publish/"+classroom_id+"/"+index+"/2")	
+                elif not works[0].publish:
+                    return redirect("/student/forum/publish/"+classroom_id+"/"+index+"/2")
+                return redirect("/student/forum/memo/"+classroom_id+"/"+index+"/0")
+            else:
+                return render_to_response('student/forum_form.html', {'error':form.errors}, context_instance=RequestContext(request))
+        else:
+            if not works.exists():
+                work = SFWork(index=0, publish=False)
+                form = ForumSubmitForm()
+            else:
+                work = works[0]
+                form = SpeculationSubmitForm()
+            files = SSpeculationContent.objects.filter(index=index, student_id=request.user.id,visible=True).order_by("-id")
+            subject = SpeculationWork.objects.get(id=index).title
+        return render_to_response('student/speculation_form.html', {'classroom_id':classroom_id, 'subject':subject, 'files':files, 'index': index, 'fwork':fwork, 'works':works, 'work':work, 'form':form, 'scores':scores, 'index':index, 'contents':contents}, context_instance=RequestContext(request))

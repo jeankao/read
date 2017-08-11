@@ -3,7 +3,7 @@ from django.conf.urls import url
 from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
-from student.views import WorkListView, ForumListView, AnnounceListView
+from student.views import WorkListView, ForumListView, AnnounceListView, SpeculationListView
 
 urlpatterns = [
     # 選課
@@ -41,4 +41,8 @@ urlpatterns = [
 	  url(r'^forum/publish/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<action>\d+)/$', login_required(views.forum_publish), name='forum-publish'), 	
     #公告
     url(r'^announce/(?P<classroom_id>\d+)/$', login_required(AnnounceListView.as_view()), name='announce-list'),
+
+    #思辨
+    url(r'^speculation/(?P<classroom_id>\d+)/(?P<bookmark>\d+)/$', login_required(SpeculationListView.as_view()), name='work-list'),  
+    url(r'^speculation/submit/(?P<classroom_id>\d+)/(?P<index>\d+)/$', login_required(views.speculation_submit)),    
 ]
