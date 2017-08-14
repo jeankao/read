@@ -1510,5 +1510,4 @@ def speculation_annotation_edit(request, forum_id, content_id):
             content.color = request.POST.get("color", "")								
             content.save()
             return redirect('/teacher/speculation/annotation/'+forum_id)   
-    return render_to_response('teacher/speculation_annotation_form.html',{'content': instance, 'forum_id':forum_id, 'content_id':content_id}, context_instance=RequestContext(request))		
-	
+    return render_to_response('teacher/speculation_annotation_form.html',{'content': instance, 'forum_id':forum_id, 'content_id':content_id}, context_instance=RequestContext(request))

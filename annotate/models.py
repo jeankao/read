@@ -16,8 +16,12 @@ class Annotation(models.Model):
   updated     = models.DateTimeField(default=timezone.now)
   # findex: 討論區id
   findex      = models.IntegerField(default=0)
+  # ftype: 0: 討論區, 1: 思辨區
+  ftype       = models.IntegerField(default=0)
   # stu_id: 學生id
-  stuid       = models.IntegerField(default=0)  
+  stuid       = models.IntegerField(default=0)
+  # atype: 標註類別(教師設定)
+  atype       = models.IntegerField(default=0)
   
   def __unicode__(self):
     user = User.objects.filter(id=self.user_id)[0]

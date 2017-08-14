@@ -4,9 +4,9 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, CreateView
 from student.models import Enroll, EnrollGroup, SWork, SFWork, SFReply, SFContent, SSpeculationWork, SSpeculationContent
-from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant, SpeculationClass, SpeculationWork, SpeculationContent
+from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant, SpeculationClass, SpeculationWork, SpeculationContent, SpeculationAnnotation
 from account.models import VisitorLog,  Profile, Parent, Log, Message
-from student.forms import EnrollForm, SeatForm, SubmitForm, ForumSubmitForm
+from student.forms import EnrollForm, SeatForm, SubmitForm, ForumSubmitForm, SpeculationSubmitForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 import datetime
@@ -753,6 +753,7 @@ def speculation_submit(request, classroom_id, index):
         works = SSpeculationWork.objects.filter(index=index, student_id=request.user.id).order_by("-id")
         contents = SpeculationContent.objects.filter(forum_id=index)
         fwork = SpeculationWork.objects.get(id=index)
+        types = SpeculationAnnotation.objects.filter(forum_id=index)
         if request.method == 'POST':
             form = SpeculationSubmitForm(request.POST, request.FILES)
             #第一次上傳加上積分
@@ -774,7 +775,7 @@ def speculation_submit(request, classroom_id, index):
                 content.filename = str(request.user.id)+"/"+filename
                 fs.save("static/upload/"+str(request.user.id)+"/"+filename, myfile)
                 content.save()
-            if form.is_valid():							
+            if form.is_valid():
                 work.memo=form.cleaned_data['memo']
                 work.save()
                 if not works:
@@ -793,4 +794,4 @@ def speculation_submit(request, classroom_id, index):
                 form = SpeculationSubmitForm()
             files = SSpeculationContent.objects.filter(index=index, student_id=request.user.id,visible=True).order_by("-id")
             subject = SpeculationWork.objects.get(id=index).title
-        return render_to_response('student/speculation_form.html', {'classroom_id':classroom_id, 'subject':subject, 'files':files, 'index': index, 'fwork':fwork, 'works':works, 'work':work, 'form':form, 'scores':scores, 'index':index, 'contents':contents}, context_instance=RequestContext(request))
+        return render_to_response('student/speculation_form.html', {'classroom_id':classroom_id, 'subject':subject, 'files':files, 'index': index, 'fwork':fwork, 'works':works, 'work':work, 'form':form, 'scores':scores, 'index':index, 'contents':contents, 'types': types}, context_instance=RequestContext(request))

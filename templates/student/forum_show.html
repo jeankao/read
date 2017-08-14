@@ -190,9 +190,9 @@ function onYouTubeIframeAPIReady() {
           'onReady': onPlayerReady,
         }
       });
-    } else {			
-			vidPlayer.stopVideo();
-		  vidPlayer.loadVideoById(vid, tsec, 'large');
+    } else {
+      vidPlayer.stopVideo();
+      vidPlayer.loadVideoById(vid, tsec, 'large');
       vidPlayer.seekTo(tsec);	
     }
     $('#vidModal').modal('show');
@@ -213,37 +213,45 @@ $(document).ready(function () {
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);  
 	// Annotator
 	Annotator.Plugin.Message = function (element) {
-		var plugin = {};
-		plugin.pluginInit = function () {
-				this.annotator.viewer.addField({
-					load: function (field, annotation) {
-						field.innerHTML = "標註者: " + annotation.supervisor;
-					}
-				})
-		};
-		return plugin;
-	}
-	var re = /https?:\/\/[^\/]+([^\?]*)/;
-	var page_path = re.exec(window.location.href)[1];
-	$('.memo-content').each(function(index, element) {
-		var userid = $(element).data('userid');
-		$(element).annotator({% if not is_teacher %}
-			{readOnly: true}
-		{% endif %})
-		.annotator('addPlugin', 'Store', {
-			prefix: '/annotate', 
-			annotationData: {
-				'findex': {{forum.id}},
-				'stuid': userid,
-			},
-			loadFromSearch: {
-				'findex': {{forum.id}}, 
-				'stuid': userid,
-			}
-		})
-		{% if is_teacher %}.annotator('addPlugin', 'Touch'){% endif %}
-		.annotator('addPlugin', 'Message');		
-	});
+    var plugin = {};
+    plugin.pluginInit = function () {
+      /*
+      this.annotator.subscribe("annotationsLoaded", function(annotations) {
+        console.log(annotations);
+        for(i in annotations) {
+          $(annotations[i].highlights[0]).addClass('dreamer');
+        }
+      });        
+      */
+      this.annotator.viewer.addField({
+        load: function (field, annotation) {
+          field.innerHTML = "標註者: " + annotation.supervisor;
+        }
+      })
+    };
+    return plugin;
+  }
+  var re = /https?:\/\/[^\/]+([^\?]*)/;
+  var page_path = re.exec(window.location.href)[1];
+  $('.memo-content').each(function(index, element) {
+    var userid = $(element).data('userid');
+    $(element).annotator({% if not is_teacher %}
+      {readOnly: true}
+    {% endif %})
+    .annotator('addPlugin', 'Store', {
+      prefix: '/annotate', 
+      annotationData: {
+        'findex': {{forum.id}},
+        'stuid': userid,
+      },
+      loadFromSearch: {
+        'findex': {{forum.id}}, 
+        'stuid': userid,
+      }
+    })
+    {% if is_teacher %}.annotator('addPlugin', 'Touch'){% endif %}
+    .annotator('addPlugin', 'Message');		
+  });
 });
 	 
 </script>

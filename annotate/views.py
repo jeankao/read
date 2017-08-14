@@ -21,9 +21,15 @@ def annotations(request):
     received_annotation = json.loads(request.body)
     findex = received_annotation['findex']
     stuid = received_annotation['stuid']
+    ftype = received_annotation.get('ftype', 0)
+    atype = received_annotation.get('atype', 0)
     del received_annotation['findex']
     del received_annotation['stuid']
-    annotation = Annotation(user_id=request.user.id, findex=findex, stuid=stuid, annotation=json.dumps(received_annotation))
+    received_annotation.pop('ftype', None)
+    received_annotation.pop('atype', None)
+    # del received_annotation['ftype']
+    # del received_annotation['atype']
+    annotation = Annotation(user_id=request.user.id, ftype=ftype, findex=findex, stuid=stuid, atype=atype, annotation=json.dumps(received_annotation))
     annotation.save()
     return HttpResponseSeeOtherRedirect('/annotate/annotations/'+str(annotation.id))
 
@@ -39,17 +45,26 @@ def annotations(request):
 #
 def single_annotation(request, annotation_id):
   try: 
+    # 只有自己可以刪除或修改自己的建立的標註資料
     annotation = Annotation.objects.get(id=annotation_id, user_id=request.user.id)
     if request.method == "DELETE":
       result = annotation
       annotation.delete()
       response = HttpResponse(status=204)
-    elif request.method == "PUT":
+    elif request.method == "PUT": # 修改標註
       received_annotation = json.loads(request.body)
-      findex = received_annotation['findex']
-      stuid = received_annotation['stuid']
+      # 這幾個欄位應該不會變
+      # findex = received_annotation['findex']
+      # stuid = received_annotation['stuid']
+      # ftype = received_annotation.get('ftype', 0)
+      atype = received_annotation.get('atype', 0)
       del received_annotation['findex']
       del received_annotation['stuid']
+      received_annotation.pop('ftype', None)
+      received_annotation.pop('atype', None)
+      # del received_annotation['ftype']
+      # del received_annotation['atype']
+      annotation.atype = atype
       annotation.annotation = json.dumps(received_annotation)
       annotation.updated = timezone.now()
       annotation.save()
@@ -68,14 +83,16 @@ def single_annotation(request, annotation_id):
 #
 #
 def search(request):
+  ftype = request.GET.get('ftype', default=0)  
   findex = request.GET.get('findex')
   stuid = request.GET.get('stuid')
-  annotations = [a for a in Annotation.objects.filter(findex=findex, stuid=stuid).order_by('id')]
+  annotations = [a for a in Annotation.objects.filter(ftype=ftype, findex=findex, stuid=stuid).order_by('id')]
   total = len(annotations)
   rows = []
   for annotation in annotations:
     anno = json.loads(annotation.annotation)
     anno['id'] = annotation.id
+    anno['atype'] = annotation.atype
     user = User.objects.filter(id=annotation.user_id)[0]
     anno['supervisor'] = user.first_name
     rows.append(anno)
