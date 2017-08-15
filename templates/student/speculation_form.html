@@ -161,6 +161,8 @@ $('#vidModal').on('hidden.bs.modal', function (e) {
   vidPlayer.stopVideo();
 });
 
+var aViewer = null;
+   
 $(document).ready(function () {
   //------------------------------------------------------------------------
   // Load YouTube API library
@@ -174,13 +176,24 @@ $(document).ready(function () {
     annotation_type['t{{ type.id }}'] = '{{ type.kind }}';
   {% endfor %}
   Annotator.Plugin.Message = function (element) {
+
+    function modifyAnnotationClass(annotation) {
+      $(annotation.highlights[0]).attr('class', 'annotator-hl atype-'+annotation.atype);
+    }
     return {
       field: null, 
       input: null,
       pluginInit: function () {
         if (!Annotator.supported())
           return;
+        this.annotator.subscribe("annotationsLoaded", function(annotations) {
+          for(i in annotations) {
+            modifyAnnotationClass(annotations[i]);
+          }
+        });
         this.annotator.subscribe("annotationEditorShown", this.updateField);
+        this.annotator.subscribe("annotationCreated", modifyAnnotationClass);
+        this.annotator.subscribe("annotationUpdated", modifyAnnotationClass);
         self.field = this.annotator.editor.addField({
           submit: this.setAnnotationType
         });
@@ -192,7 +205,7 @@ $(document).ready(function () {
             field.innerHTML = "標註者: " + annotation.supervisor;
           }
         });
-        return self.input = $(self.field).find(':input');
+        // return self.input = $(self.field).find(':input');
       },
       updateField: function(field, annotation) {
         typeid = annotation['atype'] || 0;
