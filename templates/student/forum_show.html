@@ -213,19 +213,19 @@ $(document).ready(function () {
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);  
 	// Annotator
 	Annotator.Plugin.Message = function (element) {
+    function formatDateTime(d) {
+      function _(n) {
+        if (n < 10)
+          return '0'+n;
+        return ''+n;
+      }
+      return ''+d.getFullYear()+'/'+_(d.getMonth()+1)+'/'+_(d.getDate())+' '+_(d.getHours())+':'+_(d.getMinutes())+':'+_(d.getSeconds());
+    }
     var plugin = {};
     plugin.pluginInit = function () {
-      /*
-      this.annotator.subscribe("annotationsLoaded", function(annotations) {
-        console.log(annotations);
-        for(i in annotations) {
-          $(annotations[i].highlights[0]).addClass('dreamer');
-        }
-      });        
-      */
       this.annotator.viewer.addField({
-        load: function (field, annotation) {
-          field.innerHTML = "標註者: " + annotation.supervisor;
+        load: function (field, annotation) {          
+          field.innerHTML = formatDateTime(new Date(annotation.created))+" | " + annotation.supervisor;
         }
       })
     };

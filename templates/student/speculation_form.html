@@ -160,8 +160,6 @@ function timeToSec(timestr) {
 $('#vidModal').on('hidden.bs.modal', function (e) {
   vidPlayer.stopVideo();
 });
-
-var aViewer = null;
    
 $(document).ready(function () {
   //------------------------------------------------------------------------
@@ -176,7 +174,14 @@ $(document).ready(function () {
     annotation_type['t{{ type.id }}'] = '{{ type.kind }}';
   {% endfor %}
   Annotator.Plugin.Message = function (element) {
-
+    function formatDateTime(d) {
+      function _(n) {
+        if (n < 10)
+          return '0'+n;
+        return ''+n;
+      }
+      return ''+d.getFullYear()+'/'+_(d.getMonth()+1)+'/'+_(d.getDate())+' '+_(d.getHours())+':'+_(d.getMinutes())+':'+_(d.getSeconds());
+    }
     function modifyAnnotationClass(annotation) {
       $(annotation.highlights[0]).attr('class', 'annotator-hl atype-'+annotation.atype);
     }
@@ -202,7 +207,7 @@ $(document).ready(function () {
         });
         this.annotator.viewer.addField({
           load: function (field, annotation) {
-            field.innerHTML = "標註者: " + annotation.supervisor;
+            field.innerHTML = field.innerHTML = formatDateTime(new Date(annotation.created))+" | " + annotation.supervisor;
           }
         });
         // return self.input = $(self.field).find(':input');

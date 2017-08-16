@@ -73,7 +73,10 @@ def single_annotation(request, annotation_id):
       result = json.loads(annotation.annotation)
       user = User.objects.filter(id=annotation.user_id)[0]
       result['id'] = annotation.id
-      result['supervisor']=user.first_name
+      result['supervisor'] = user.first_name
+      result['created'] = annotation.created
+      result['updated'] = annotation.updated
+      result['atype'] = annotation.atype
       response = JsonResponse(result, safe=False)
   except Annotation.DoesNotExist:
     response = HttpResponseNotFound()
@@ -93,6 +96,8 @@ def search(request):
     anno = json.loads(annotation.annotation)
     anno['id'] = annotation.id
     anno['atype'] = annotation.atype
+    anno['created'] = annotation.created
+    anno['updated'] = annotation.updated
     user = User.objects.filter(id=annotation.user_id)[0]
     anno['supervisor'] = user.first_name
     rows.append(anno)
