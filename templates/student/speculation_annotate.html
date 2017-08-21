@@ -69,7 +69,6 @@
 {% endblock %}
 
 {% block domready %}
-  // $('html, body').animate({scrollTop: $(''+$(location).attr('hash')).offset().top -100 }, 'slow');
   // Annotation //
   annotation_type = [];
   {% for type in types %}
@@ -152,4 +151,5 @@
     .annotator('addPlugin', 'Touch')
     .annotator('addPlugin', 'Message');
   });
+  // $('html, body').animate({scrollTop: $(''+$(location).attr('hash')).offset().top -100 }, 'slow');
 {% endblock %}

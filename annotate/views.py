@@ -5,6 +5,7 @@ from django.http.response import HttpResponse, HttpResponseRedirectBase, HttpRes
 from django.utils import timezone
 from django.contrib.auth.models import User
 from models import Annotation
+from student.models import Enroll
 import json
 
 class HttpResponseSeeOtherRedirect(HttpResponseRedirectBase):
@@ -88,8 +89,26 @@ def single_annotation(request, annotation_id):
 def search(request):
   ftype = request.GET.get('ftype', default=0)  
   findex = request.GET.get('findex')
-  stuid = request.GET.get('stuid')
-  annotations = [a for a in Annotation.objects.filter(ftype=ftype, findex=findex, stuid=stuid).order_by('id')]
+  stuid = request.GET.get('stuid', default=0)
+  classroom = request.GET.get('classroom', default=0)
+  atype = request.GET.get('atype', default=0)
+  qs = Annotation.objects.filter(ftype=ftype, findex=findex)
+  if stuid == 0:
+    stuids = [stu.student_id for stu in Enroll.objects.filter(classroom_id=classroom).order_by('id')]
+    qs = qs.filter(stuid__in=stuids)
+  else:
+    qs = qs.filter(stuid=stuid)
+  
+  if atype > 0:
+    qs = qs.filter(atype=atype)
+  annotations = [a for a in qs.order_by('id')]
+  '''
+  if stuid > 0:
+    annotations = [a for a in Annotation.objects.filter(ftype=ftype, findex=findex, stuid=stuid).order_by('id')]
+  else:
+    stuids = [stu.student_id for stu in Enroll.objects.filter(classroom_id=classroom).order_by('id')]
+    annotations = [a for a in Annotation.objects.filter(ftype=ftype, findex=findex, stuid__in=stuids).order_by('id')]
+  '''
   total = len(annotations)
   rows = []
   for annotation in annotations:

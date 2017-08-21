@@ -1,5 +1,18 @@
 {% extends "base.html" %}
 {% load tag %}
+
+{% block header %}
+<link rel="stylesheet" href="/static/js/annotator/annotator.min.css" type="text/css" media="all" />
+<script type="text/javascript" src="/static/js/annotator/annotator-full.min.js"></script>
+<link rel="stylesheet" href="/static/js/annotator/annotator.touch.css" type="text/css" media="all" />
+<script type="text/javascript" src="/static/js/annotator/annotator.touch.min.js"></script>
+<style type="text/css">
+{% for type in types %}
+  {% spaceless %}.annotator-hl.atype-{{type.id}} {background-color: {{type.color}}}{% endspaceless %}
+{% endfor %}
+</style>
+{% endblock %}
+
 {% block content %}
 <button class="btn btn-success">{{swork.title}}</button> <button class="btn btn-success">{{classroom_id|classname}}</button><BR>
         {% for annotation in annotations %}
@@ -31,5 +44,86 @@
 {% endblock %}
 
 {% block domready %}
-		$('html, body').animate({scrollTop: $(''+$(location).attr('hash')).offset().top -100 }, 'slow');
+  // Annotation //
+  annotation_type = [];
+  {% for type in types %}
+    annotation_type['t{{ type.id }}'] = '{{ type.kind }}';
+  {% endfor %}
+  Annotator.Plugin.Message = function (element) {
+    function formatDateTime(d) {
+      function _(n) {
+        if (n < 10)
+          return '0'+n;
+        return ''+n;
+      }
+      return ''+d.getFullYear()+'/'+_(d.getMonth()+1)+'/'+_(d.getDate())+' '+_(d.getHours())+':'+_(d.getMinutes())+':'+_(d.getSeconds());
+    }
+    function modifyAnnotationClass(annotation) {
+      $(annotation.highlights[0]).attr('class', 'annotator-hl atype-'+annotation.atype);
+    }
+    return {
+      field: null, 
+      input: null,
+      pluginInit: function () {
+        if (!Annotator.supported())
+          return;
+        this.annotator.subscribe("annotationsLoaded", function(annotations) {
+          for(i in annotations) {
+            modifyAnnotationClass(annotations[i]);
+          }
+        });
+        this.annotator.subscribe("annotationEditorShown", this.updateField);
+        this.annotator.subscribe("annotationCreated", modifyAnnotationClass);
+        this.annotator.subscribe("annotationUpdated", modifyAnnotationClass);
+        self.field = this.annotator.editor.addField({
+          submit: this.setAnnotationType
+        });
+        this.annotator.viewer.addField({
+          load: this.updateViewer
+        });
+        this.annotator.viewer.addField({
+          load: function (field, annotation) {
+            field.innerHTML = field.innerHTML = formatDateTime(new Date(annotation.created))+" | " + annotation.supervisor;
+          }
+        });
+        // return self.input = $(self.field).find(':input');
+      },
+      updateField: function(field, annotation) {
+        typeid = annotation['atype'] || 0;
+        tagHTML = "<select id='annotation-type' class='form-control'>";
+        {% for type in types %}
+        tagHTML += "<option value='{{ type.id }}' style='background-color: {{ type.color }}'>{{ type.kind }}</option>";
+        {% endfor %}
+        tagHTML += "</select>"
+        $(self.field).html(tagHTML);
+        if (typeid)
+          $('#annotation-type').val(typeid);
+        return this.input;
+      },
+      updateViewer: function(field, annotation) {
+        typeid = annotation['atype'] || 0;
+        field = $(field);
+        return field.addClass('annotator-hl atype-'+typeid).html(annotation_type['t'+typeid]);
+      },
+      setAnnotationType: function(field, annotation) {
+        annotation.atype = $(self.field).find('select :selected').val();
+      },      
+    };
+  }
+  var re = /https?:\/\/[^\/]+([^\?]*)/;
+  var page_path = re.exec(window.location.href)[1];
+  $('.memo-content').each(function(index, element) {
+    $(element).annotator({readOnly: true})
+    .annotator('addPlugin', 'Store', {
+      prefix: '/annotate', 
+      loadFromSearch: {
+        'ftype': 1,
+        'findex': {{ index }}, 
+        'classroom': {{ classroom_id }},
+        'atype': {{ annotate_id }},
+      }
+    })
+    .annotator('addPlugin', 'Message');
+  });
+  $('html, body').animate({scrollTop: $(''+$(location).attr('hash')).offset().top -100 }, 'slow');
 {% endblock %}
