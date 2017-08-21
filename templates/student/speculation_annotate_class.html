@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load tag %}
+{% block content %}
+<button class="btn btn-success">{{swork.title}}</button> <button class="btn btn-success">{{classroom_id|classname}}</button><BR>
+        {% for annotation in annotations %}
+        <a href="/student/speculation/annotateclass/{{classroom_id}}/{{index}}/{{annotation.id}}" class="btn {% if annotation.id == annotate_id %}btn-primary{% else %}btn-default{% endif %}">{{annotation.kind}}</a>
+        {% endfor %}
+  <ul class="list-group">
+     <li class="list-group-item material" id="m_{{ work.id }}">
+      <div class="panel panel-default">
+      <div class="panel-body memo-content">    
+    {% for work in contents %}
+      {% spaceless %}     
+        {% if work.types == 1 %}
+    {{work.text}}
+        {% elif work.types == 2 %}
+     <div class="embed-responsive embed-responsive-16by9">
+               <iframe width="560" height="315" class="embed-responsive-item" src="https://www.youtube.com/embed/{{work.youtube|number}}?enablejsapi=1" frameborder="0" allowfullscreen></iframe>
+    </div>
+        
+       {% elif work.types == 3 %}
+        <div>
+    <img src="/static/upload/{{work.filename}}">
+        </div>
+          
+    {% endif %} 
+      {% endspaceless %}
+    {% endfor %}
+    </div>
+        </li>  
+{% endblock %}
+
+{% block domready %}
+		$('html, body').animate({scrollTop: $(''+$(location).attr('hash')).offset().top -100 }, 'slow');
+{% endblock %}

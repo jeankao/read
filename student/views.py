@@ -843,6 +843,37 @@ class SpeculationAnnotateView(ListView):
             return redirect('/')
         return super(SpeculationAnnotateView, self).render_to_response(context)    
 
+# 列出班級思辨
+class SpeculationAnnotateClassView(ListView):
+    model = SSpeculationWork
+    context_object_name = 'annotations'
+    template_name = 'student/speculation_annotate_class.html'    
+    
+    def get_queryset(self):
+        annotations = SpeculationAnnotation.objects.filter(forum_id=self.kwargs['index'])
+        return annotations
+        
+    def get_context_data(self, **kwargs):
+        context = super(SpeculationAnnotateClassView, self).get_context_data(**kwargs)        
+        context['classroom_id'] = self.kwargs['classroom_id']
+        context['annotate_id'] = int(self.kwargs['id'])
+        context['enrolls'] = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id'])
+        context['swork'] = SpeculationWork.objects.get(id=self.kwargs['index'])
+        context['contents'] = SpeculationContent.objects.filter(forum_id=self.kwargs['index'])
+        context['files'] = SSpeculationContent.objects.filter(index=self.kwargs['index'], student_id=self.kwargs['id'])
+        context['types'] = SpeculationAnnotation.objects.filter(forum_id=self.kwargs['index'])
+        context['index'] = self.kwargs['index']
+        return context	    
+
+    # 限本班同學
+    def render_to_response(self, context):
+        try:
+            enroll = Enroll.objects.get(student_id=self.request.user.id, classroom_id=self.kwargs['classroom_id'])
+        except ObjectDoesNotExist :
+            return redirect('/')
+        return super(SpeculationAnnotateClassView, self).render_to_response(context)    
+
+			
 # 下載檔案
 def speculation_download(request, file_id):
     content = SSpeculationContent.objects.get(id=file_id)
