@@ -779,19 +779,83 @@ def speculation_submit(request, classroom_id, index):
                 work.memo=form.cleaned_data['memo']
                 work.save()
                 if not works:
-                    return redirect("/student/forum/publish/"+classroom_id+"/"+index+"/2")	
+                    return redirect("/student/speculation/publish/"+classroom_id+"/"+index+"/2")	
                 elif not works[0].publish:
-                    return redirect("/student/forum/publish/"+classroom_id+"/"+index+"/2")
-                return redirect("/student/forum/memo/"+classroom_id+"/"+index+"/0")
+                    return redirect("/student/speculation/publish/"+classroom_id+"/"+index+"/2")
+                return redirect("/student/speculation/annotate/"+classroom_id+"/"+index+"/"+str(request.user.id))
             else:
-                return render_to_response('student/forum_form.html', {'error':form.errors}, context_instance=RequestContext(request))
+                return render_to_response('student/speculation_form.html', {'error':form.errors}, context_instance=RequestContext(request))
         else:
             if not works.exists():
-                work = SFWork(index=0, publish=False)
-                form = ForumSubmitForm()
+                work = SSpeculationWork(index=0, publish=False)
+                form = SpeculationSubmitForm()
             else:
                 work = works[0]
                 form = SpeculationSubmitForm()
             files = SSpeculationContent.objects.filter(index=index, student_id=request.user.id,visible=True).order_by("-id")
             subject = SpeculationWork.objects.get(id=index).title
         return render_to_response('student/speculation_form.html', {'classroom_id':classroom_id, 'subject':subject, 'files':files, 'index': index, 'fwork':fwork, 'works':works, 'work':work, 'form':form, 'scores':scores, 'index':index, 'contents':contents, 'types': types}, context_instance=RequestContext(request))
+
+# 發表心得
+def speculation_publish(request, classroom_id, index, action):
+    if action == "1":
+        try:
+            works = SSpeculationWork.objects.filter(index=index, student_id=request.user.id).order_by("-id")
+            work = works[0]
+            work.publish = True
+            work.save()
+        except ObjectDoesNotExist:
+            pass
+        return redirect("/student/speculation/annotate/"+classroom_id+"/"+index+"/"+str(request.user.id))
+    elif action == "0":
+        return redirect("/student/speculation/annotate/"+classroom_id+"/"+index+"/"+str(request.user.id))
+    else :
+        return render_to_response('student/speculation_publish.html', {'classroom_id': classroom_id, 'index': index}, context_instance=RequestContext(request))
+	
+			
+# 列出班級思辨
+class SpeculationAnnotateView(ListView):
+    model = SSpeculationWork
+    context_object_name = 'works'
+    template_name = 'student/speculation_annotate.html'    
+    
+    def get_queryset(self):
+        works = SSpeculationWork.objects.filter(index=self.kwargs['index'], student_id=self.kwargs['id']).order_by("-id")          	
+        return works
+        
+    def get_context_data(self, **kwargs):
+        context = super(SpeculationAnnotateView, self).get_context_data(**kwargs)        
+        context['classroom_id'] = self.kwargs['classroom_id']
+        context['student_id'] = int(self.kwargs['id'])
+        context['enrolls'] = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id'])
+        context['swork'] = SpeculationWork.objects.get(id=self.kwargs['index'])
+        context['contents'] = SpeculationContent.objects.filter(forum_id=self.kwargs['index'])
+        context['files'] = SSpeculationContent.objects.filter(index=self.kwargs['index'], student_id=self.kwargs['id'])
+        return context	    
+
+    # 限本班同學
+    def render_to_response(self, context):
+        try:
+            enroll = Enroll.objects.get(student_id=self.request.user.id, classroom_id=self.kwargs['classroom_id'])
+        except ObjectDoesNotExist :
+            return redirect('/')
+        return super(SpeculationAnnotateView, self).render_to_response(context)    
+
+# 下載檔案
+def speculation_download(request, file_id):
+    content = SSpeculationContent.objects.get(id=file_id)
+    filename = content.title
+    download =  settings.BASE_DIR + "/static/upload/" + content.filename
+    wrapper = FileWrapper(file( download, "r" ))
+    response = HttpResponse(wrapper, content_type = 'application/force-download')
+    #response = HttpResponse(content_type='application/force-download')
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(filename.encode('utf8'))
+    # It's usually a good idea to set the 'Content-Length' header too.
+    # You can also set any other required headers: Cache-Control, etc.
+    return response
+	
+# 顯示圖片
+def speculation_showpic(request, file_id):
+        content = SSpeculationContent.objects.get(id=file_id)
+        return render_to_response('student/forum_showpic.html', {'content':content}, context_instance=RequestContext(request))
+

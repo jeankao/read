@@ -2,7 +2,7 @@
 from django import template
 from django.contrib.auth.models import User
 from account.models import MessagePoll, Site, Parent
-from teacher.models import Classroom, Assistant, FClass
+from teacher.models import Classroom, Assistant, FClass, SpeculationClass
 from student.models import Enroll, SFWork, SFReply
 from django.contrib.auth.models import Group
 from django.utils import timezone
@@ -168,6 +168,18 @@ def in_deadline(forum_id, classroom_id):
             return fclass.deadline_date
     return ""
 
+@register.filter
+def in_deadline_speculation(forum_id, classroom_id):
+    try:
+        fclass = SpeculationClass.objects.get(forum_id=forum_id, classroom_id=classroom_id)
+    except ObjectDoesNotExist:
+        fclass = SpeculationClass(forum_id=forum_id, classroom_id=classroom_id)
+    if fclass.deadline:
+        if timezone.now() > fclass.deadline_date:
+            return fclass.deadline_date
+    return ""
+	
+	
 @register.filter()
 def reader_name(message_id):
     try:

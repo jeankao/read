@@ -3,7 +3,7 @@ from django.conf.urls import url
 from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
-from student.views import WorkListView, ForumListView, AnnounceListView, SpeculationListView
+from student.views import WorkListView, ForumListView, AnnounceListView, SpeculationListView, SpeculationAnnotateView
 
 urlpatterns = [
     # 選課
@@ -45,4 +45,8 @@ urlpatterns = [
     #思辨
     url(r'^speculation/(?P<classroom_id>\d+)/(?P<bookmark>\d+)/$', login_required(SpeculationListView.as_view()), name='work-list'),  
     url(r'^speculation/submit/(?P<classroom_id>\d+)/(?P<index>\d+)/$', login_required(views.speculation_submit)),    
+	  url(r'^speculation/publish/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<action>\d+)/$', login_required(views.speculation_publish), name='speculation-publish'), 	
+	  url(r'^speculation/annotate/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<id>\d+)/$', login_required(SpeculationAnnotateView.as_view()), name='speculation-annotate'), 	
+	  url(r'^speculation/download/(?P<file_id>\d+)/$', views.speculation_download, name='forum-download'), 
+	  url(r'^speculation/showpic/(?P<file_id>\d+)/$', login_required(views.speculation_showpic), name='forum-showpic'), 		
 ]

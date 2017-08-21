@@ -19,7 +19,32 @@
 <a href="/student/speculation/publish/{{classroom_id}}/{{index}}/1/" class="btn btn-primary" role="btn">發表心得</a>
 {% endif %}
   <ul class="list-group">
-    <li class="list-group-item">
+     <li class="list-group-item material" id="m_{{ work.id }}">
+      <div class="panel panel-default">
+      <div class="panel-body memo-content">    
+    {% for work in contents %}
+      {% spaceless %}     
+        {% if work.types == 1 %}
+    {{work.text}}
+        {% elif work.types == 2 %}
+     <div class="embed-responsive embed-responsive-16by9">
+               <iframe width="560" height="315" class="embed-responsive-item" src="https://www.youtube.com/embed/{{work.youtube|number}}?enablejsapi=1" frameborder="0" allowfullscreen></iframe>
+    </div>
+        
+       {% elif work.types == 3 %}
+        <div>
+    <img src="/static/upload/{{work.filename}}">
+        </div>
+          
+    {% endif %} 
+      {% endspaceless %}
+      {% if work.types == 2 %}{% spaceless %}
+        <button type="button" class="btn btn-primary btn-xs btn-add-marker">＋新增時間標記</button>
+      {% endspaceless %}{% endif %}
+    {% endfor %}
+    </div>
+        </li>
+   <li class="list-group-item">
       <h4 class="list-group-item-heading">心得</h4>
       <div class="list-group-item-text">
 				{% if work.index|in_deadline:classroom_id == "" %}
@@ -50,32 +75,9 @@
       </div>
 
     </li>
-    <li class="list-group-item material" id="m_{{ work.id }}">
-      <div class="panel panel-default">
-      <div class="panel-body memo-content">    
-    {% for work in contents %}
-      {% spaceless %}     
-        {% if work.types == 1 %}
-    {{work.text}}
-        {% elif work.types == 2 %}
-     <div class="embed-responsive embed-responsive-16by9">
-               <iframe width="560" height="315" class="embed-responsive-item" src="https://www.youtube.com/embed/{{work.youtube|number}}?enablejsapi=1" frameborder="0" allowfullscreen></iframe>
-    </div>
-        
-       {% elif work.types == 3 %}
-        <div>
-    <img src="/static/upload/{{work.filename}}">
-        </div>
-          
-    {% endif %} 
-      {% endspaceless %}
-      {% if work.types == 2 %}{% spaceless %}
-        <button type="button" class="btn btn-primary btn-xs btn-add-marker">＋新增時間標記</button>
-      {% endspaceless %}{% endif %}
-    {% endfor %}
-    </div>
-        </li>
-        </ul> 
+
+</ul> 
+
 
 {% endblock %}
 

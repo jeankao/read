@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load tag %}
+{% block content %}
+<button class="btn btn-success">{{swork.title}}</button> <button class="btn btn-success">{{classroom_id|classname}}</button><BR>
+{% for enroll in enrolls %}
+<a href="/student/speculation/annotate/{{classroom_id}}/{{swork.id}}/{{enroll.student_id}}" class="btn {% if student_id == enroll.student_id %}btn-primary{% else %}btn-default{% endif %}">{{enroll.seat}}){{enroll.student_id|realname}}</a>
+{% endfor %}
+  
+{% if works.0.publish %}
+<BR>
+   <li class="list-group-item">
+      <h4 class="list-group-item-heading">心得</h4>
+      <div class="list-group-item-text">
+        {{works.0.memo|safe}}
+      {% for file in files %}
+        {% if file.visible %}
+      <div><button class="btn btn-info">
+        {{forloop.revcounter}}
+        </button>
+		  {{file.publication_date}}	        
+        {% if file.title|is_pic %}
+     <a href="/student/speculation/showpic/{{file.id}}" target="_blank">{{file.title}}</a>
+			{% else %}
+			<a href="/student/speculation/download/{{file.id}}" target="_blank">{{file.title}}</a>
+			{% endif %}
+        </div>
+        {% endif %}
+		{% endfor %}
+      </div>
+    </li>
+  
+  <ul class="list-group">
+     <li class="list-group-item material" id="m_{{ work.id }}">
+      <div class="panel panel-default">
+      <div class="panel-body memo-content">    
+    {% for work in contents %}
+      {% spaceless %}     
+        {% if work.types == 1 %}
+    {{work.text}}
+        {% elif work.types == 2 %}
+     <div class="embed-responsive embed-responsive-16by9">
+               <iframe width="560" height="315" class="embed-responsive-item" src="https://www.youtube.com/embed/{{work.youtube|number}}?enablejsapi=1" frameborder="0" allowfullscreen></iframe>
+    </div>
+        
+       {% elif work.types == 3 %}
+        <div>
+    <img src="/static/upload/{{work.filename}}">
+        </div>
+          
+    {% endif %} 
+      {% endspaceless %}
+    {% endfor %}
+    </div>
+        </li>
+{% endif %}
+{% endblock %}
+
+{% block domready %}
+		$('html, body').animate({scrollTop: $(''+$(location).attr('hash')).offset().top -100 }, 'slow');
+{% endblock %}
