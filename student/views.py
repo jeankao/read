@@ -831,6 +831,8 @@ class SpeculationAnnotateView(ListView):
         context['swork'] = SpeculationWork.objects.get(id=self.kwargs['index'])
         context['contents'] = SpeculationContent.objects.filter(forum_id=self.kwargs['index'])
         context['files'] = SSpeculationContent.objects.filter(index=self.kwargs['index'], student_id=self.kwargs['id'])
+        context['types'] = SpeculationAnnotation.objects.filter(forum_id=self.kwargs['index'])
+        context['index'] = self.kwargs['index']
         return context	    
 
     # 限本班同學
