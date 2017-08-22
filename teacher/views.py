@@ -525,7 +525,9 @@ class ForumContentCreateView(CreateView):
             filename = uuid4().hex
             work.title = myfile.name
             work.filename = str(self.request.user.id)+"/"+filename
-            fs.save("static/upload/"+str(self.request.user.id)+"/"+filename, myfile)	
+            fs.save("static/upload/"+str(self.request.user.id)+"/"+filename, myfile)
+        if self.object.types  == 4:
+            work.types = 4
         work.memo = self.object.memo
         work.save()         
   

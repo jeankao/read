@@ -35,10 +35,16 @@
     <a href="/teacher/forum/content/edit/{{forum_id}}/{{work.id}}"><img src="/static/images/edit.gif"> 編輯</a>
 </div>
   <div class="panel-body"> <a href="/teacher/forum/download/{{work.id}}" target="_blank">{{work.title}}</a> </div>                        
-              {% endif %}
+              {% elif work.types == 4 %}
+  <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.revcounter}}</button> 自訂文字
+    <A href="/teacher/forum/content/delete/{{forum_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
+    <a href="/teacher/forum/content/edit/{{forum_id}}/{{work.id}}"><img src="/static/images/edit.gif"> 編輯</a>
+</div>               
+{% endif %}
     <div class="panel-body">{{ work.memo|memo|safe }}</div>
-  </div>
-  <div class="modal fade" tabindex="-1" role="dialog" id="vidModal">
+
+
+  <div class="modal fade" tabindex="-1" role="dialog" id="vidModal">   
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-body">

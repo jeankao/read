@@ -16,9 +16,6 @@
 <div class="row">
   <button class="btn btn-success">{{forum.title}}</button>
   <button class="btn btn-default">{{forum.teacher_id|realname}}老師</button>
-	{% if user_id == request.user.id|int_to_str %}
-  <a href="/student/forum/submit/{{classroom_id}}/{{forum.id}}" class="btn btn-primary" role="btn">編輯</a>	
-  {% endif %}
 	<div class="panel panel-default">
 		<div class="panel-heading">{{user_id|realname}} --{{work_new.publication_date}}{% if publish %}(已發表){% else %}<font color=red>(尚未發表)</font>{% endif %}　
 			<span style="float:right">
@@ -110,8 +107,15 @@
         {% elif work.types == 3 %}
   <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button> 下載檔案
 </div>
-  <div class="panel-body"> <a href="/teacher/forum/download/{{work.id}}" target="_blank">{{work.title}}</a> </div>                        
+  <div class="panel-body"> <a href="/teacher/forum/download/{{work.id}}" target="_blank">{{work.title}}</a> </div>       
+        {% elif work.types == 4 %}
+  <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button> 自訂文字
+</div>
         {% endif %} 
+  <div class="panel-body">
+    {{work.memo|memo|safe}}
+  </div>					
+        
       {% endspaceless %}
 
     </div>

@@ -4,9 +4,6 @@
 {% block content %}
 <button class="btn btn-success">{{forum.title}}</button>
 <button class="btn btn-warning">{{works.0.student_id|realname}}</button>
-{% if request.user.id == works.0.student_id %}
-<a href="/student/forum/submit/{{classroom_id}}/{{index}}" class="btn btn-primary" role="btn">編輯</a>
-{% endif %}
 {% for work in works %}
   <div class="panel panel-default">
     <div class="panel-heading"><button type="button" class="btn btn-success">{{forloop.revcounter}}</button> {{work.publication_date}} {% if work.publish %}(已發表){% else %}(未發表){% endif %}</div>
