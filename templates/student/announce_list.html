@@ -18,3 +18,7 @@
         </table>
  {% include "pagination.html" with page=page_obj %}          
 {% endblock %}
+          
+          	{% block domready %}
+	    $('body').css('background-image','url(/static/images/back4.gif)');
+	{% endblock %}	

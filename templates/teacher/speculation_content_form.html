@@ -111,3 +111,6 @@ $(function () {
 </section>
 </section>
 {% endblock %}
+      	{% block domready %}
+	    $('body').css('background-image','url(/static/images/back3.gif)');
+	{% endblock %}	

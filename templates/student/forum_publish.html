@@ -5,3 +5,7 @@
 <a href="/student/forum/publish/{{classroom_id}}/{{index}}/0" class="btn btn-default" role="btn">暫時不發表</a>   
 <a href="/student/forum/publish/{{classroom_id}}/{{index}}/1" class="btn btn-primary" role="btn">發表心得</a>           
 {% endblock %}
+
+	{% block domready %}
+	    $('body').css('background-image','url(/static/images/back1.gif)');
+	{% endblock %}

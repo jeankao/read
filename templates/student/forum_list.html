@@ -22,6 +22,6 @@
         {% endfor %}
 {% endblock %}
 
-{% block domready %}
-		$('html, body').animate({scrollTop: $(''+$(location).attr('hash')).offset().top -100 }, 'slow');
-{% endblock %}
+	{% block domready %}
+	    $('body').css('background-image','url(/static/images/back1.gif)');
+	{% endblock %}

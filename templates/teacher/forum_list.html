@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load tag %}
 {% block content %}
-        <a href="" class="btn btn-success" role="btn">{{classroom.name}}</a>
+	        <a href="" class="btn btn-success" role="btn">{{classroom.name}}</a>
 <BR>
         <a href="/teacher/forum/add/{{classroom.id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 新增討論</a>
         <a href="/teacher/forum/grade/{{classroom.id}}/0" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-stats" aria-hidden="true"></span> 班級成績</a>
@@ -25,7 +25,9 @@
 	</div>
 </div>
         {% endfor %}
-{% endblock %}
-{% block domready %}
-		$('html, body').animate({scrollTop: $(''+$(location).attr('hash')).offset().top -100 }, 'slow');
-{% endblock %}
+	{% endblock %}
+	
+	{% block domready %}
+	    $('body').css('background-image','url(/static/images/back1.gif)');
+	{% endblock %}
+	
