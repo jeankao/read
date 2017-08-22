@@ -7,7 +7,7 @@
            <table class="table">
    
              <tr><td>類別</td><td><input type=text name=kind value={{content.kind}}></td></tr>
-             <tr><td>顏色</td><td><input type=color name=color value={{content.color}}></td></tr>
+             <tr><td>顏色</td><td><input type=color name=color value={% if content.color %}{{content.color}}{% else %}#FFFF99{% endif %}></td></tr>
 
             </table>
             {% csrf_token %}

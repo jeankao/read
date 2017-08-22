@@ -997,12 +997,12 @@ class SpeculationAllListView(ListView):
     def get_queryset(self):
       # 年級
       if self.kwargs['categroy'] == "1":
-        queryset = FWork.objects.filter(levels__contains=self.kwargs['categroy_id']).order_by("-id")
+        queryset = SpeculationWork.objects.filter(levels__contains=self.kwargs['categroy_id']).order_by("-id")
       # 學習領域
       elif self.kwargs['categroy'] == "2":
-        queryset = FWork.objects.filter(domains__contains=self.kwargs['categroy_id']).order_by("-id")   
+        queryset = SpeculationWork.objects.filter(domains__contains=self.kwargs['categroy_id']).order_by("-id")   
       else:
-        queryset = FWork.objects.all().order_by("-id")
+        queryset = SpeculationWork.objects.all().order_by("-id")
       if self.request.GET.get('account') != None:
         keyword = self.request.GET.get('account')
         users = User.objects.filter(Q(username__icontains=keyword) | Q(first_name__icontains=keyword)).order_by('-id')
@@ -1024,7 +1024,7 @@ class SpeculationAllListView(ListView):
 
 # 展示思辨素材
 def speculation_show(request, forum_id):
-    forum = FWork.objects.get(id=forum_id)
+    forum = SpeculationWork.objects.get(id=forum_id)
     domains = Domain.objects.all()
     domain_dict = {}
     for domain in domains :
@@ -1035,7 +1035,7 @@ def speculation_show(request, forum_id):
     for level in levels :
         key = level.id
         level_dict[key] = level
-    contents = FContent.objects.filter(forum_id=forum_id)
+    contents = SpeculationContent.objects.filter(forum_id=forum_id)
     domains = []		
     if forum.domains:
         forum_domains = ast.literal_eval(forum.domains)
@@ -1081,7 +1081,7 @@ class SpeculationClassListView(ListView):
 			
     def get_context_data(self, **kwargs):
         context = super(SpeculationClassListView, self).get_context_data(**kwargs)				
-        fwork = FWork.objects.get(id=self.kwargs['forum_id'])
+        fwork = SpeculationWork.objects.get(id=self.kwargs['forum_id'])
         context['fwork'] = fwork
         context['forum_id'] = self.kwargs['forum_id']
         return context	

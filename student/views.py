@@ -825,9 +825,22 @@ class SpeculationAnnotateView(ListView):
         
     def get_context_data(self, **kwargs):
         context = super(SpeculationAnnotateView, self).get_context_data(**kwargs)        
+        ids = []
+        queryset = []
+        enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("seat")
+        for enroll in enrolls :
+            ids.append(enroll.student_id)
+        work_pool = SSpeculationWork.objects.filter(student_id__in=ids).order_by("-id")
+        for enroll in enrolls:
+            works = filter(lambda w: w.student_id==enroll.student_id, work_pool)
+            if len(works)> 0:
+                queryset.append([enroll, works[0].publish])
+            else:
+                queryset.append([enroll, False])
+        context['queryset'] = queryset
         context['classroom_id'] = self.kwargs['classroom_id']
         context['student_id'] = int(self.kwargs['id'])
-        context['enrolls'] = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id'])
+        context['enrolls'] = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("seat")
         context['swork'] = SpeculationWork.objects.get(id=self.kwargs['index'])
         context['contents'] = SpeculationContent.objects.filter(forum_id=self.kwargs['index'])
         context['files'] = SSpeculationContent.objects.filter(index=self.kwargs['index'], student_id=self.kwargs['id'])
@@ -860,7 +873,6 @@ class SpeculationAnnotateClassView(ListView):
         context['enrolls'] = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id'])
         context['swork'] = SpeculationWork.objects.get(id=self.kwargs['index'])
         context['contents'] = SpeculationContent.objects.filter(forum_id=self.kwargs['index'])
-        context['files'] = SSpeculationContent.objects.filter(index=self.kwargs['index'], student_id=self.kwargs['id'])
         context['types'] = SpeculationAnnotation.objects.filter(forum_id=self.kwargs['index'])
         context['index'] = self.kwargs['index']
         return context	    
@@ -871,6 +883,10 @@ class SpeculationAnnotateClassView(ListView):
             enroll = Enroll.objects.get(student_id=self.request.user.id, classroom_id=self.kwargs['classroom_id'])
         except ObjectDoesNotExist :
             return redirect('/')
+        if self.kwargs['id'] == "0":
+            annotations = SpeculationAnnotation.objects.filter(forum_id=self.kwargs['index'])
+            if len(annotations)>0:
+                return redirect("/student/speculation/annotateclass/"+self.kwargs['classroom_id']+"/"+self.kwargs['index']+"/"+str(annotations[0].id))
         return super(SpeculationAnnotateClassView, self).render_to_response(context)    
 
 			

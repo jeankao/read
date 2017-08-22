@@ -15,10 +15,15 @@
 
 {% block content %}
 <button class="btn btn-success">{{swork.title}}</button> <button class="btn btn-success">{{classroom_id|classname}}</button><BR>
-{% for enroll in enrolls %}
-<a href="/student/speculation/annotate/{{classroom_id}}/{{swork.id}}/{{enroll.student_id}}" class="btn {% if student_id == enroll.student_id %}btn-primary{% else %}btn-default{% endif %}">{{enroll.seat}}){{enroll.student_id|realname}}</a>
+{% for enroll, publish in queryset %}
+{% if publish %}
+<a href="/student/speculation/annotate/{{classroom_id}}/{{swork.id}}/{{enroll.student_id}}" class="btn {% if student_id == enroll.student_id %}btn-primary{% else %}btn-warning{% endif %}">{{enroll.seat}}){{enroll.student_id|realname}}</a>
+{% else %}
+<button class="btn btn-default">
+{{enroll.seat}}){{enroll.student_id|realname}}
+</button>
+{% endif %}
 {% endfor %}
-  
 {% if works.0.publish %}
 <BR>
    <li class="list-group-item">
