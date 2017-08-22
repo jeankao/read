@@ -830,11 +830,11 @@ class SpeculationAnnotateView(ListView):
         enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("seat")
         for enroll in enrolls :
             ids.append(enroll.student_id)
-        work_pool = SSpeculationWork.objects.filter(student_id__in=ids).order_by("-id")
+        work_pool = SSpeculationWork.objects.filter(index=self.kwargs['index'], student_id__in=ids).order_by("-id")
         for enroll in enrolls:
             works = filter(lambda w: w.student_id==enroll.student_id, work_pool)
             if len(works)> 0:
-                queryset.append([enroll, works[0].publish])
+                queryset.append([enroll, works[0].publish, works[0]])
             else:
                 queryset.append([enroll, False])
         context['queryset'] = queryset

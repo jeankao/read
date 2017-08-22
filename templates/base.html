@@ -84,16 +84,26 @@ Licence URI: http://www.os-templates.com/template-terms
            <li><a href="/"><img src="/static/images/icon_home.png"> 首頁</a></li>			
 				{% if request.user.is_authenticated %}
 			<li><a href="/account/dashboard/0"><img src="/static/images/icon_message.png"> 訊息{% if request.user.id|unread > 0 %}({{request.user.id|unread}}){% endif %}</a></li>
-						<li><a href="/account/forum/{{user.id}}"><img src="/static/images/icon_forum.png"> 作業</a></li>				
+					            <li class="dropdown">
+                        <a href="#" data-toggle="dropdown" class="dropdown-toggle"><img  width=16 src="/static/images/icon_forum.png">作業	<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+													<li><a href="/account/forum/{{user.id}}">討論區</a></li>
+													<li><a href="/account/speculation/{{user.id}}">思辨區</a></li>													
+						                        </ul>
+                    </li>
+										
 			<li><a href="/student/classroom"><img src="/static/images/icon_class.png"> 班級</a></li>
 						            <li class="dropdown">
                         <a href="#" data-toggle="dropdown" class="dropdown-toggle"><img  width=16 src="/static/images/icon_doc.png">檔案	<b class="caret"></b></a>
                         <ul class="dropdown-menu">
 													<li><a class="dropdown-item" href="/account/profile/{{user.id}}">積分</a></li>
+		<!--
             <li><a class="dropdown-item" href="/account/profile/{{user.id}}#tab3">證書</a></li>
 		    <li><a class="dropdown-item" href="/account/event/calendar/{{user.id}}">登入記錄</a>			</li></li>
 		    <li><a class="dropdown-item" href="/account/event/timeline/{{user.id}}">使用記錄</a></li>
+-->
 						<li><a class="dropdown-item" href="/account/parent">設定家長</a></li>						
+
                         </ul>
                     </li>
 			{% if request.user.id|is_parent %}

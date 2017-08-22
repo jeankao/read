@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load tag %}
+{% block content %}
+{% if request.user.id|int_to_str == user_id or request.user.id|parent:user_id %}
+<h1>
+	{{user_id|realname}}的作業
+</h1>
+{% for fclass, forum, publish, submits in forums %}
+<div class="panel panel-default">
+<div class="panel-heading">{{forum.title}} {% if not publish %}<font color=red>(尚未發表)</font>{% endif %} -- {{fclass.publication_date}} {{forum.teacher_id|realname}}老師 -- 期限:{% if fclass.deadline %}{{fclass.deadline_date}}{% else %}無{% endif %}</div>
+  <div class="panel-body">
+		{% if not fclass.forum_id|in_deadline_speculation:fclass.classroom_id == '' or publish %}
+		<button class="btn btn-default"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> 繳交({{submits}})</button>
+  	{% else %}
+		<a href="/student/speculation/submit/{{fclass.classroom_id}}/{{forum.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> 繳交({{submits}})</a>
+		{% endif %}
+		{% if  not fclass.forum_id|in_deadline_speculation:fclass.classroom_id == '' or publish or request.user.id|is_teacher:classroom_id %}
+		<a href="/student/speculation/annotate/{{fclass.classroom_id}}/{{forum.id}}/{{request.user.id}}" class="btn btn-primary">個人註記</a>		
+		<a href="/student/speculation/annotateclass/{{fclass.classroom_id}}/{{forum.id}}/0" class="btn btn-primary">全班註記</a>	
+		{% endif %}
+		{% if request.user.id == work.teacher_id %}	
+<a href="/teacher/speculation/{{classroom_id}}/#{{work.id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> 教師</a>	
+{% endif %}
+	</div>
+</div>
+{% empty %}
+目前沒有作業
+{% endfor %}
+        {% load pagination %}
+        {% get_pagination %}
+{% else %}
+您沒有權限
+{% endif %}
+{% endblock %}

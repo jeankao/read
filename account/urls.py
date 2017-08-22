@@ -70,6 +70,8 @@ urlpatterns = [
     url(r'^event/video/(?P<classroom_id>\d+)/$', login_required(views.EventVideoView.as_view())),   
     #討論區作業
     url(r'^forum/(?P<user_id>\d+)/$', login_required(views.ForumListView.as_view())),	 
+    #思辨區作業
+    url(r'^speculation/(?P<user_id>\d+)/$', login_required(views.SpeculationListView.as_view())),	 	
     #設定家長
     url(r'^parent/$', login_required(views.ParentListView.as_view())),
     url(r'^parent/search/$', login_required(views.ParentSearchListView.as_view())),

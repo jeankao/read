@@ -8,8 +8,8 @@ from django.db.models import *
 from forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, LineForm, SchoolForm, EmailForm, DomainForm, LevelForm, SiteImageForm
 from django.contrib.auth.models import User
 from account.models import Profile, PointHistory, Log, Message, MessageContent, MessagePoll, Visitor, VisitorLog, Domain, Level, Site, Parent
-from student.models import Enroll, SWork, SFWork
-from teacher.models import Classroom, Assistant, FWork, FClass
+from student.models import Enroll, SWork, SFWork, SSpeculationWork
+from teacher.models import Classroom, Assistant, FWork, FClass, SpeculationWork, SpeculationClass
 from django.core.exceptions import ObjectDoesNotExist
 #from account.templatetags import tag 
 from django.views.generic import ListView, CreateView, UpdateView
@@ -1093,6 +1093,37 @@ class ForumListView(ListView):
         
     def get_context_data(self, **kwargs):
         context = super(ForumListView, self).get_context_data(**kwargs)
+        context['user_id']= self.kwargs['user_id']
+        return context	
+
+# 思辨區作業
+class SpeculationListView(ListView):
+    context_object_name = 'forums'
+    template_name = 'account/speculation_list.html'
+    paginate_by = 10
+		
+    def get_queryset(self):    
+        # 記錄系統事件
+        log = Log(user_id=1, event=u'查看個人思辨區作業')
+        log.save()       
+        classroom_ids = Enroll.objects.filter(student_id=self.kwargs['user_id'], seat__gt=0).values_list('classroom_id')				
+        forum_dict = dict(((fwork.id, fwork) for fwork in SpeculationWork.objects.all()))
+        fclasses = SpeculationClass.objects.filter(classroom_id__in=classroom_ids).order_by("-publication_date")
+        forum_ids = []
+        for fclass in fclasses:
+            forum_ids.append(fclass.forum_id)
+        queryset = []
+        sfwork_pool = SSpeculationWork.objects.filter(student_id=self.kwargs['user_id']).order_by("-id")
+        for fclass in fclasses:
+            sfworks = filter(lambda w: w.index==fclass.forum_id, sfwork_pool)
+            if len(sfworks) > 0 :
+                 queryset.append([fclass, forum_dict[fclass.forum_id], sfworks[0].publish, len(sfworks)])
+            else :
+                 queryset.append([fclass, forum_dict[fclass.forum_id], False, 0])
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super(SpeculationListView, self).get_context_data(**kwargs)
         context['user_id']= self.kwargs['user_id']
         return context	
 			
