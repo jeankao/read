@@ -13,7 +13,7 @@ class Site(models.Model):
 	# 網站名稱
 	site_name = models.CharField(max_length=50)
 	# 網站圖片
-	site_image =  models.CharField(max_length=20)
+	site_image =  models.CharField(max_length=255)
 
 # 個人檔案資料
 class Profile(models.Model):
