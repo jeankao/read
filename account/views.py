@@ -71,8 +71,10 @@ def homepage(request):
         site = Site(site_name='南港高中', site_image='images/home.jpg')
         site.save()
     classroom_count = Classroom.objects.all().count()
+    teacher_count = Group.objects.get(name="teacher").user_set.count()
     forum_count = FWork.objects.all().count()
-    return render_to_response('homepage.html', {'forum_count':forum_count, 'classroom_count':classroom_count, 'row_count':row_count, 'user_count':len(users), 'site': site}, context_instance=RequestContext(request))
+    speculation_count = SpeculationWork.objects.all().count()		
+    return render_to_response('homepage.html', {'forum_count':forum_count, 'speculation_count':speculation_count, 'teacher_count':teacher_count, 'classroom_count':classroom_count, 'row_count':row_count, 'user_count':len(users), 'site': site}, context_instance=RequestContext(request))
 
 # 作者
 def developer(request):
@@ -532,7 +534,7 @@ class LineCreateView(CreateView):
         self.object.reader_id = self.kwargs['user_id']
         self.object.type = 2
         self.object.save()
-        self.object.url = "/account/line/detail/" + self.kwargs['classroom_id'] + "/" + str(self.object.id)
+        self.object.url = "/account/line/detail/" + str(self.object.id)
         self.object.classroom_id = 0 - int(self.kwargs['classroom_id'])
         self.object.save()
         if self.request.FILES:
@@ -552,7 +554,7 @@ class LineCreateView(CreateView):
         if is_event_open(self.request) :            
             log = Log(user_id=self.request.user.id, event=u'新增私訊<'+self.object.title+'>')
             log.save()                
-        return redirect("/account/line/"+self.kwargs['classroom_id'])       
+        return redirect("/account/line/")      
         
     def get_context_data(self, **kwargs):
         context = super(LineCreateView, self).get_context_data(**kwargs)
@@ -568,7 +570,7 @@ class LineCreateView(CreateView):
         return context	 
         
 # 查看私訊內容
-def line_detail(request, classroom_id, message_id):
+def line_detail(request, message_id):
     message = Message.objects.get(id=message_id)
     files = MessageContent.objects.filter(message_id=message_id)
     messes = Message.objects.filter(author_id=message.author_id, reader_id=request.user.id).order_by("-id")
@@ -576,7 +578,7 @@ def line_detail(request, classroom_id, message_id):
         messagepoll = MessagePoll.objects.get(message_id=message_id, reader_id=request.user.id)
     except :
         messagepoll = MessagePoll()
-    return render_to_response('account/line_detail.html', {'files':files, 'lists':messes, 'classroom_id':classroom_id, 'message':message, 'messagepoll':messagepoll}, context_instance=RequestContext(request))
+    return render_to_response('account/line_detail.html', {'files':files, 'lists':messes, 'message':message, 'messagepoll':messagepoll}, context_instance=RequestContext(request))
 
 # 下載檔案
 def line_download(request, file_id):

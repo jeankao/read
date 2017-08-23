@@ -88,7 +88,7 @@ class MessageContent(models.Model):
     message_id =  models.IntegerField(default=0)
     user_id = models.IntegerField(default=0)
     title =  models.CharField(max_length=250,null=True,blank=True)
-    filename = models.CharField(max_length=20,null=True,blank=True)    
+    filename = models.CharField(max_length=250,null=True,blank=True)    
     publication_date = models.DateTimeField(default=timezone.now)
 
 # 訊息    
