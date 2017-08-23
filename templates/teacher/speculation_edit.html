@@ -5,8 +5,11 @@
            <input type=hidden name="forum_id" value="{{forum_id}}">
            <input type=hidden name="id" value="{{content.id}}">           
            <input type=hidden name="types" value="{{content.types}}">
+  <ul class="list-group">
+    <li class="list-group-item">					 
          {% if content.types == 1 %}
-            文字: <textarea name="text" id="text" cols="30" rows="10" class="form-control list-group-item-text">{{content.text}}</textarea>
+      <h4 class="list-group-item-heading">文字</h4>
+			<textarea name="text" id="text" cols="30" rows="10" class="form-control list-group-item-text">{{content.text}}</textarea>
         {% elif content.types == 2 %}
             影片網址:<input id="id_content_youtube" maxlength="250" name="youtube" type="text" value={{content.youtube}} class="form-control list-group-item-text"/>
 
@@ -17,7 +20,8 @@
            文章網址:<input id="id_link" maxlength="250" name="link" type="text" value="{{content.link}}" class="form-control list-group-item-text">
 					 
         {% endif %}
-
+    </li>
+  </ul> 
  {% csrf_token %}
   <ul class="list-group">
     <li class="list-group-item">

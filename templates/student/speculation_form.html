@@ -35,8 +35,18 @@
         <div>
     <img src="/static/upload/{{work.filename}}">
         </div>
-          
+       {% elif work.types == 4 %}
+        <div>
+    外部網址：<a href="{{work.link}}" target=_blank>{{work.title}}</a>
+        </div>          
     {% endif %} 
+				{% if work.memo %}
+<div id="blockquote">
+<blockquote>
+  <footer>{{ work.memo|memo|safe }}</footer>
+</blockquote>
+</div>
+{% endif %}
       {% endspaceless %}
       {% if work.types == 2 %}{% spaceless %}
         <button type="button" class="btn btn-primary btn-xs btn-add-marker">＋新增時間標記</button>

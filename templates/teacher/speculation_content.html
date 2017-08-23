@@ -14,7 +14,7 @@
     <A href="/teacher/speculation/content/delete/{{forum_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
     <a href="/teacher/speculation/content/edit/{{forum_id}}/{{work.id}}"><img src="/static/images/edit.gif"> 編輯</a>
   </div>
-         
+  <div class="panel-body"> {{work.text}}</div>              
               {% elif work.types == 2 %}
   <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button> Youtube影片
     <A href="/teacher/speculation/content/delete/{{forum_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
@@ -40,7 +40,13 @@
     <a href="{{work.link}}" target="_blank">{% if work.title %}{{work.title}}{% else %}開啟連結{% endif %}</a>
   </div>        
 {% endif %}
-    <div class="panel-body">{{ work.memo|memo|safe }}</div>
+{% if work.memo %}
+<div id="blockquote">
+<blockquote>
+  <footer>{{ work.memo|memo|safe }}</footer>
+</blockquote>
+</div>
+{% endif %}
   </div>
   <div class="modal fade" tabindex="-1" role="dialog" id="vidModal">
     <div class="modal-dialog" role="document">
