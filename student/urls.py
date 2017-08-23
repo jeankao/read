@@ -3,7 +3,7 @@ from django.conf.urls import url
 from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
-from student.views import WorkListView, ForumListView, AnnounceListView, SpeculationListView, SpeculationAnnotateView, SpeculationAnnotateClassView
+from student.views import ForumListView, AnnounceListView, SpeculationListView, SpeculationAnnotateView, SpeculationAnnotateClassView
 
 urlpatterns = [
     # 選課
@@ -15,13 +15,6 @@ urlpatterns = [
     url(r'^classmate/(?P<classroom_id>\d+)/$', login_required(views.classmate)), 
     url(r'^loginlog/(?P<user_id>\d+)/$', login_required(views.LoginLogListView.as_view())),    
     #url(r'^calendar/(?P<classroom_id>\d+)/$', views.LoginCalendarClassView.as_view()),     	
-    #作業
-    url(r'^work/(?P<classroom_id>\d+)/$', login_required(WorkListView.as_view()), name='work-list'),  
-    url(r'^work/submit/(?P<classroom_id>\d+)/(?P<index>\d+)/$', login_required(views.submit)),    
-    url(r'^work/show/(?P<index>\d+)/$', login_required(views.show)),      
-    url(r'^work/video/(?P<classroom_id>\d+)/(?P<index>\d+)/$', login_required(views.video)), 	
-    url(r'^work/memo/(?P<classroom_id>\d+)/(?P<index>\d+)/$', login_required(views.memo)), 
-	  url(r'^work/rank/(?P<index>\d+)/$', login_required(views.rank)), 	
     #作業
     url(r'^forum/(?P<classroom_id>\d+)/(?P<bookmark>\d+)/$', login_required(ForumListView.as_view()), name='work-list'),  
     url(r'^forum/submit/(?P<classroom_id>\d+)/(?P<index>\d+)/$', login_required(views.forum_submit)),    

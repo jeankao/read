@@ -6,7 +6,9 @@
         班級名稱：{{ classroom.name }}<BR>
         <table class="table">
         <tr>
-			<td>學校</td>
+			{% if request.user.id == classroom.teacher_id %}					
+			<td>功能</td>
+			{% endif %}
             <td>座號</td>        
             <td>姓名</td>
 				{% if request.user.id == classroom.teacher_id %}
@@ -17,15 +19,15 @@
         </tr>
         {% for enroll, login_times, parents in enrolls %}
             <tr>
-			<td>
-			{{enroll.student.last_name}}<BR>
 			{% if request.user.id == classroom.teacher_id %}
+			<td>
 			<A href="/teacher/unenroll/{{enroll.id}}/{{enroll.classroom_id}}" onclick="return confirm('確定要刪除嗎?')">退選</a>
 			<a href="/student/classroom/seat/{{enroll.id}}/{{enroll.classroom_id}}">座號</a>
 				<a href="/account/realname/{{enroll.student_id}}">姓名</a>
 		  <a href="/account/password/{{enroll.student.id}}">密碼</a>
-			{% endif %}
 			</td>
+				{% endif %}
+
             <td>{{enroll.seat}}</td>           
             <td>{{enroll.student.first_name}}</td>
 				{% if request.user.id == classroom.teacher_id %}
