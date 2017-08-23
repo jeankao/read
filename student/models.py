@@ -112,7 +112,7 @@ class SSpeculationContent(models.Model):
     student_id = models.IntegerField(default=0)
     work_id = models.IntegerField(default=0)
     title =  models.CharField(max_length=250,null=True,blank=True)
-    filename = models.CharField(max_length=20,null=True,blank=True)    
+    filename = models.CharField(max_length=250,null=True,blank=True)    
     publication_date = models.DateTimeField(default=timezone.now)
     delete_date = models.DateTimeField(default=timezone.now)		
     visible = models.BooleanField(default=True)

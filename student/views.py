@@ -723,6 +723,11 @@ def speculation_publish(request, classroom_id, index, action):
             work = works[0]
             work.publish = True
             work.save()
+            update_avatar(request.user.id, 1, 2)
+            # History
+            fwork = FWork.objects.get(id=index)
+            history = PointHistory(user_id=request.user.id, kind=1, message=u'2分--繳交思辨區作業<'+fwork.title+'>', url='/student/speculation/annotate/'+classroom_id+'/'+index+'/'+str(request.user.id))
+            history.save()							
         except ObjectDoesNotExist:
             pass
         return redirect("/student/speculation/annotate/"+classroom_id+"/"+index+"/"+str(request.user.id))
