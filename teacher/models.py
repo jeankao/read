@@ -96,6 +96,7 @@ class SpeculationContent(models.Model):
     title = models.CharField(max_length=250,null=True,blank=True)
     memo = models.TextField(default='')    
     text = models.TextField(default='')
+    link = models.CharField(max_length=250,null=True,blank=True) 		
     youtube = models.CharField(max_length=250,null=True,blank=True) 
     file = models.FileField(blank=True,null=True)
     filename = models.CharField(max_length=20,null=True,blank=True)     

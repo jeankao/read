@@ -135,7 +135,7 @@ class SpeculationForm(forms.ModelForm):
 class SpeculationContentForm(forms.ModelForm):
         class Meta:
            model = SpeculationContent
-           fields = ['forum_id', 'types', 'text', 'youtube', 'file', 'memo']
+           fields = ['forum_id', 'types', 'text', 'youtube', 'file', 'memo', 'title', 'link']
         
         def __init__(self, *args, **kwargs):
             super(SpeculationContentForm, self).__init__(*args, **kwargs)
@@ -144,6 +144,8 @@ class SpeculationContentForm(forms.ModelForm):
             self.fields['youtube'].required = False
             self.fields['file'].required = False
             self.fields['memo'].required = False						
+            self.fields['link'].required = False
+            self.fields['title'].required = False										
 
 # 新增一個註記類別
 class SpeculationAnnotationForm(forms.ModelForm):

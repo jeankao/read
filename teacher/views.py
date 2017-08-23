@@ -1173,6 +1173,10 @@ class SpeculationContentCreateView(CreateView):
             work.title = myfile.name
             work.filename = str(self.request.user.id)+"/"+filename
             fs.save("static/upload/"+str(self.request.user.id)+"/"+filename, myfile)	
+        if self.object.types  == 4:
+            work.types = 4
+            work.link = self.object.link
+            work.title = self.object.title
         work.memo = self.object.memo
         work.save()         
   
@@ -1211,6 +1215,9 @@ def speculation_edit(request, forum_id, content_id):
                 content.title = myfile.name
                 content.filename = str(request.user.id)+"/"+filename
                 fs.save("static/upload/"+str(request.user.id)+"/"+filename, myfile)
+            elif content.types == 4:
+                content.title = request.POST.get("title", "")
+                content.link = request.POST.get("link", "")								
             content.memo = request.POST.get("memo", "")
             content.save()
             return redirect('/teacher/speculation/content/'+forum_id)   
