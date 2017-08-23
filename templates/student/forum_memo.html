@@ -23,7 +23,7 @@
 	{% endif %}
   {% for enroll, works, replys, files in datas %}
 	{% with works|last as last %}
-	<a id="{{enroll.id}}"></a>
+	<a id="{{enroll.id}}" name="{{enroll.student_id}}"></a>
   <div class="panel panel-default">
 		<div class="panel-heading">{{enroll.seat}}){{enroll.student.first_name}} {{works.0.publication_date}}　{% if works and not works.0.publish %}<font color=red>尚未發表</font>{% endif %}
 			<span style="float:right">
@@ -58,14 +58,14 @@
 		      {% endfor %}
     <hr>			
           {% if request.user.id in last.id|likes %}
-    <a href="#" data-forumid="{{index}}" data-userid="{{ enroll.student_id }}" data-action="unlike" class="like btn btn-primary" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
+    <a href="#" data-forumid="{{index}}" data-classroomid="{{ enroll.classroom_id }}" data-userid="{{ enroll.student_id }}" data-action="unlike" class="like btn btn-primary" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
           {% else %}
-    <a href="#" data-forumid="{{index}}" data-userid="{{ enroll.student_id }}" data-action="like" class="like btn btn-default" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
+    <a href="#" data-forumid="{{index}}" data-classroomid="{{ enroll.classroom_id }}" data-userid="{{ enroll.student_id }}" data-action="like" class="like btn btn-default" role="btn"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true">讚</span></a>
           {% endif %}
     <a href="#" data-forumid="{{index}}" data-userid="{{ enroll.student_id }}" class="people">
     <span id="likes_count">{{last.like_count}}</span>人按讚
     </a>
-    <a href="#" data-forumid="{{index}}" data-userid="{{ enroll.student_id }}" data-workid="{{last.id}}" class="btn btn-default reply" role="btn"><span class="glyphicon glyphicon-heart" aria-hidden="true">留言</span></a>
+    <a href="#" data-forumid="{{index}}" data-classroomid="{{ enroll.classroom_id }}" data-userid="{{ enroll.student_id }}" data-workid="{{last.id}}" class="btn btn-default reply" role="btn"><span class="glyphicon glyphicon-heart" aria-hidden="true">留言</span></a>
 
 			<a href="#" data-workid="{{last.id}}" class="guestbooks">
 
@@ -80,7 +80,7 @@
 </fieldset>
 			        <div id="reply" style="display:none">
 							<textarea  autofocus name="reply" id="reply_memo" cols="30" rows="5" class="form-control list-group-item-text"></textarea>
-							<button class="reply_submit" data-workid={{last.id}} data-index={{last.index}} data-userid={{request.user.id}}>送出</button>
+							<button class="reply_submit" data-workid={{last.id}} data-classroomid={{enroll.classroom_id}} data-forumid={{last.index}} data-userid={{request.user.id}}>送出</button>
 
 						</div>		
 <div id="blockquote">
@@ -279,7 +279,8 @@ $(document).ready(function () {
 	  
     $.post('/student/forum/reply/',
       {
-        index: $(launcher).data('index'),
+        forumid: $(launcher).data('forumid'),
+        classroomid: $(launcher).data('classroomid'),			
         userid: $(launcher).data('userid'),
         workid: $(launcher).data('workid'),	
 	      reply: $(launcher).parent().find("textarea").val()
@@ -355,6 +356,7 @@ $(document).ready(function () {
     $.post('/student/forum/like/',
       {
         forumid: $(launcher).data('forumid'),
+        classroomid: $(launcher).data('classroomid'),			
         userid: $(launcher).data('userid'),
         action: $(launcher).data('action')
       },

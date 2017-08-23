@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.views.generic import ListView, CreateView
 from student.models import Enroll, EnrollGroup, SWork, SFWork, SFReply, SFContent, SSpeculationWork, SSpeculationContent
 from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant, SpeculationClass, SpeculationWork, SpeculationContent, SpeculationAnnotation
-from account.models import VisitorLog,  Profile, Parent, Log, Message
+from account.models import VisitorLog,  Profile, Parent, Log, Message, PointHistory
 from student.forms import EnrollForm, SeatForm, SubmitForm, ForumSubmitForm, SpeculationSubmitForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
@@ -339,10 +339,15 @@ class ForumListView(ListView):
 def forum_publish(request, classroom_id, index, action):
     if action == "1":
         try:
+            fwork = FWork.objects.get(id=index)
             works = SFWork.objects.filter(index=index, student_id=request.user.id).order_by("-id")
             work = works[0]
             work.publish = True
             work.save()
+            update_avatar(request.user.id, 1, 2)
+            # History
+            history = PointHistory(user_id=request.user.id, kind=1, message=u'2分--繳交討論區作業<'+fwork.title+'>', url='/student/forum/memo/'+classroom_id+'/'+index+'/'+action)
+            history.save()								
         except ObjectDoesNotExist:
             pass
         return redirect("/student/forum/memo/"+classroom_id+"/"+index+"/0")
@@ -355,18 +360,13 @@ def forum_publish(request, classroom_id, index, action):
 def forum_submit(request, classroom_id, index):
         scores = []
         works = SFWork.objects.filter(index=index, student_id=request.user.id).order_by("-id")
-        contents = FContent.objects.filter(forum_id=index)
+        contents = FContent.objects.filter(forum_id=index).order_by("id")
         fwork = FWork.objects.get(id=index)
         if request.method == 'POST':
             form = ForumSubmitForm(request.POST, request.FILES)
             #第一次上傳加上積分
             works = SFWork.objects.filter(index=index, student_id=request.user.id).order_by("-id")
-            publish = False
-            if len(works)==0:
-                update_avatar(request.user.id, 1, 2)
-            else:
-                publish = works[0].publish
-            work = SFWork(index=index, student_id=request.user.id, publish=publish)
+            work = SFWork(index=index, student_id=request.user.id, publish=False)
             work.save()
             if request.FILES:
                 content = SFContent(index=index, student_id=request.user.id)
@@ -483,10 +483,13 @@ def forum_history(request, user_id, index, classroom_id):
 			
 def forum_like(request):
     forum_id = request.POST.get('forumid')  
+    classroom_id = request.POST.get('classroomid')  		
     user_id = request.POST.get('userid')
     action = request.POST.get('action')
     likes = []
     sfworks = []
+    fwork = FWork.objects.get(id=forum_id)
+    user = User.objects.get(id=user_id)
     if forum_id:
         try:
             sfworks = SFWork.objects.filter(index=forum_id, student_id=user_id)
@@ -503,6 +506,9 @@ def forum_like(request):
                 sfwork.like_count = len(likes)								
                 sfwork.save()
                 update_avatar(request.user.id, 2, 0.1)
+                # History
+                history = PointHistory(user_id=request.user.id, kind=2, message=u'+0.1分--討論區按讚<'+fwork.title+'><'+user.first_name+'>', url="/student/forum/memo/"+classroom_id+"/"+forum_id+"/0/#"+user_id)
+                history.save()										
             else:
                 if sfwork.likes:
                     likes = jsonDec.decode(sfwork.likes)
@@ -513,7 +519,9 @@ def forum_like(request):
                         sfwork.save()
                         #積分 
                         update_avatar(request.user.id, 2, -0.1)
-               
+                        # History
+                        history = PointHistory(user_id=request.user.id, kind=2, message=u'-0.1分--討論區按讚取消<'+fwork.title+'><'+user.first_name+'>', url="/student/forum/memo/"+classroom_id+"/"+forum_id+"/0/#"+user_id)
+                        history.save()		               
         except ObjectDoesNotExist:
             sfworks = []            
         
@@ -522,17 +530,24 @@ def forum_like(request):
         return JsonResponse({'status':'fail'}, safe=False)        
 
 def forum_reply(request):
-    index = request.POST.get('index')  
+    forum_id = request.POST.get('forumid')  
+    classroom_id = request.POST.get('classroomid')		
     user_id = request.POST.get('userid')
     work_id = request.POST.get('workid')		
     text = request.POST.get('reply')
-    if index:       
-        reply = SFReply(index=index, work_id=work_id, user_id=user_id, memo=text, publication_date=timezone.now())
+    fwork = FWork.objects.get(id=forum_id)
+    user = User.objects.get(id=user_id)
+    if forum_id:       
+        reply = SFReply(index=forum_id, work_id=work_id, user_id=user_id, memo=text, publication_date=timezone.now())
         reply.save()
         sfwork = SFWork.objects.get(id=work_id)
         sfwork.reply_date = timezone.now()
         sfwork.save()
-        update_avatar(request.user.id, 3, 0.2)				
+        update_avatar(request.user.id, 3, 0.2)
+        # History
+        history = PointHistory(user_id=request.user.id, kind=3, message=u'0.2分--討論區留言<'+fwork.title+'><'+user.first_name+'>', url='/student/forum/memo/'+classroom_id+'/'+forum_id+'/0/#'+user_id)
+        history.save()		              
+				
         return JsonResponse({'status':'ok'}, safe=False)
     else:
         return JsonResponse({'status':'fail'}, safe=False)        

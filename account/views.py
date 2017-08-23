@@ -382,13 +382,13 @@ class LogListView(ListView):
     def get_queryset(self):
         # 記錄系統事件
         if self.kwargs['kind'] == "1" :
-            log = Log(user_id=self.kwargs['user_id'], event='查看積分--上傳作品')
+            log = Log(user_id=self.kwargs['user_id'], event='查看積分--討論區')
         elif  self.kwargs['kind'] == "2" :
-            log = Log(user_id=self.kwargs['user_id'], event='查看積分--小老師')      
+            log = Log(user_id=self.kwargs['user_id'], event='查看積分--按讚')      
         elif  self.kwargs['kind'] == "3" :
-            log = Log(user_id=self.kwargs['user_id'], event='查看積分--除錯')            
+            log = Log(user_id=self.kwargs['user_id'], event='查看積分--留言')            
         elif  self.kwargs['kind'] == "4" :
-            log = Log(user_id=self.kwargs['user_id'], event='查看積分--創意秀')
+            log = Log(user_id=self.kwargs['user_id'], event='查看積分--思辨區')
         else :
             log = Log(user_id=self.kwargs['user_id'], event='查看全部積分')                        
         if is_event_open(self.request) :               
