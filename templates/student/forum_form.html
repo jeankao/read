@@ -76,7 +76,18 @@
 
     {% endfor %}
   </ul> 
-
+  <div class="modal fade" tabindex="-1" role="dialog" id="vidModal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+					<div>
+					 <a href="#" id="closevideo" class="btn btn-default pull-right" role="btn">關閉</a>						
+					</div>
+            <div id="vplayer"></div>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
 {% endblock %}
 
 {% block footer_script %}
@@ -174,6 +185,11 @@ $(document).ready(function () {
 {% endblock %}
 
 {% block domready %}
+  $('a#closevideo').click(function(e){
+    var launcher = this;  
+    e.preventDefault();	  
+    $('#vidModal').modal('hide');
+  });		
   $('a.delete').click(function(e){
     if (confirm('確定要刪除嗎?')) {
     var launcher = this;  
