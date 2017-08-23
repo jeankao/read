@@ -27,7 +27,7 @@
 {% if works.0.publish %}
 <BR>
    <li class="list-group-item">
-      <h4 class="list-group-item-heading">心得</h4>
+      <h4 class="list-group-item-heading">心得  {{works.0.publication_date}}</h4>
       <div class="list-group-item-text">
         {{works.0.memo|safe}}
       {% for file in files %}
