@@ -66,7 +66,7 @@ class FContent(models.Model):
     link = models.CharField(max_length=250,null=True,blank=True) 
     youtube = models.CharField(max_length=250,null=True,blank=True) 
     file = models.FileField(blank=True,null=True)
-    filename = models.CharField(max_length=20,null=True,blank=True)     
+    filename = models.CharField(max_length=250,null=True,blank=True)     
 		
 #思辨區
 class SpeculationWork(models.Model):

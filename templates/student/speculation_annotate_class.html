@@ -21,9 +21,10 @@
   <ul class="list-group">
      <li class="list-group-item material" id="m_{{ work.id }}">
       <div class="panel panel-default">
-      <div class="panel-body memo-content">    
+ 
     {% for work in contents %}
       {% spaceless %}     
+      <div class="panel-body memo-content">  
         {% if work.types == 1 %}
     {{work.text|memo|safe}}
         {% elif work.types == 2 %}
@@ -40,10 +41,12 @@
     外部網址：<a href="{{work.link}}" target=_blank>{{work.title}}</a>
         </div>           
     {% endif %} 
+            </div>
       {% endspaceless %}
     {% endfor %}
-    </div>
+
         </li>  
+  </ul>
 {% endblock %}
 
 {% block domready %}
