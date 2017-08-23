@@ -3,10 +3,10 @@ from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, CreateView
-from student.models import Enroll, EnrollGroup, SWork, SFWork, SFReply, SFContent, SSpeculationWork, SSpeculationContent
+from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, SSpeculationWork, SSpeculationContent
 from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant, SpeculationClass, SpeculationWork, SpeculationContent, SpeculationAnnotation
 from account.models import VisitorLog,  Profile, Parent, Log, Message, PointHistory
-from student.forms import EnrollForm, SeatForm, SubmitForm, ForumSubmitForm, SpeculationSubmitForm
+from student.forms import EnrollForm, SeatForm, ForumSubmitForm, SpeculationSubmitForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 import datetime

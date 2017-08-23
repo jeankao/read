@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from teacher.models import Classroom
-from student.models import Enroll, EnrollGroup, SWork, SFWork
+from student.models import Enroll, EnrollGroup, SFWork
 
 class EnrollForm(forms.Form):
         password =  forms.CharField()
@@ -18,16 +18,6 @@ class SeatForm(forms.ModelForm):
             model = Enroll
             fields = ['seat']
           
-class SubmitForm(forms.ModelForm):
-        class Meta:
-           model = SWork
-           fields = ['youtube','memo']
-      
-        def __init__(self, *args, **kwargs):
-            super(SubmitForm, self).__init__(*args, **kwargs)
-            self.fields['youtube'].label = "影片網址"
-            self.fields['memo'].label = "心得感想"
-
 class ForumSubmitForm(forms.Form):
         memo =  forms.CharField(required=False)
         file = forms.FileField(required=False)

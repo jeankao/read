@@ -35,21 +35,6 @@ class Enroll(models.Model):
 class EnrollGroup(models.Model):
     name = models.CharField(max_length=30)
     classroom_id = models.IntegerField(default=0)
-		
-#作業
-class SWork(models.Model):
-    student_id = models.IntegerField(default=0)
-    index = models.IntegerField()
-    youtube = models.CharField(max_length=100)	
-    memo = models.TextField(default='')
-    publication_date = models.DateTimeField(default=timezone.now)
-    score = models.IntegerField(default=-1)
-    scorer = models.IntegerField(default=0)
-		
-    def __unicode__(self):
-        user = User.objects.filter(id=self.student_id)[0]
-        index = self.index
-        return user.first_name+"("+str(index)+")"		
 
 #作業
 class SFWork(models.Model):
@@ -75,7 +60,7 @@ class SFContent(models.Model):
     student_id = models.IntegerField(default=0)
     work_id = models.IntegerField(default=0)
     title =  models.CharField(max_length=250,null=True,blank=True)
-    filename = models.CharField(max_length=20,null=True,blank=True)    
+    filename = models.CharField(max_length=60,null=True,blank=True)    
     publication_date = models.DateTimeField(default=timezone.now)
     delete_date = models.DateTimeField(default=timezone.now)		
     visible = models.BooleanField(default=True)
@@ -112,7 +97,7 @@ class SSpeculationContent(models.Model):
     student_id = models.IntegerField(default=0)
     work_id = models.IntegerField(default=0)
     title =  models.CharField(max_length=250,null=True,blank=True)
-    filename = models.CharField(max_length=250,null=True,blank=True)    
+    filename = models.CharField(max_length=60,null=True,blank=True)    
     publication_date = models.DateTimeField(default=timezone.now)
     delete_date = models.DateTimeField(default=timezone.now)		
     visible = models.BooleanField(default=True)

@@ -8,7 +8,7 @@ from django.db.models import *
 from forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, LineForm, SchoolForm, EmailForm, DomainForm, LevelForm, SiteImageForm
 from django.contrib.auth.models import User
 from account.models import Profile, PointHistory, Log, Message, MessageContent, MessagePoll, Visitor, VisitorLog, Domain, Level, Site, Parent
-from student.models import Enroll, SWork, SFWork, SSpeculationWork
+from student.models import Enroll, SFWork, SSpeculationWork
 from teacher.models import Classroom, Assistant, FWork, FClass, SpeculationWork, SpeculationClass
 from django.core.exceptions import ObjectDoesNotExist
 #from account.templatetags import tag 
