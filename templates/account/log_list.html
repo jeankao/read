@@ -10,9 +10,10 @@
         {% for log in logs %}
             <tr>
                 <td><a href="{{log.url}}">{{log.message}}</a></td>
-				<td>{{log.publish| date:"DATE_FORMAT"}}</td>
+				<td>{{log.publish}}</td>
             </tr>
         {% endfor %}
         </table>
-        {% include "pagination.html" with page=page_obj %}
+        {% load pagination %}
+        {% get_pagination %}   
 {% endblock %}
