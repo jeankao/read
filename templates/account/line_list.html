@@ -16,5 +16,6 @@
             </tr>
         {% endfor %}
         </table>
- {% include "pagination.html" with page=page_obj %}          
+        {% load pagination %}
+        {% get_pagination %}           
 {% endblock %}

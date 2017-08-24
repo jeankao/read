@@ -1527,7 +1527,8 @@ class TeacherListView(ListView):
     model = User
     context_object_name = 'teachers'
     template_name = 'teacher/member.html'
-    #paginate_by = 25
+    paginate_by = 50
+		
     def get_queryset(self):      
         teachers = Group.objects.get(name="teacher").user_set.all().order_by("-last_login")
         queryset = []
