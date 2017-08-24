@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load tag %}
+{% block title %} Teachers {% endblock %}
+{% block content %}
+{% for teacher in teachers %}
+<a href="/account/line/add/0/{{teacher.id}}" class="btn btn-default">
+  {{teacher.id|realname}}
+</a>
+{% endfor %}
+{% endblock %}

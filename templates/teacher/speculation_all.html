@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load tag %}
 {% block content %}
-<a href="/teacher/speculation/0/0" class="btn btn-success" role="btn">所有討論</a>
+<a href="/teacher/speculation/0/0" class="btn btn-success" role="btn">所有文章</a>
 {% for level in levels %}
         <a href="/teacher/speculation/1/{{level.id}}" class="btn {% if categroy == '1' and  level.id|int_to_str == categroy_id %}btn-primary{% else %}btn-info{% endif %}" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> {{level.title}}</a>
 {% endfor %}

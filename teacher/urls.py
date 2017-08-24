@@ -10,6 +10,7 @@ from teacher.views import SpeculationListView, SpeculationCreateView, Speculatio
 from teacher.views import SpeculationAllListView, SpeculationEditUpdateView, SpeculationAnnotationListView, SpeculationAnnotationCreateView
 
 urlpatterns = [
+    url(r'^member/$', login_required(views.TeacherListView.as_view())),
     # 班級
     url(r'^classroom/$', login_required(views.ClassroomListView.as_view())),
     url(r'^classroom/add/$', login_required(views.ClassroomCreateView.as_view())),

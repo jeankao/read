@@ -7,6 +7,7 @@ from teacher.models import Classroom, TWork, FWork, FClass, FContent, Assistant,
 from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent
 from account.models import Domain, Level, Parent, Log, Message, MessagePoll, MessageContent
 from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm, CategroyForm, DeadlineForm, AnnounceForm, SpeculationForm, SpeculationContentForm, SpeculationAnnotationForm
+from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
 import os
@@ -1521,3 +1522,12 @@ def speculation_annotation_edit(request, forum_id, content_id):
             return redirect('/teacher/speculation/annotation/'+forum_id)   
     return render_to_response('teacher/speculation_annotation_form.html',{'content': instance, 'forum_id':forum_id, 'content_id':content_id}, context_instance=RequestContext(request))
 	
+# 列出所有教師
+class TeacherListView(ListView):
+    model = User
+    context_object_name = 'teachers'
+    template_name = 'teacher/member.html'
+    #paginate_by = 25
+    def get_queryset(self):      
+        teachers = Group.objects.get(name="teacher").user_set.all()
+        return teachers
