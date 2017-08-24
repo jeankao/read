@@ -53,7 +53,8 @@ urlpatterns = [
     url(r'^line/add/(?P<classroom_id>\d+)/(?P<user_id>\d+)/$', login_required(views.LineCreateView.as_view())),
     url(r'^line/detail/(?P<message_id>\d+)/$', login_required(views.line_detail)),
 	  url(r'^line/download/(?P<file_id>\d+)/$', views.line_download, name='forum-download'), 
-	  url(r'^line/showpic/(?P<file_id>\d+)/$', login_required(views.line_showpic), name='forum-showpic'), 	
+	  url(r'^line/showpic/(?P<file_id>\d+)/$', login_required(views.line_showpic), name='forum-showpic'), 
+    url(r'^teacher/$', login_required(views.TeacherPostCreateView.as_view())),	
   
     #訪客
     url(r'^visitor/$', views.VisitorListView.as_view()),    

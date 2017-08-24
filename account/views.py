@@ -180,6 +180,9 @@ class MessageListView(ListView):
         #私訊
         elif self.kwargs['action'] == "2":
             messagepolls = MessagePoll.objects.filter(reader_id=self.request.user.id, message_type=2).order_by('-message_id')
+        #系統
+        elif self.kwargs['action'] == "3":
+            messagepolls = MessagePoll.objects.filter(reader_id=self.request.user.id, message_type=3).order_by('-message_id')						
         else :
             messagepolls = MessagePoll.objects.filter(reader_id=self.request.user.id).order_by('-message_id')
         for messagepoll in messagepolls:
@@ -1224,3 +1227,48 @@ def parent_make(request):
         return JsonResponse({'status':'ok'}, safe=False)
     else:
         return JsonResponse({'status':'fail'}, safe=False)        
+
+#新增一個教師公告
+class TeacherPostCreateView(CreateView):
+    model = Message
+    context_object_name = 'messages'    
+    form_class = LineForm
+    template_name = 'account/teacher_form.html'     
+
+    def form_valid(self, form):
+        teachers = Group.objects.get(name="teacher").user_set.all()
+        self.object = form.save(commit=False)
+        user_name = User.objects.get(id=self.request.user.id).first_name
+        self.object.title = u"[系統]" + user_name + ":" + self.object.title
+        self.object.author_id = self.request.user.id
+        #self.object.reader_id = self.kwargs['user_id']
+        self.object.type = 2
+        self.object.save()
+        self.object.url = "/account/line/detail/" + str(self.object.id)
+        self.object.classroom_id = 0
+        self.object.save()
+        if self.request.FILES:
+            for file in self.request.FILES.getlist('files'):
+                content = MessageContent()
+                fs = FileSystemStorage()
+                filename = uuid4().hex
+                content.title = file.name
+                content.message_id = self.object.id
+                content.filename = str(self.request.user.id)+"/"+filename
+                fs.save("static/upload/"+str(self.request.user.id)+"/"+filename, file)
+                content.save()
+        # 訊息
+        for teacher in teachers:
+            messagepoll = MessagePoll(message_id=self.object.id, reader_id=teacher.id, message_type=3, classroom_id=0)
+            messagepoll.save()
+        # 記錄系統事件
+        if is_event_open(self.request) :            
+            log = Log(user_id=self.request.user.id, event=u'新增教師公告<'+self.object.title+'>')
+            log.save()                
+        return redirect("/account/line/")      
+        
+    def get_context_data(self, **kwargs):
+        context = super(TeacherPostCreateView, self).get_context_data(**kwargs)
+        teachers = Group.objects.get(name="teacher").user_set.all()
+        context['teachers'] = teachers
+        return context	 
