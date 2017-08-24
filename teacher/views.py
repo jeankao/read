@@ -1545,3 +1545,18 @@ class TeacherListView(ListView):
             swork = filter(lambda w: w.teacher_id==teacher.id, sworks)
             queryset.append([teacher, len(rooms), len(fwork), len(swork), enroll-len(rooms)])
         return queryset
+			
+# 列出某教師的所有學生
+class StudentListView(ListView):
+    model = Classroom
+    context_object_name = 'students'
+    template_name = 'teacher/student.html'
+    paginate_by = 10
+		
+    def get_queryset(self):      
+        queryset = []
+        classrooms = Classroom.objects.filter(teacher_id=self.kwargs['teacher_id']).order_by("-id")
+        for classroom in classrooms:            
+            enrolls = Enroll.objects.filter(classroom_id=classroom.id, seat__gt=0).order_by("seat")
+            queryset.append([classroom, enrolls])
+        return queryset			

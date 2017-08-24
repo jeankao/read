@@ -11,6 +11,7 @@ from teacher.views import SpeculationAllListView, SpeculationEditUpdateView, Spe
 
 urlpatterns = [
     url(r'^member/$', login_required(views.TeacherListView.as_view())),
+    url(r'^student/(?P<teacher_id>\d+)/$', login_required(views.StudentListView.as_view())),  
     # 班級
     url(r'^classroom/$', login_required(views.ClassroomListView.as_view())),
     url(r'^classroom/add/$', login_required(views.ClassroomCreateView.as_view())),

@@ -16,7 +16,7 @@
    <td><a href="/account/line/add/0/{{teacher.id}}" class="btn btn-default">{{teacher.id|realname}}</a></td>
     <td>{{teacher.last_login}}</td>
     <td><A href="/student/classroom/add/?classroom={{teacher.first_name}}">{{classroom}}</a></td>
-    <td>{{enroll}}</td>
+    <td><a href="/teacher/student/{{teacher.id}}">{{enroll}}</a></td>
     <td><a href="/teacher/forum/0/0/?account={{teacher.username}}">{{fwork}}</a></td>
     <td><a href="/teacher/speculation/0/0/?account={{teacher.username}}">{{swork}}</td>
   </tr>
