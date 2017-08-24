@@ -1529,5 +1529,14 @@ class TeacherListView(ListView):
     template_name = 'teacher/member.html'
     #paginate_by = 25
     def get_queryset(self):      
-        teachers = Group.objects.get(name="teacher").user_set.all()
-        return teachers
+        teachers = Group.objects.get(name="teacher").user_set.all().order_by("-last_login")
+        queryset = []
+        classrooms = Classroom.objects.all()
+        fworks = FWork.objects.all()
+        sworks = SpeculationWork.objects.all()
+        for teacher in teachers:
+            classroom = len(filter(lambda w: w.teacher_id==teacher.id, classrooms))
+            fwork = len(filter(lambda w: w.teacher_id==teacher.id, fworks))
+            swork = len(filter(lambda w: w.teacher_id==teacher.id, sworks))
+            queryset.append([teacher, classroom, fwork, swork])
+        return queryset
