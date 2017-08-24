@@ -1542,5 +1542,5 @@ class TeacherListView(ListView):
             enroll = Enroll.objects.filter(classroom_id__in=classroom_ids).count()
             fwork = filter(lambda w: w.teacher_id==teacher.id, fworks)
             swork = filter(lambda w: w.teacher_id==teacher.id, sworks)
-            queryset.append([teacher, len(rooms), len(fwork), len(swork), enroll])
+            queryset.append([teacher, len(rooms), len(fwork), len(swork), enroll-len(rooms)])
         return queryset
