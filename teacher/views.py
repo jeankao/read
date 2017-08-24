@@ -1535,8 +1535,12 @@ class TeacherListView(ListView):
         fworks = FWork.objects.all()
         sworks = SpeculationWork.objects.all()
         for teacher in teachers:
-            classroom = len(filter(lambda w: w.teacher_id==teacher.id, classrooms))
-            fwork = len(filter(lambda w: w.teacher_id==teacher.id, fworks))
-            swork = len(filter(lambda w: w.teacher_id==teacher.id, sworks))
-            queryset.append([teacher, classroom, fwork, swork])
+            rooms = filter(lambda w: w.teacher_id==teacher.id, classrooms)
+            classroom_ids = []									
+            for classroom in rooms:
+                classroom_ids.append(classroom.id)
+            enroll = Enroll.objects.filter(classroom_id__in=classroom_ids).count()
+            fwork = filter(lambda w: w.teacher_id==teacher.id, fworks)
+            swork = filter(lambda w: w.teacher_id==teacher.id, sworks)
+            queryset.append([teacher, len(rooms), len(fwork), len(swork), enroll])
         return queryset
