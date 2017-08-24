@@ -195,3 +195,7 @@ def reader_name(message_id):
 @register.filter(name='unread') 
 def unread(user_id):
     return MessagePoll.objects.filter(reader_id=user_id, read=False).count()
+	
+@register.filter(name='abs_filter')
+def abs_filter(value):
+    return abs(value)

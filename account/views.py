@@ -495,7 +495,7 @@ class LineListView(ListView):
         if is_event_open(self.request) :    
             log = Log(user_id=self.request.user.id, event='查看所有私訊')
             log.save()        
-        queryset = Message.objects.filter(author_id=self.request.user.id, type=2).order_by("-id")
+        queryset = Message.objects.filter(author_id=self.request.user.id).order_by("-id")
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -537,7 +537,7 @@ class LineCreateView(CreateView):
         self.object.reader_id = self.kwargs['user_id']
         self.object.type = 2
         self.object.save()
-        self.object.url = "/account/line/detail/" + str(self.object.id)
+        self.object.url = "/account/line/detail/" + self.kwargs['classroom_id'] + "/" + str(self.object.id)
         self.object.classroom_id = 0 - int(self.kwargs['classroom_id'])
         self.object.save()
         if self.request.FILES:
@@ -573,15 +573,17 @@ class LineCreateView(CreateView):
         return context	 
         
 # 查看私訊內容
-def line_detail(request, message_id):
+def line_detail(request, classroom_id, message_id):
     message = Message.objects.get(id=message_id)
     files = MessageContent.objects.filter(message_id=message_id)
     messes = Message.objects.filter(author_id=message.author_id, reader_id=request.user.id).order_by("-id")
     try:
         messagepoll = MessagePoll.objects.get(message_id=message_id, reader_id=request.user.id)
+        messagepoll.read = True
+        messagepoll.save()
     except :
         messagepoll = MessagePoll()
-    return render_to_response('account/line_detail.html', {'files':files, 'lists':messes, 'message':message, 'messagepoll':messagepoll}, context_instance=RequestContext(request))
+    return render_to_response('account/line_detail.html', {'files':files, 'lists':messes, 'classroom_id':classroom_id, 'message':message, 'messagepoll':messagepoll}, context_instance=RequestContext(request))
 
 # 下載檔案
 def line_download(request, file_id):
@@ -1241,10 +1243,10 @@ class TeacherPostCreateView(CreateView):
         user_name = User.objects.get(id=self.request.user.id).first_name
         self.object.title = u"[系統]" + user_name + ":" + self.object.title
         self.object.author_id = self.request.user.id
-        #self.object.reader_id = self.kwargs['user_id']
-        self.object.type = 2
+        self.object.reader_id = self.request.user.id
+        self.object.type = 3
         self.object.save()
-        self.object.url = "/account/line/detail/" + str(self.object.id)
+        self.object.url = "/account/line/detail/0/" + str(self.object.id)
         self.object.classroom_id = 0
         self.object.save()
         if self.request.FILES:

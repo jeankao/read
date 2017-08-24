@@ -12,12 +12,13 @@
  <button class="btn btn-default">
 {{ message.time| date:"Y/m/d H:i"}}
   </button>
-<a href="/account/message/{{ messagepoll.id }}">
+<a href="/account/line/detail/0/{{ message.id }}">
 {% if message.type == 2 %}
 <img src="/static/images/line.png">
 {% elif message.type == 1 %}
 <img src="/static/images/announce.png">
-
+{% elif message.type == 3 %}
+<img src="/static/images/system.png">
 {% endif %}
 {{ message.title}}
 {% if message.title|img == "assistant"%}
