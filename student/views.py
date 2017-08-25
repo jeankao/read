@@ -678,10 +678,6 @@ def speculation_submit(request, classroom_id, index):
             #第一次上傳加上積分
             works = SSpeculationWork.objects.filter(index=index, student_id=request.user.id).order_by("-id")
             publish = False
-            if len(works)==0:
-                update_avatar(request.user.id, 1, 2)
-            else:
-                publish = works[0].publish
             work = SSpeculationWork(index=index, student_id=request.user.id, publish=publish)
             work.save()
             if request.FILES:
