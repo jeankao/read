@@ -204,6 +204,7 @@ $(document).ready(function () {
         if (!Annotator.supported())
           return;
         this.annotator.subscribe("annotationsLoaded", function(annotations) {
+          console.log(annotations);
           for(i in annotations) {
             modifyAnnotationClass(annotations[i]);
           }

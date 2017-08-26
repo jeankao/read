@@ -40,7 +40,17 @@
     外部網址：<a href="{{work.link}}" target=_blank>{{work.title}}</a>
         </div>          
     {% endif %} 
+				{% if work.memo %}
+<div id="blockquote">
+<blockquote>
+  <footer>{{ work.memo|memo|safe }}</footer>
+</blockquote>
+</div>
+{% endif %}
       {% endspaceless %}
+      {% if work.types == 2 %}{% spaceless %}
+        <button type="button" class="btn btn-primary btn-xs btn-add-marker">＋新增時間標記</button>
+      {% endspaceless %}{% endif %}
     {% endfor %}
     </div></div>
         </li>  
@@ -72,6 +82,7 @@
         if (!Annotator.supported())
           return;
         this.annotator.subscribe("annotationsLoaded", function(annotations) {
+          console.log(annotations);
           for(i in annotations) {
             modifyAnnotationClass(annotations[i]);
           }
@@ -129,5 +140,6 @@
     })
     .annotator('addPlugin', 'Message');
   });
-  $('html, body').animate({scrollTop: $(''+$(location).attr('hash')).offset().top -100 }, 'slow');
+  $('.btn-add-marker').prop('disabled', true);
+  //$('html, body').animate({scrollTop: $(''+$(location).attr('hash')).offset().top -100 }, 'slow');
 {% endblock %}
