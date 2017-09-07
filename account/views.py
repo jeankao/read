@@ -38,6 +38,8 @@ from wsgiref.util import FileWrapper
 from django.http import HttpResponse
 #from helper import VideoLogHelper
 import django_excel as excel
+import pyexcel.ext.xlsx
+import pyexcel.ext.xls
 
 # 判斷是否開啟事件記錄
 def is_event_open(request):
