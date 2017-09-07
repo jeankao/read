@@ -7,7 +7,7 @@
 {% endif %}
   <ul class="list-group">
     <li class="list-group-item">
-      <h4 class="list-group-item-heading">心得</h4>
+			<div id="result">心得</div>      
       <div class="list-group-item-text">
 				{% if work.index|in_deadline:classroom_id == "" %}
       <form action="" enctype="multipart/form-data" id="forum_form" method="post">
@@ -210,5 +210,23 @@ $(document).ready(function () {
     );}
   });  
 
+function wordCount( val ){
+    var wom = val.match(/\S+/g);
+    return {
+      words : val.length
+		};
+}
+
+var textarea = document.getElementById("memo");
+var result   = document.getElementById("result");
+
+textarea.addEventListener("input", function(){
+  var v = wordCount( this.value );
+  result.innerHTML = (
+      "心得("+ v.words + ")"
+  );
+}, false);
+
 	    $('body').css('background-image','url(/static/images/back1.gif)');
+
 	{% endblock %}
