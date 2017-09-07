@@ -154,4 +154,7 @@ class SiteImageForm(forms.ModelForm):
         class Meta:
             model = Site
             fields = ['site_image']    
-            
+
+#上傳檔案
+class UploadFileForm(forms.Form):
+    file = forms.FileField()

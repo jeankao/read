@@ -76,4 +76,7 @@ urlpatterns = [
     url(r'^parent/search/$', login_required(views.ParentSearchListView.as_view())),
     url(r'^parent/child/$', login_required(views.ParentChildListView.as_view())),  
     url(r'^parent/make/$', login_required(views.parent_make), name='parent_make'),      
+	  #大量匯入帳號
+    url(r'^import/upload$', login_required(views.import_sheet), name='import_upload'),   	
+    url(r'^import/user$', login_required(views.import_user), name='import_user'),   		
 ]

@@ -5,9 +5,9 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib.auth import authenticate, login
 from django.db.models import *
-from forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, LineForm, SchoolForm, EmailForm, DomainForm, LevelForm, SiteImageForm
+from forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, LineForm, SchoolForm, EmailForm, DomainForm, LevelForm, SiteImageForm, UploadFileForm
 from django.contrib.auth.models import User
-from account.models import Profile, PointHistory, Log, Message, MessageContent, MessagePoll, Visitor, VisitorLog, Domain, Level, Site, Parent
+from account.models import Profile, PointHistory, Log, Message, MessageContent, MessagePoll, Visitor, VisitorLog, Domain, Level, Site, Parent, ImportUser
 from student.models import Enroll, SFWork, SSpeculationWork
 from teacher.models import Classroom, Assistant, FWork, FClass, SpeculationWork, SpeculationClass
 from django.core.exceptions import ObjectDoesNotExist
@@ -37,7 +37,7 @@ from django.conf import settings
 from wsgiref.util import FileWrapper
 from django.http import HttpResponse
 #from helper import VideoLogHelper
-
+import django_excel as excel
 
 # 判斷是否開啟事件記錄
 def is_event_open(request):
@@ -283,6 +283,8 @@ def password(request, user_id):
                 for assistant in assistants:
                     if assistant.classroom_id == enroll.classroom_id:
                         canEdit = True
+            if request.user.id == 1:
+                canEdit = True
         if canEdit:
             form = PasswordForm()
             user = User.objects.get(id=user_id)
@@ -311,7 +313,7 @@ def adminrealname(request, user_id):
             if request.user.id == classroom.teacher_id:
                 teacher = True
                 break
-        if teacher:
+        if teacher or request.user.id == 1:
             user = User.objects.get(id=user_id)
             form = RealnameForm(instance=user)
         else:
@@ -1274,3 +1276,61 @@ class TeacherPostCreateView(CreateView):
         teachers = Group.objects.get(name="teacher").user_set.all()
         context['teachers'] = teachers
         return context	 
+
+# Create your views here.
+def import_sheet(request):
+    if request.user.id != 1:
+        return redirect("/")
+    if request.method == "POST":
+        form = UploadFileForm(request.POST,
+                              request.FILES)
+        if form.is_valid():
+            ImportUser.objects.all().delete()
+            request.FILES['file'].save_to_database(
+                name_columns_by_row=0,
+                model=ImportUser,
+                mapdict=['username', 'first_name', 'password', 'email'])
+            users = ImportUser.objects.all()
+            return render(request, 'account/import_user.html',{'users':users})
+        else:
+            return HttpResponseBadRequest()
+    else:	
+        form = UploadFileForm()
+    return render(
+        request,
+        'account/upload_form.html',
+        {
+            'form': form,
+            'title': 'Excel file upload and download example',
+            'header': ('Please choose any excel file ' +
+                       'from your cloned repository:')
+        })
+	
+# Create your views here.
+def import_user(request):
+    if request.user.id != 1:
+        return redirect("/")
+           
+    users = ImportUser.objects.all()
+    for user in users:
+        try:
+            account = User.objects.get(username=user.username)
+        except ObjectDoesNotExist:
+            new_user = User(username=user.username, first_name=user.first_name, password=user.password, email=user.email)
+            # Set the chosen password                 
+            new_user.set_password(user.password)
+            # Save the User object
+            new_user.save()
+            profile = Profile(user=new_user)
+            profile.save()          
+     
+            # create Message
+            title = "請洽詢任課教師課程名稱及選課密碼"
+            url = "/student/classroom/add"
+            message = Message.create(title=title, url=url, time=timezone.now())
+            message.save()                        
+                    
+            # message for group member
+            messagepoll = MessagePoll.create(message_id = message.id,reader_id=new_user.id)
+            messagepoll.save()               
+    return redirect('/account/userlist')	
