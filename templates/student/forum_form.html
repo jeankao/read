@@ -211,22 +211,21 @@ $(document).ready(function () {
   });  
 
 function wordCount( val ){
-    var wom = val.match(/\S+/g);
+    var clean_message = val.replace(/\[m_\d+#\d+:\d+:\d+\]/g, '');
+    var chinese = clean_message.match(/[\u4E00-\u9FA5]/g);
+    var pure_english = clean_message.replace(/[\u4E00-\u9FA5]/g, '')
+    var wom = pure_english.match(/\w+/g);
     return {
-      words : val.length
+      words : wom ? wom.length : 0,
+      chars : chinese ? chinese.length : 0,
 		};
 }
 
-var textarea = document.getElementById("memo");
-var result   = document.getElementById("result");
-
-textarea.addEventListener("input", function(){
-  var v = wordCount( this.value );
-  result.innerHTML = (
-      "心得("+ v.words + ")"
-  );
-}, false);
-
+$('#memo').on('input', function(e){
+  var v = wordCount(e.target.value);
+  console.log(e.target.value);
+  $('#result').html("心得(英:" + v.words + " / 中: " + v.chars + ")");
+});
 	    $('body').css('background-image','url(/static/images/back1.gif)');
 
 	{% endblock %}
