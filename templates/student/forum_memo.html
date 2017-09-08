@@ -25,7 +25,7 @@
 	{% with works|last as last %}
 	<a id="{{enroll.id}}" name="{{enroll.student_id}}"></a>
   <div class="panel panel-default">
-		<div class="panel-heading">{{enroll.seat}}){{enroll.student.first_name}} {{works.0.publication_date}}　{% if works and not works.0.publish %}<font color=red>尚未發表</font>{% endif %}
+		<div class="panel-heading">{{enroll.seat}}){{enroll.student.first_name}} {{works.0.publication_date}}　{% if works and not works.0.publish %}<font color=red>尚未發表</font>{% endif %} (英:{{works.0.memo_e}}/中:{{works.0.memo_c}})
 			<span style="float:right">
 		  {% if works.0.publish or request.user.id|is_teacher:enroll.classroom_id %}
 			{% if works|length > 0 %}<A href="/student/forum/history/{{enroll.student_id}}/{{index}}/{{classroom_id}}">{% endif %}<img src="/static/images/edit.gif"> 歷史({{works|length}}){% if works|length > 0 %}</A>{% endif %}

@@ -284,6 +284,8 @@ def forum_submit(request, classroom_id, index):
                 content.save()
             if form.is_valid():							
                 work.memo=form.cleaned_data['memo']
+                work.memo_e = form.cleaned_data['memo_e']
+                work.memo_c = form.cleaned_data['memo_c']								
                 work.save()
                 if not works:
                     return redirect("/student/forum/publish/"+classroom_id+"/"+index+"/2")	

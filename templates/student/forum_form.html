@@ -11,6 +11,8 @@
       <div class="list-group-item-text">
 				{% if work.index|in_deadline:classroom_id == "" %}
       <form action="" enctype="multipart/form-data" id="forum_form" method="post">
+        <input type=hidden name=memo_e id=memo_e value={{work.memo_e}}>
+        <input type=hidden name=memo_c id=memo_c value={{work.memo_c}}>
         <textarea name="memo" id="memo" cols="30" rows="10" class="form-control list-group-item-text">{{work.memo}}</textarea>
       {% for file in files %}
         {% if file.visible %}
@@ -225,6 +227,8 @@ $('#memo').on('input', function(e){
   var v = wordCount(e.target.value);
   console.log(e.target.value);
   $('#result').html("心得(英:" + v.words + " / 中: " + v.chars + ")");
+  $('input#memo_e').val(v.words);
+  $('input#memo_c').val(v.chars);
 });
 	    $('body').css('background-image','url(/static/images/back1.gif)');
 
