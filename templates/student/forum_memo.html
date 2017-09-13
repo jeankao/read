@@ -272,7 +272,7 @@ $(document).ready(function () {
       }
     );
   });    
-
+  var disabled_ticks = 0;
 	$('.reply_submit').click(function(e){
     var launcher = this;  
     e.preventDefault();
@@ -293,7 +293,21 @@ $(document).ready(function () {
 	          $(launcher).parent().parent().find("#blockquote").html(blockquote+$(launcher).parent().parent().find("#blockquote").html());
             reply_count = parseInt($(launcher).parent().parent().find('#reply_count').html()) + 1;
             $(launcher).parent().parent().find('#reply_count').html(reply_count);	
-
+            $('a.btn.reply').attr('disabled', true);
+            var intervalID = null;
+            var items = $('a.btn.reply>span');
+            function countDown() {
+              if (--disabled_ticks <= 0) {
+                items.text("留言");
+                $('a.btn.reply').attr('disabled', false);
+                window.clearInterval(intervalID);
+              } else {
+                items.text("留言("+disabled_ticks+")");
+              }
+            }
+            disabled_ticks = 10;
+            items.text("留言("+disabled_ticks+")");
+            intervalID = window.setInterval(countDown, 1000);
         } else {
 			   	alert("hello");
 	    	}
@@ -302,6 +316,8 @@ $(document).ready(function () {
   });  
 	
   $('a.reply').click(function(e){
+    if (disabled_ticks > 0)
+      return false;
     var launcher = this;  
     e.preventDefault();
 	  
