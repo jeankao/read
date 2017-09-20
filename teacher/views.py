@@ -879,7 +879,7 @@ class AnnounceCreateView(CreateView):
                     content = MessageContent()
                     content.title = name
                     content.message_id = message.id
-                    content.filename = str(self.request.user.id)+"/"+filename
+                    content.filename = str(self.request.user.id)+"/"+file
                     content.save()		
 
             # 班級學生訊息
