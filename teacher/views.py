@@ -857,6 +857,13 @@ class AnnounceCreateView(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)			
         classrooms = self.request.POST.getlist('classrooms')
+        files = []
+        if self.request.FILES.getlist('files'):
+             for file in self.request.FILES.getlist('files'):
+                fs = FileSystemStorage()
+                filename = uuid4().hex							
+                fs.save("static/upload/"+str(self.request.user.id)+"/"+filename, file)								
+                files.append([filename, file.name])		
         for classroom_id in classrooms:
             message = Message()
             message.title = u"[公告]" + self.request.user.first_name + ":" + self.object.title
@@ -867,16 +874,13 @@ class AnnounceCreateView(CreateView):
             message.save()
             message.url = "/account/line/detail/" + classroom_id + "/" + str(message.id)
             message.save()
-            if self.request.FILES:
-                for file in self.request.FILES.getlist('files'):
+            if files:
+                for file, name in files:
                     content = MessageContent()
-                    fs = FileSystemStorage()
-                    filename = uuid4().hex
-                    content.title = file.name
+                    content.title = name
                     content.message_id = message.id
                     content.filename = str(self.request.user.id)+"/"+filename
-                    fs.save("static/upload/"+str(self.request.user.id)+"/"+filename, file)
-                    content.save()
+                    content.save()		
 
             # 班級學生訊息
             enrolls = Enroll.objects.filter(classroom_id=classroom_id)
