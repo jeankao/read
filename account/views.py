@@ -1091,7 +1091,7 @@ class ForumListView(ListView):
         for fclass in fclasses:
             forum_ids.append(fclass.forum_id)
         queryset = []
-        sfwork_pool = SFWork.objects.filter(student_id=self.kwargs['user_id']).order_by("id")
+        sfwork_pool = SFWork.objects.filter(student_id=self.kwargs['user_id']).order_by("-id")
         for fclass in fclasses:
             sfworks = filter(lambda w: w.index==fclass.forum_id, sfwork_pool)
             if len(sfworks) > 0 :
