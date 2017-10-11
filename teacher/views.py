@@ -1480,7 +1480,7 @@ class SpeculationAnnotationListView(ListView):
         return queryset
 			
     def get_context_data(self, **kwargs):
-        context = super(SpeculationAnnotationListView, self).get_conteforumxt_data(**kwargs)
+        context = super(SpeculationAnnotationListView, self).get_context_data(**kwargs)
         fwork = SpeculationWork.objects.get(id=self.kwargs['forum_id'])
         context['fwork']= fwork
         context['forum_id'] = self.kwargs['forum_id']
