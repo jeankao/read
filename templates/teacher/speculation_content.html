@@ -41,10 +41,8 @@
   </div>        
 {% endif %}
 {% if work.memo %}
-<div id="blockquote">
-<blockquote>
-  <footer>{{ work.memo|memo|safe }}</footer>
-</blockquote>
+<div class="panel-footer">
+  {{ work.memo|memo|safe }}
 </div>
 {% endif %}
   </div>

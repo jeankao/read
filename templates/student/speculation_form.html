@@ -6,10 +6,12 @@
 <script type="text/javascript" src="/static/js/annotator/annotator-full.min.js"></script>
 <link rel="stylesheet" href="/static/js/annotator/annotator.touch.css" type="text/css" media="all" />
 <script type="text/javascript" src="/static/js/annotator/annotator.touch.min.js"></script>
-<style type="text/css">
-{% for type in types %}
-  {% spaceless %}.annotator-hl.atype-{{type.id}} {background-color: {{type.color}}}{% endspaceless %}
-{% endfor %}
+<script type="text/javascript" src="/static/js/annotator/annotator.message.js"></script>
+<script type="text/javascript" src="/static/js/annotator/annotator.image.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/css/annotorious.css" />
+<script type="text/javascript" src="/static/js/annotorious.min.js"></script>
+<style type="text/css">{% for type in types %}
+  .annotator-hl.atype-{{type.id}} {background-color: {{type.color}}}{% endfor %}
 </style>
 {% endblock %}
 
@@ -18,77 +20,27 @@
 {% if work.index > 0 and not work.publish %}
 <a href="/student/speculation/publish/{{classroom_id}}/{{index}}/1/" class="btn btn-primary" role="btn">發表心得</a>
 {% endif %}
-  <ul class="list-group">
-     <li class="list-group-item material" id="m_{{ work.id }}">
-      <div class="panel panel-default">
-      <div class="panel-body memo-content">    
-    {% for work in contents %}
-      {% spaceless %}     
-        {% if work.types == 1 %}
-    {{work.text|memo|safe}}
-        {% elif work.types == 2 %}
-     <div class="embed-responsive embed-responsive-16by9">
-               <iframe width="560" height="315" class="embed-responsive-item" src="https://www.youtube.com/embed/{{work.youtube|number}}?enablejsapi=1" frameborder="0" allowfullscreen></iframe>
-    </div>
-        
-       {% elif work.types == 3 %}
-        <div>
-    <img src="/static/upload/{{work.filename}}">
-        </div>
-       {% elif work.types == 4 %}
-        <div>
-    外部網址：<a href="{{work.link}}" target=_blank>{{work.title}}</a>
-        </div>          
-    {% endif %} 
-				{% if work.memo %}
-<div id="blockquote">
-<blockquote>
-  <footer>{{ work.memo|memo|safe }}</footer>
-</blockquote>
-</div>
-{% endif %}
-      {% endspaceless %}
-      {% if work.types == 2 %}{% spaceless %}
-        <button type="button" class="btn btn-primary btn-xs btn-add-marker">＋新增時間標記</button>
-      {% endspaceless %}{% endif %}
-    {% endfor %}
-    </div></div>
-        </li>
-   <li class="list-group-item">
-      <h4 class="list-group-item-heading">心得</h4>
-      <div class="list-group-item-text">
-				{% if work.index|in_deadline:classroom_id == "" %}
-      <form action="" enctype="multipart/form-data" id="forum_form" method="post">
-        <textarea name="memo" id="memo" cols="30" rows="10" class="form-control list-group-item-text">{{work.memo}}</textarea>
-      {% for file in files %}
-        {% if file.visible %}
-      <div><button class="btn btn-info">
-        {{forloop.revcounter}}
-        </button>
-		  {{file.publication_date}}	        
-        {% if file.title|is_pic %}
-     <a href="/student/forum/showpic/{{file.id}}" target="_blank">{{file.title}}</a>
-			{% else %}
-			<a href="/student/forum/download/{{file.id}}" target="_blank">{{file.title}}</a>
-			{% endif %}
-      <A href="#" class="delete" data-fileid="{{file.id}}"><img src="/static/images/delete.gif"> 刪除</a>
-        </div>
-        {% endif %}
-		{% endfor %}
-           <input type=hidden name=index value={{index}}>           
-           檔案:<input id="file" name="file" type="file"/><input type="submit" value="送出">
-            {% csrf_token %}         
+<ul class="list-group">
+  {% for work in contents %}
+    {% include "student/module_speculation_material.html" %}
+  {% endfor %}
+  <li class="list-group-item">
+    <h4 class="list-group-item-heading">心得</h4>
+    <div class="list-group-item-text">
+      {% if work.index|in_deadline:classroom_id == "" %}
+        <form action="" enctype="multipart/form-data" id="forum_form" method="post">
+          <textarea name="memo" id="memo" cols="30" rows="10" class="form-control list-group-item-text">{{work.memo}}</textarea>
+          {% include "student/module_memo_attachments.html" with show_delete="1" %}
+          <input type=hidden name=index value={{index}}>
+          檔案:<input id="file" name="file" type="file"/><input type="submit" value="送出">
+          {% csrf_token %}         
         </form>       
-				{% else %}
-				<font color=red>超過繳交期限 {{work.index|in_deadline:classroom_id}} ，無法繳交作業。</font>
-				{% endif %}
-      </div>
-
-    </li>
-
+      {% else %}
+        <font color=red>超過繳交期限 {{work.index|in_deadline:classroom_id}} ，無法繳交作業。</font>
+      {% endif %}
+    </div>
+  </li>
 </ul> 
-
-
 {% endblock %}
 
 {% block footer_script %}
@@ -140,7 +92,7 @@ $(document).ready(function () {
   //------------------------------------------------------------------------
   // Load YouTube API library
   var tag = document.createElement('script');
-  tag.id = 'iframe-demo';
+  tag.id = 'iframe-video';
   tag.src = 'https://www.youtube.com/iframe_api';
   var firstScriptTag = document.getElementsByTagName('script')[0];
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);  
@@ -172,85 +124,15 @@ function timeToSec(timestr) {
 $('#vidModal').on('hidden.bs.modal', function (e) {
   vidPlayer.stopVideo();
 });
-   
+
 $(document).ready(function () {
-  //------------------------------------------------------------------------
-  // Load YouTube API library
-  var tag = document.createElement('script');
-  tag.id = 'iframe-demo';
-  tag.src = 'https://www.youtube.com/iframe_api';
-  var firstScriptTag = document.getElementsByTagName('script')[0];
-  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);  
   annotation_type = [];
   {% for type in types %}
-    annotation_type['t{{ type.id }}'] = '{{ type.kind }}';
+    annotation_type['t{{ type.id }}'] = {'kind': '{{ type.kind }}', 'color': '{{ type.color }}'};
   {% endfor %}
-  Annotator.Plugin.Message = function (element) {
-    function formatDateTime(d) {
-      function _(n) {
-        if (n < 10)
-          return '0'+n;
-        return ''+n;
-      }
-      return ''+d.getFullYear()+'/'+_(d.getMonth()+1)+'/'+_(d.getDate())+' '+_(d.getHours())+':'+_(d.getMinutes())+':'+_(d.getSeconds());
-    }
-    function modifyAnnotationClass(annotation) {
-      $(annotation.highlights[0]).attr('class', 'annotator-hl atype-'+annotation.atype);
-    }
-    return {
-      field: null, 
-      input: null,
-      pluginInit: function () {
-        if (!Annotator.supported())
-          return;
-        this.annotator.subscribe("annotationsLoaded", function(annotations) {
-          console.log(annotations);
-          for(i in annotations) {
-            modifyAnnotationClass(annotations[i]);
-          }
-        });
-        this.annotator.subscribe("annotationEditorShown", this.updateField);
-        this.annotator.subscribe("annotationCreated", modifyAnnotationClass);
-        this.annotator.subscribe("annotationUpdated", modifyAnnotationClass);
-        self.field = this.annotator.editor.addField({
-          submit: this.setAnnotationType
-        });
-        this.annotator.viewer.addField({
-          load: this.updateViewer
-        });
-        this.annotator.viewer.addField({
-          load: function (field, annotation) {
-            field.innerHTML = field.innerHTML = formatDateTime(new Date(annotation.created))+" | " + annotation.supervisor;
-          }
-        });
-        // return self.input = $(self.field).find(':input');
-      },
-      updateField: function(field, annotation) {
-        typeid = annotation['atype'] || 0;
-        tagHTML = "<select id='annotation-type' class='form-control'>";
-        {% for type in types %}
-        tagHTML += "<option value='{{ type.id }}' style='background-color: {{ type.color }}'>{{ type.kind }}</option>";
-        {% endfor %}
-        tagHTML += "</select>"
-        $(self.field).html(tagHTML);
-        if (typeid)
-          $('#annotation-type').val(typeid);
-        return this.input;
-      },
-      updateViewer: function(field, annotation) {
-        typeid = annotation['atype'] || 0;
-        field = $(field);
-        return field.addClass('annotator-hl atype-'+typeid).html(annotation_type['t'+typeid]);
-      },
-      setAnnotationType: function(field, annotation) {
-        annotation.atype = $(self.field).find('select :selected').val();
-      },      
-    };
-  }
-  var re = /https?:\/\/[^\/]+([^\?]*)/;
-  var page_path = re.exec(window.location.href)[1];
   $('.memo-content').each(function(index, element) {
     var userid = {{ request.user.id }};
+	  var mid = $(element).parent().parent().attr('id').substr(2);
     $(element).annotator()
     .annotator('addPlugin', 'Store', {
       prefix: '/annotate', 
@@ -258,15 +140,17 @@ $(document).ready(function () {
         'ftype': 1,
         'findex': {{index}},
         'stuid': userid,
+        'mid': mid,
       },
       loadFromSearch: {
         'ftype': 1,
         'findex': {{index}}, 
         'stuid': userid,
+        'mid': mid,
       }
     })
     .annotator('addPlugin', 'Touch')
-    .annotator('addPlugin', 'Message');
+    .annotator('addPlugin', 'Message', annotation_type);
   });
 });
 </script>

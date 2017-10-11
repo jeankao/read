@@ -18,6 +18,8 @@ class Annotation(models.Model):
   findex      = models.IntegerField(default=0)
   # ftype: 0: 討論區, 1: 思辨區
   ftype       = models.IntegerField(default=0)
+  # mid: 思辨區素材id, 討論區此欄為 0
+  mid         = models.IntegerField(default=0)
   # stu_id: 學生id
   stuid       = models.IntegerField(default=0)
   # atype: 標註類別(教師設定)

@@ -24,13 +24,15 @@ def annotations(request):
     stuid = received_annotation['stuid']
     ftype = received_annotation.get('ftype', 0)
     atype = received_annotation.get('atype', 0)
+    mid = received_annotation.get('mid', 0)
     del received_annotation['findex']
     del received_annotation['stuid']
     received_annotation.pop('ftype', None)
     received_annotation.pop('atype', None)
+    received_annotation.pop('mid', None)
     # del received_annotation['ftype']
     # del received_annotation['atype']
-    annotation = Annotation(user_id=request.user.id, ftype=ftype, findex=findex, stuid=stuid, atype=atype, annotation=json.dumps(received_annotation))
+    annotation = Annotation(user_id=request.user.id, ftype=ftype, findex=findex, stuid=stuid, atype=atype, mid=mid, annotation=json.dumps(received_annotation))
     annotation.save()
     return HttpResponseSeeOtherRedirect('/annotate/annotations/'+str(annotation.id))
 
@@ -92,23 +94,21 @@ def search(request):
   stuid = request.GET.get('stuid', default=0)
   classroom = request.GET.get('classroom', default=0)
   atype = request.GET.get('atype', default=0)
+  mid = request.GET.get('mid', default=0)
   qs = Annotation.objects.filter(ftype=ftype, findex=findex)
   if stuid == 0:
     stuids = [stu.student_id for stu in Enroll.objects.filter(classroom_id=classroom).order_by('id')]
     qs = qs.filter(stuid__in=stuids)
   else:
     qs = qs.filter(stuid=stuid)
-  
+  # 若有指定篩選類別
   if atype > 0:
     qs = qs.filter(atype=atype)
+  # 若有指定思辨素材 id
+  if mid > 0:
+    qs = qs.filter(mid=mid)
+  
   annotations = [a for a in qs.order_by('id')]
-  '''
-  if stuid > 0:
-    annotations = [a for a in Annotation.objects.filter(ftype=ftype, findex=findex, stuid=stuid).order_by('id')]
-  else:
-    stuids = [stu.student_id for stu in Enroll.objects.filter(classroom_id=classroom).order_by('id')]
-    annotations = [a for a in Annotation.objects.filter(ftype=ftype, findex=findex, stuid__in=stuids).order_by('id')]
-  '''
   total = len(annotations)
   rows = []
   for annotation in annotations:
@@ -119,6 +119,8 @@ def search(request):
     anno['updated'] = annotation.updated
     user = User.objects.filter(id=annotation.user_id)[0]
     anno['supervisor'] = user.first_name
+    if 'shapes' in anno: 
+      anno['ranges'] = [{'start': '', 'end': '', 'startOffset': 0, 'endOffset': 0}]
     rows.append(anno)
   data = {
     "total": total, 

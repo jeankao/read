@@ -8,6 +8,7 @@
 {% if is_teacher %}
 <link rel="stylesheet" href="/static/js/annotator/annotator.touch.css" type="text/css" media="all" />
 <script type="text/javascript" src="/static/js/annotator/annotator.touch.min.js"></script>
+<script type="text/javascript" src="/static/js/annotator/annotator.message.js"></script>
 {% endif %}
 {% endblock %}
 
@@ -235,8 +236,6 @@ $(document).ready(function () {
     };
     return plugin;
   }
-  var re = /https?:\/\/[^\/]+([^\?]*)/;
-  var page_path = re.exec(window.location.href)[1];
   $('.memo-content').each(function(index, element) {
     var userid = $(element).data('userid');
     $(element).annotator({% if not is_teacher %}
