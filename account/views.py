@@ -71,7 +71,10 @@ def homepage(request):
         site = Site(site_name='南港高中', site_image='images/home.jpg')
         site.save()
     classroom_count = Classroom.objects.all().count()
-    teacher_count = Group.objects.get(name="teacher").user_set.count()
+    try:
+        teacher_count = Group.objects.get(name="teacher").user_set.count()
+    except ObjectDoesNotExist:
+        teacher_count = 0
     forum_count = FWork.objects.all().count()
     speculation_count = SpeculationWork.objects.all().count()		
     return render_to_response('homepage.html', {'forum_count':forum_count, 'speculation_count':speculation_count, 'teacher_count':teacher_count, 'classroom_count':classroom_count, 'row_count':row_count, 'user_count':len(users), 'site': site}, context_instance=RequestContext(request))

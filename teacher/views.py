@@ -576,7 +576,8 @@ def forum_edit(request, forum_id, content_id):
 def forum_download(request, content_id):
     content = FContent.objects.get(id=content_id)
     filename = content.title
-    download =  settings.BASE_DIR + "/static/upload/" + content.filename
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))		
+    download =  BASE_DIR + "/static/upload/" + content.filename
     wrapper = FileWrapper(file( download, "r" ))
     response = HttpResponse(wrapper, content_type = 'application/force-download')
     #response = HttpResponse(content_type='application/force-download')
@@ -1231,7 +1232,8 @@ def speculation_edit(request, forum_id, content_id):
 def speculation_download(request, content_id):
     content = FContent.objects.get(id=content_id)
     filename = content.title
-    download =  settings.BASE_DIR + "/static/upload/" + content.filename
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    download =  BASE_DIR + "/static/upload/" + content.filename
     wrapper = FileWrapper(file( download, "r" ))
     response = HttpResponse(wrapper, content_type = 'application/force-download')
     #response = HttpResponse(content_type='application/force-download')
@@ -1478,7 +1480,7 @@ class SpeculationAnnotationListView(ListView):
         return queryset
 			
     def get_context_data(self, **kwargs):
-        context = super(SpeculationAnnotationListView, self).get_context_data(**kwargs)
+        context = super(SpeculationAnnotationListView, self).get_conteforumxt_data(**kwargs)
         fwork = SpeculationWork.objects.get(id=self.kwargs['forum_id'])
         context['fwork']= fwork
         context['forum_id'] = self.kwargs['forum_id']

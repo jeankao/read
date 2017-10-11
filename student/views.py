@@ -569,7 +569,8 @@ def forum_word(request, classroom_id, index, word):
 def forum_download(request, file_id):
     content = SFContent.objects.get(id=file_id)
     filename = content.title
-    download =  settings.BASE_DIR + "/static/upload/" + content.filename
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))		
+    download =  BASE_DIR + "/static/upload/" + content.filename
     wrapper = FileWrapper(file( download, "r" ))
     response = HttpResponse(wrapper, content_type = 'application/force-download')
     #response = HttpResponse(content_type='application/force-download')
@@ -816,7 +817,8 @@ class SpeculationAnnotateClassView(ListView):
 def speculation_download(request, file_id):
     content = SSpeculationContent.objects.get(id=file_id)
     filename = content.title
-    download =  settings.BASE_DIR + "/static/upload/" + content.filename
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))		
+    download =  BASE_DIR + "/static/upload/" + content.filename
     wrapper = FileWrapper(file( download, "r" ))
     response = HttpResponse(wrapper, content_type = 'application/force-download')
     #response = HttpResponse(content_type='application/force-download')
