@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="/static/js/annotator/annotator.touch.css" type="text/css" media="all" />
 <script type="text/javascript" src="/static/js/annotator/annotator.touch.min.js"></script>
 <script type="text/javascript" src="/static/js/annotator/annotator.message.js"></script>
+<script type="text/javascript" src="/static/js/annotator/annotator.image.js"></script>
 <style type="text/css">{% for type in types %}
   .annotator-hl.atype-{{type.id}} {background-color: {{type.color}}}{% endfor %}
 </style>
@@ -42,6 +43,8 @@
         'mid': mid,
       }
     })
+    .annotator('addPlugin', 'Touch')
+    .annotator('addPlugin', 'Image', annotation_type)
     .annotator('addPlugin', 'Message', annotation_type);
   });
   $('.btn-add-marker').prop('disabled', true);

@@ -136,17 +136,6 @@ function onYouTubeIframeAPIReady() {
       });
   });
 }
-
-$(document).ready(function () {
-  //------------------------------------------------------------------------
-  // Load YouTube API library
-  var tag = document.createElement('script');
-  tag.id = 'iframe-demo';
-  tag.src = 'https://www.youtube.com/iframe_api';
-  var firstScriptTag = document.getElementsByTagName('script')[0];
-  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);  
-});
-
 //------------------------------------------------------------
 var vidMap = {
   {% for work in contents %}
@@ -167,9 +156,7 @@ function timeToSec(timestr) {
       ss = parseInt(timestr.substr(6, 2));
     return (hh*3600)+(mm*60)+ss;
 }
-
 //------------------------------------------------------------------------
-
 $('#vidModal').on('hidden.bs.modal', function (e) {
   vidPlayer.stopVideo();
 });

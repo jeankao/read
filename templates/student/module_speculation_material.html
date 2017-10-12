@@ -1,6 +1,6 @@
 <li class="list-group-item material" id="m_{{ work.id }}">{% load tag %}
   <div class="panel panel-default">
-    <div class="panel-body{% if work.types == 1 or work.types == 3 %} memo-content{% elif work.types == 2 %} embed-responsive embed-responsive-16by9{% endif %}">
+    <div class="panel-body{% if work.types == 1 or work.types == 3 %} memo-content{% elif work.types == 2 %} embed-responsive embed-responsive-16by9{% endif %}" data-type="{{ work.types }}">
       {% spaceless %}
       {% if work.types == 1 %}
         {{work.text|memo|safe}}
