@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.views.generic import ListView, CreateView
 from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, SSpeculationWork, SSpeculationContent
 from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant, SpeculationClass, SpeculationWork, SpeculationContent, SpeculationAnnotation
-from account.models import VisitorLog,  Profile, Parent, Log, Message, PointHistory
+from account.models import VisitorLog,  Profile, Parent, Log, Message, PointHistory, MessagePoll
 from student.forms import EnrollForm, SeatForm, ForumSubmitForm, SpeculationSubmitForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
@@ -140,6 +140,10 @@ def classroom_enroll(request, classroom_id):
                         if classroom.password == form.cleaned_data['password']:
                                 enroll = Enroll(classroom_id=classroom_id, student_id=request.user.id, seat=form.cleaned_data['seat'])
                                 enroll.save()                                
+                                messages = Message.objects.filter(author_id=classroom.teacher_id, classroom_id=classroom_id)	 
+                                for message in messages:
+                                    messagepoll = MessagePoll(message_type=1, message_id=message.id, reader_id=request.user.id, classroom_id=classroom_id)
+                                    messagepoll.save()	
                         else:
                                 return render_to_response('message.html', {'message':"選課密碼錯誤"}, context_instance=RequestContext(request))
                       
