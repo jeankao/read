@@ -59,10 +59,11 @@ Annotator.Plugin.Message = function(element, types) {
         });
         this.annotator.viewer.addField({
           load: function(field, annotation) {
-            console.log(annotation);
             typeid = annotation['atype'] || 0;
             field = $(field);
-            return field.addClass('annotator-hl atype-' + typeid).html(types['t' + typeid].kind);
+            if (type = types['t' + typeid])
+              return field.addClass('annotator-hl atype-' + typeid).html(type.kind);
+            return field.html('類別尚未指定');
           },
         });
       }

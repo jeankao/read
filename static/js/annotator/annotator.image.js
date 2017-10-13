@@ -13,27 +13,38 @@ Annotator.Plugin.Image = function (element, types) {
       var activeRect = null;
       var imgWidth = $('img', element).width();
       var imgHeight = $('img', element).height();
+      var type_count = 0;
+      var highlights = [];
       let _annotations = this.annotations = [];
+      
+      for (let xi in types)
+        type_count++;
 
-      function modifyRectColor(annotation) {
-        for (let i in _annotations) {
-          let item = _annotations[i];
-          if (item.annotation.id === annotation.id && types.length > 0) {
-            $(item.div).css('border-color', types['t'+item.annotation.atype].color);
-          }
-        }        
+      function modifyHighlightColor(annotation) {
+        let highlight = highlights['d'+annotation.id];
+        if (highlight && type_count > 0) {
+          $(highlight).css('border-color', types['t'+annotation.atype].color);
+        }
       }
       
-      function createRectDiv(left, top, width, height) {
+      function createHighlight(left, top, width, height, annotation) {
         var div = document.createElement('div');
-        $(div).addClass('annotator-img-rect').css({
+        $(div).addClass('annotator-hl annotator-img-rect').css({
           left: left+'px', 
           top: top+'px', 
           width: width+'px',
           height: height+'px',
-          pointerEvents: 'none',
         });
         $('.annotator-wrapper', element).append(div);
+        if (annotation) {
+          $(div).data('annotation', annotation)
+            .data('annotation-id', annotation.id);
+          if (!annotation.id) {
+            console.log(annotation, annotation.id, annotation.shapes, annotation.text);
+          }
+          highlights['d'+annotation.id] = div;
+          modifyHighlightColor(annotation);
+        }
         return div;
       }
       
@@ -42,7 +53,7 @@ Annotator.Plugin.Image = function (element, types) {
           annotator.editor.hide();
           self.traceMouse = true;
           startPoint = {x: e.offsetX, y: e.offsetY};
-          activeRect = createRectDiv(e.offsetX, e.offsetY, 0, 0);
+          activeRect = createHighlight(e.offsetX, e.offsetY, 0, 0, null);
         }
         return false;
       });
@@ -58,25 +69,7 @@ Annotator.Plugin.Image = function (element, types) {
       });
       
       $('img', element).mousemove(function(e) {
-        if (!self.traceMouse) {
-          if (!annotator.viewer.isShown()) {
-            var left = e.offsetX / imgWidth, 
-                top = e.offsetY / imgHeight;
-            var annotations = [];
-            var rect = {};
-            for (let i in _annotations) {
-              let item = _annotations[i];
-              rect = item.annotation.shapes[0].geometry;
-              if (left >= rect.x && left <= rect.x+rect.width && top >= rect.y && top <= rect.y + rect.height) {
-                annotations.push(item.annotation);
-              }
-            }
-            if (annotations.length > 0) {
-              annotator.showViewer(annotations, {left: e.offsetX, top: e.offsetY});
-              annotator.editor.hide();
-            }
-          }
-        } else {
+        if (self.traceMouse) {
           $(activeRect).css({left: Math.min(e.offsetX, startPoint.x), top: Math.min(e.offsetY, startPoint.y), width: Math.abs(e.offsetX - startPoint.x)+'px', height: Math.abs(e.offsetY - startPoint.y)+'px'});
         }
         return false;
@@ -86,10 +79,7 @@ Annotator.Plugin.Image = function (element, types) {
         for(let i in annotations) {
           let item = annotations[i];
           var rect = item.shapes[0].geometry;
-          var rectDiv = createRectDiv(rect.x * imgWidth, rect.y * imgHeight, rect.width * imgWidth, rect.height * imgHeight);
-          if (types.length > 0)
-            $(rectDiv).css('border-color', types['t'+item.atype].color);
-          _annotations.push({annotation: item, div: rectDiv});
+          createHighlight(rect.x * imgWidth, rect.y * imgHeight, rect.width * imgWidth, rect.height * imgHeight, item);
         }
       });
 
@@ -117,14 +107,19 @@ Annotator.Plugin.Image = function (element, types) {
       });
       
       this.annotator.subscribe('annotationCreated', function(annotation) {
-        console.log('annotationCreate', annotation);
         var rect = annotation.shapes[0].geometry;
-        var rectDiv = createRectDiv(rect.x * imgWidth, rect.y * imgHeight, rect.width * imgWidth, rect.height * imgHeight);
-        _annotations.push({annotation: annotation, div: rectDiv});
-        modifyRectColor(annotation);
+        (function verify_id() {
+          if (!annotation.id) {
+            window.setTimeout(verify_id, 5);
+          } else {
+            createHighlight(rect.x * imgWidth, rect.y * imgHeight, rect.width * imgWidth, rect.height * imgHeight, annotation);
+          }
+        })();
       });
       
-      this.annotator.subscribe("annotationUpdated", modifyRectColor);
+      this.annotator.subscribe("annotationUpdated", function(annotation) {
+        modifyHighlightColor(annotation);
+      });
       
       this.annotator.subscribe("annotationEditorHidden", function(editor) {
         if (activeRect) {
@@ -134,20 +129,10 @@ Annotator.Plugin.Image = function (element, types) {
       });
       
       this.annotator.subscribe("annotationDeleted", function(annotation) {
-        for (let i in _annotations) {
-          if (_annotations[i].annotation.id === annotation.id) {
-            $(_annotations[i].div).remove();
-            _annotations.splice(i, 1);
-            break;
-          }
-        }
-      });
-      
-      this.annotator.subscribe("annotationEditorShown", function(editor, annotation) {
-        if (annotation.shapes) {
-          //var rect = annotation.shapes[0].geometry;
-          //$(editor.element).css({left: rect.x * imgWidth, top: (rect.y + rect.height) * imgHeight});
-          //$('html, body').scrollTop($(editor.element).offset().top);
+        let highlight = highlights['d'+annotation.id];
+        if (highlight) {
+          $(highlight).remove();
+          delete highlights['d'+annotation.id];
         }
       });
     },
