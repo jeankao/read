@@ -11,7 +11,6 @@ Annotator.Plugin.Message = function(element, types) {
     }
     return '' + d.getFullYear() + '/' + _(d.getMonth() + 1) + '/' + _(d.getDate()) + ' ' + _(d.getHours()) + ':' + _(d.getMinutes()) + ':' + _(d.getSeconds());
   }
-
   function modifyAnnotationClass(annotation) {
     if (annotation.highlights)
       $(annotation.highlights[0]).attr('class', 'annotator-hl atype-' + annotation.atype);
@@ -31,7 +30,11 @@ Annotator.Plugin.Message = function(element, types) {
       });
       this.annotator.subscribe("annotationCreated", modifyAnnotationClass);
       this.annotator.subscribe("annotationUpdated", modifyAnnotationClass);
-      if (types.length > 0) {
+      var type_count = 0;
+      for (let xi in types) {
+        type_count++;
+      }
+      if (type_count > 0) {
         this.annotator.editor.addField({
           type: 'select',
           load: function(field, annotation) {
@@ -56,6 +59,7 @@ Annotator.Plugin.Message = function(element, types) {
         });
         this.annotator.viewer.addField({
           load: function(field, annotation) {
+            console.log(annotation);
             typeid = annotation['atype'] || 0;
             field = $(field);
             return field.addClass('annotator-hl atype-' + typeid).html(types['t' + typeid].kind);
