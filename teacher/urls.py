@@ -80,6 +80,9 @@ urlpatterns = [
     url(r'^speculation/grade/(?P<classroom_id>\d+)/(?P<action>\d+)/$', login_required(views.speculation_grade), name='forum-grade'),   
     #設定班級
     url(r'^speculation/class/switch/$', login_required(views.speculation_switch), name='make'),
+    #設定分組
+    url(r'^speculation/group/(?P<forum_id>\d+)/$', login_required(views.speculation_group), name='group'),  
+    url(r'^speculation/group/set/$', login_required(views.speculation_group_set), name='group'),   
     #文字註記
     url(r'^speculation/annotation/(?P<forum_id>\d+)/$', login_required(SpeculationAnnotationListView.as_view()), name='make'),   
     url(r'^speculation/annotation/add/(?P<forum_id>\d+)/$', login_required(SpeculationAnnotationCreateView.as_view()), name='forum-content-add'),

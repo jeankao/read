@@ -76,6 +76,7 @@ class SpeculationWork(models.Model):
     time = models.DateTimeField(default=timezone.now) 
     domains = models.TextField(default='')    
     levels = models.TextField(default='') 
+
 		
 def get_deadline():
     return datetime.today() + timedelta(days=14)		
@@ -86,6 +87,7 @@ class SpeculationClass(models.Model):
     publication_date = models.DateTimeField(default=timezone.now)
     deadline = models.BooleanField(default=False)
     deadline_date = models.DateTimeField(default=get_deadline)
+    group =  models.IntegerField(default=0)		
 	
     def __unicode__(self):
         return str(self.forum_id)	

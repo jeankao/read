@@ -1528,7 +1528,27 @@ def speculation_annotation_edit(request, forum_id, content_id):
             content.save()
             return redirect('/teacher/speculation/annotation/'+forum_id)   
     return render_to_response('teacher/speculation_annotation_form.html',{'content': instance, 'forum_id':forum_id, 'content_id':content_id}, context_instance=RequestContext(request))
-	
+
+def speculation_group(request, forum_id):
+    try:
+        title = SpeculationWork.objects.get(id=forum_id).title
+        speculation = SpeculationClass.objects.get(forum_id=forum_id)
+    except:
+        pass
+    groups = ClassroomGroup.objects.filter(classroom_id=speculation.classroom_id)
+    return render_to_response('teacher/speculation_group.html',{'speculation': speculation, 'groups':groups, 'title':title}, context_instance=RequestContext(request))
+
+def speculation_group_set(request):
+    group_id = request.POST.get('groupid')
+    forum_id = request.POST.get('forumid')
+    if group_id and forum_id :      
+        forum = SpeculationClass.objects.get(forum_id=forum_id)	
+        if is_teacher(request.user, forum.classroom_id) or is_assistant(request.user, forum.classroom_id):
+            forum.group = group_id
+            forum.save()      
+        return JsonResponse({'status':'ok'}, safe=False)
+    else:
+        return JsonResponse({'status':'fail'}, safe=False) 
 # 列出所有教師
 class TeacherListView(ListView):
     model = User
