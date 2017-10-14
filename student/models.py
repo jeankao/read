@@ -103,3 +103,13 @@ class SSpeculationContent(models.Model):
     publication_date = models.DateTimeField(default=timezone.now)
     delete_date = models.DateTimeField(default=timezone.now)		
     visible = models.BooleanField(default=True)
+
+class StudentGroup(models.Model):
+    group_id = models.IntegerField(default=0)
+    enroll_id = models.IntegerField(default=0)
+    group = models.IntegerField(default=0)		
+
+    class Meta:
+        unique_together = ('enroll_id', 'group_id',)				
+
+    

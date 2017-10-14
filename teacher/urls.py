@@ -4,6 +4,7 @@ from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from teacher.views import ClassroomListView, ClassroomCreateView, WorkListView, WorkCreateView
+from teacher.views import GroupListView, GroupCreateView, GroupUpdateView
 from teacher.views import ForumListView, ForumCreateView, ForumContentListView, ForumContentCreateView, ForumClassListView
 from teacher.views import AssistantListView, ForumAllListView, ForumEditUpdateView, AnnounceCreateView
 from teacher.views import SpeculationListView, SpeculationCreateView, SpeculationContentListView, SpeculationContentCreateView, SpeculationClassListView
@@ -18,6 +19,11 @@ urlpatterns = [
     url(r'^classroom/edit/(?P<classroom_id>\d+)/$', login_required(views.classroom_edit)),
     url(r'^classroom/assistant/(?P<classroom_id>\d+)/$', login_required(views.classroom_assistant)),  
     url(r'^classroom/assistant/add/(?P<classroom_id>\d+)/$', login_required(views.AssistantListView.as_view())),  
+    # 分組
+    url(r'^group/(?P<classroom_id>\d+)/$', login_required(views.GroupListView.as_view())),
+    url(r'^group/add/(?P<classroom_id>\d+)/$', login_required(views.GroupCreateView.as_view())),  
+    url(r'^group/edit/(?P<classroom_id>\d+)/(?P<pk>\d+)/$', login_required(views.GroupUpdateView.as_view())),    
+    url(r'^group/make/$', login_required(views.make)),   
     #設定助教
     url(r'^assistant/$', login_required(views.AssistantClassroomListView.as_view())),  
     url(r'^assistant/make/$', login_required(views.assistant_make), name='make'),     

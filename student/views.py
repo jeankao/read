@@ -3,8 +3,8 @@ from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, CreateView
-from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, SSpeculationWork, SSpeculationContent
-from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant, SpeculationClass, SpeculationWork, SpeculationContent, SpeculationAnnotation
+from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, SSpeculationWork, SSpeculationContent, StudentGroup
+from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant, SpeculationClass, SpeculationWork, SpeculationContent, SpeculationAnnotation, ClassroomGroup
 from account.models import VisitorLog,  Profile, Parent, Log, Message, PointHistory, MessagePoll
 from student.forms import EnrollForm, SeatForm, ForumSubmitForm, SpeculationSubmitForm
 from django.core.exceptions import ObjectDoesNotExist
@@ -836,3 +836,67 @@ def speculation_showpic(request, file_id):
         content = SSpeculationContent.objects.get(id=file_id)
         return render_to_response('student/forum_showpic.html', {'content':content}, context_instance=RequestContext(request))
 
+# 列出組別
+class GroupListView(ListView):
+    model = ClassroomGroup
+    context_object_name = 'groups'
+    paginate_by = 30
+    template_name = 'student/group.html'
+    
+    def get_queryset(self):
+        queryset = ClassroomGroup.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("-id")
+        return queryset         			
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupListView, self).get_context_data(**kwargs)        
+        context['classroom_id'] = self.kwargs['classroom_id']
+        return context	    			
+			
+# 顯示所有組別
+def group_list(request, group_id):
+        groups = []
+        student_groups = {}
+        enroll_list = []
+        group_list = {}
+        group_ids = []
+        group = ClassroomGroup.objects.get(id=group_id)
+        numbers = group.numbers
+        enrolls = Enroll.objects.filter(classroom_id=group.classroom_id).order_by("seat")
+        for enroll in enrolls:
+            enroll_list.append(enroll.id)
+        enroll_groups = StudentGroup.objects.filter(enroll_id__in=enroll_list, group_id=group_id)
+        for enroll_group in enroll_groups:
+            group_ids.append(enroll_group.enroll_id)
+            group_list[enroll_group.enroll_id] = enroll_group.group
+            enroll = Enroll.objects.get(id=enroll_group.enroll_id)
+            if enroll_group.group in student_groups:
+                student_groups[enroll_group.group].append(enroll)
+            else:
+                student_groups[enroll_group.group]=[enroll]	            
+        for i in range(numbers):
+            if i+1 in student_groups:
+                groups.append([i+1, student_groups[i+1]])
+            else:
+                groups.append([i+1, []])
+					
+        #找出尚未分組的學生
+        no_group = []
+        for enroll in enrolls:
+            if not enroll.id in group_ids:
+                no_group.append([enroll.seat, enroll.student])
+    
+  	    enroll_user = Enroll.objects.get(student_id=request.user.id, classroom_id=group.classroom_id)
+        return render_to_response('student/group_join.html', {'open':group.opening, 'groups':groups, 'enroll_id':enroll_user.id, 'student_groups':student_groups, 'no_group':no_group, 'classroom_id':group.classroom_id, 'group_id':group_id}, context_instance=RequestContext(request))
+
+			
+# 顯示所有組別
+def group_join(request, group_id, number, enroll_id):
+    try:
+        group = StudentGroup.objects.get(group_id=group_id, enroll_id=enroll_id)
+        group.group = number
+    except ObjectDoesNotExist:
+        group = StudentGroup(group_id=group_id, enroll_id=enroll_id, group=number)
+    if ClassroomGroup.objects.get(id=group_id).open:
+        group.save()			
+			
+    return redirect("/student/group/list/"+group_id)

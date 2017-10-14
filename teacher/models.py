@@ -105,3 +105,16 @@ class SpeculationAnnotation(models.Model):
     forum_id =  models.IntegerField(default=0)
     kind = models.CharField(max_length=250,null=True,blank=True)
     color = models.CharField(max_length=7,null=True,blank=True)
+		
+class ClassroomGroup(models.Model):
+    # 班級
+    classroom_id = models.IntegerField(default=0)
+    #分組名稱
+    title = models.CharField(max_length=250,null=True,blank=True)    
+    #小組數目
+    numbers = models.IntegerField(default=6)
+    #開放分組
+    opening = models.BooleanField(default=True)
+       
+    def __unicode__(self):
+        return self.classroom_id

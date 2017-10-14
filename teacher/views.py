@@ -3,13 +3,14 @@ from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
-from teacher.models import Classroom, TWork, FWork, FClass, FContent, Assistant, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation
-from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent
+from teacher.models import Classroom, TWork, FWork, FClass, FContent, Assistant, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation, ClassroomGroup
+from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, StudentGroup
 from account.models import Domain, Level, Parent, Log, Message, MessagePoll, MessageContent
-from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm, CategroyForm, DeadlineForm, AnnounceForm, SpeculationForm, SpeculationContentForm, SpeculationAnnotationForm
+from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm, CategroyForm, DeadlineForm, AnnounceForm, SpeculationForm, SpeculationContentForm, SpeculationAnnotationForm, GroupForm
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
+from django.http import HttpResponseRedirect
 import os
 from uuid import uuid4
 from django.conf import settings
@@ -1566,3 +1567,69 @@ class StudentListView(ListView):
             enrolls = Enroll.objects.filter(classroom_id=classroom.id, seat__gt=0).order_by("seat")
             queryset.append([classroom, enrolls])
         return queryset			
+			
+# 列出所有課程
+class GroupListView(ListView):
+    model = Group
+    context_object_name = 'groups'
+    template_name = 'teacher/group.html'
+    paginate_by = 25
+    def get_queryset(self):      
+        queryset = ClassroomGroup.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("-id")
+        return queryset
+			
+    def get_context_data(self, **kwargs):
+        context = super(GroupListView, self).get_context_data(**kwargs)
+        context['classroom_id'] = self.kwargs['classroom_id']
+        return context				
+			
+#新增一個分組
+class GroupCreateView(CreateView):
+    model = ClassroomGroup
+    form_class = GroupForm
+    template_name = 'form.html'    
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.classroom_id = self.kwargs['classroom_id']
+        if is_teacher(self.request.user, self.kwargs['classroom_id']) or is_assistant(self.request.user, self.kwargs['classroom_id']):
+            self.object.save()
+        return redirect("/teacher/group/"+ self.kwargs['classroom_id'])   
+			
+    def get_context_data(self, **kwargs):
+        context = super(GroupCreateView, self).get_context_data(**kwargs)
+        return context	
+			
+class GroupUpdateView(UpdateView):
+    model = ClassroomGroup
+    form_class = GroupForm		
+    template_name = 'form.html'
+    def get_success_url(self):
+        succ_url =  '/student/group/list/'+self.kwargs['pk']
+        return succ_url
+			
+    def form_valid(self, form):
+        if is_teacher(self.request.user, self.kwargs['classroom_id']) or is_assistant(self.request.user, self.kwargs['classroom_id']):
+            group = ClassroomGroup.objects.get(id=self.kwargs['pk'])
+            reduce = group.numbers - form.cleaned_data['numbers']
+            if reduce > 0:
+                for i in range(reduce):
+                    StudentGroup.objects.filter(group_id=self.kwargs['pk'], group=group.numbers-i).delete()
+            form.save()
+        return HttpResponseRedirect(self.get_success_url())
+			
+
+# 分組
+def make(request):
+    group_id = request.POST.get('groupid')
+    action = request.POST.get('action')
+    if group_id and action :      
+        group = ClassroomGroup.objects.get(id=group_id)	
+        if is_teacher(request.user, group.classroom_id) or is_assistant(request.user, group.classroom_id):
+            if action == 'open':            
+                group.opening = True   
+            else : 
+                group.opening = False
+            group.save()      
+        return JsonResponse({'status':'ok'}, safe=False)
+    else:
+        return JsonResponse({'status':'fail'}, safe=False) 

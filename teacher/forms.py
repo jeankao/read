@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from account.models import Message
-from teacher.models import Classroom, TWork, FWork, FContent, FClass, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation
+from teacher.models import Classroom, TWork, FWork, FContent, FClass, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation, ClassroomGroup
 
 
 # 新增一個課程表單
@@ -122,3 +122,14 @@ class SpeculationAnnotationForm(forms.ModelForm):
         
         def __init__(self, *args, **kwargs):
             super(SpeculationAnnotationForm, self).__init__(*args, **kwargs)
+						
+# 新增一個分組表單
+class GroupForm(forms.ModelForm):
+        class Meta:
+           model = ClassroomGroup
+           fields = ['title','numbers']
+        
+        def __init__(self, *args, **kwargs):
+            super(GroupForm, self).__init__(*args, **kwargs)
+            self.fields['title'].label = "分組名稱"							
+            self.fields['numbers'].label = "分組數目"	
