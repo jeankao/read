@@ -84,11 +84,7 @@ class ClassroomAddListView(ListView):
     paginate_by = 20
     template_name = 'student/classroom_add.html'
     
-    def get_queryset(self):
-        # 記錄系統事件
-        if is_event_open(self.request) :           
-            log = Log(user_id=self.request.user.id, event='查看加入班級')
-            log.save()         
+    def get_queryset(self):        
         if self.request.GET.get('classroom') != None:
             keyword = self.request.GET.get('classroom')
             teacher_ids = []
@@ -606,12 +602,7 @@ class AnnounceListView(ListView):
     context_object_name = 'messages'
     template_name = 'student/announce_list.html'    
     paginate_by = 20
-    def get_queryset(self):
-
-        # 記錄系統事件
-        if is_event_open(self.request) :    
-            log = Log(user_id=self.request.user.id, event='查看班級公告')
-            log.save()        
+    def get_queryset(self):  
         queryset = Message.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("-id")
         return queryset
         

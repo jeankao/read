@@ -601,10 +601,6 @@ def forum_export(request, classroom_id, forum_id):
 	if not is_teacher(request.user, classroom_id):
 		return redirect("/")
 	classroom = Classroom.objects.get(id=classroom_id)
-	# 記錄系統事件
-	if is_event_open(request) :       
-		log = Log(user_id=request.user.id, event=u'匯出討論區作業<'+classroom.name+u'>到Word')
-		log.save()  
 	try:
 		fwork = FWork.objects.get(id=forum_id)
 		enrolls = Enroll.objects.filter(classroom_id=classroom_id)
@@ -759,11 +755,7 @@ def forum_grade(request, classroom_id, action):
 	
 	#下載Excel
 	if action == "1":
-		classroom = Classroom.objects.get(id=classroom_id)
-		# 記錄系統事件
-		if is_event_open(request) :       
-			log = Log(user_id=request.user.id, event=u'下載成績到Excel')
-			log.save()        
+		classroom = Classroom.objects.get(id=classroom_id)       
 		output = StringIO.StringIO()
 		workbook = xlsxwriter.Workbook(output)    
 		worksheet = workbook.add_worksheet(classroom.name)
@@ -888,11 +880,7 @@ class AnnounceCreateView(CreateView):
             enrolls = Enroll.objects.filter(classroom_id=classroom_id)
             for enroll in enrolls:
                 messagepoll = MessagePoll(message_type=1, message_id=message.id, reader_id=enroll.student_id, classroom_id=classroom_id)
-                messagepoll.save()
-        # 記錄系統事件
-        if is_event_open(self.request) :            
-            log = Log(user_id=self.request.user.id, event=u'新增公告<'+self.object.title+'>')
-            log.save()                
+                messagepoll.save()               
         return redirect("/student/announce/"+self.kwargs['classroom_id']) 
 			
     def get_context_data(self, **kwargs):
@@ -1257,10 +1245,6 @@ def speculation_export(request, classroom_id, forum_id):
 	if not is_teacher(request.user, classroom_id):
 		return redirect("/")
 	classroom = Classroom.objects.get(id=classroom_id)
-	# 記錄系統事件
-	if is_event_open(request) :       
-		log = Log(user_id=request.user.id, event=u'匯出思辨區作業<'+classroom.name+u'>到Word')
-		log.save()  
 	try:
 		fwork = FWork.objects.get(id=forum_id)
 		enrolls = Enroll.objects.filter(classroom_id=classroom_id)
@@ -1379,11 +1363,7 @@ def speculation_grade(request, classroom_id, action):
 	
 	#下載Excel
 	if action == "1":
-		classroom = Classroom.objects.get(id=classroom_id)
-		# 記錄系統事件
-		if is_event_open(request) :       
-			log = Log(user_id=request.user.id, event=u'下載成績到Excel')
-			log.save()        
+		classroom = Classroom.objects.get(id=classroom_id)       
 		output = StringIO.StringIO()
 		workbook = xlsxwriter.Workbook(output)    
 		worksheet = workbook.add_worksheet(classroom.name)

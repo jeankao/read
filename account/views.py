@@ -245,10 +245,6 @@ def profile(request, user_id):
 
     # 計算積分    
     credit = profile.work + profile.like + profile.reply
-    # 記錄系統事件
-    if is_event_open(request) :       
-        log = Log(user_id=request.user.id, event='查看個人檔案')
-        log.save()        
         
     #檢查是否為教師或同班同學
     user_enrolls = Enroll.objects.filter(student_id=request.user.id)
@@ -266,11 +262,7 @@ def password(request, user_id):
         if form.is_valid():
             user = User.objects.get(id=user_id)
             user.set_password(request.POST['password'])
-            user.save()
-            # 記錄系統事件
-            if is_event_open(request) :               
-                log = Log(user_id=request.user.id, event=u'修改<'+user.first_name+u'>密碼成功')
-                log.save()                
+            user.save()       
             return redirect('homepage')
     else:
         canEdit = False
@@ -302,11 +294,7 @@ def adminrealname(request, user_id):
         if form.is_valid():
             user = User.objects.get(id=user_id)
             user.first_name =form.cleaned_data['first_name']
-            user.save()
-            # 記錄系統事件
-            if is_event_open(request) :               
-                log = Log(user_id=request.user.id, event=u'修改姓名<'+user.first_name+'>')
-                log.save()                
+            user.save()                
             return redirect('/account/userlist/')
     else:
         teacher = False
@@ -331,11 +319,7 @@ def realname(request):
         if form.is_valid():
             user = User.objects.get(id=request.user.id)
             user.first_name =form.cleaned_data['first_name']
-            user.save()
-            # 記錄系統事件
-            if is_event_open(request) :               
-                log = Log(user_id=request.user.id, event=u'修改姓名<'+user.first_name+'>')
-                log.save()                
+            user.save()             
             return redirect('/account/profile/'+str(request.user.id))
     else:
         user = User.objects.get(id=request.user.id)
@@ -350,11 +334,7 @@ def adminschool(request):
         if form.is_valid():
             user = User.objects.get(id=request.user.id)
             user.last_name =form.cleaned_data['last_name']
-            user.save()
-            # 記錄系統事件
-            if is_event_open(request) :               
-                log = Log(user_id=request.user.id, event=u'修改學校名稱<'+user.last_name+'>')
-                log.save()                
+            user.save()             
             return redirect('/account/profile/'+str(request.user.id))
     else:
         user = User.objects.get(id=request.user.id)
@@ -369,11 +349,7 @@ def adminemail(request):
         if form.is_valid():
             user = User.objects.get(id=user_id)
             user.email =form.cleaned_data['email']
-            user.save()
-            # 記錄系統事件
-            if is_event_open(request) :               
-                log = Log(user_id=request.user.id, event=u'修改信箱<'+user.first_name+'>')
-                log.save()                
+            user.save()             
             return redirect('/account/profile/'+str(request.user.id))
     else:
         user = User.objects.get(id=request.user.id)
@@ -419,11 +395,7 @@ class UserListView(ListView):
     paginate_by = 20
     template_name = 'account/user_list.html'
     
-    def get_queryset(self):
-        # 記錄系統事件
-        if is_event_open(self.request) :           
-            log = Log(user_id=1, event='管理員查看帳號')
-            log.save()         
+    def get_queryset(self):       
         if self.request.GET.get('account') != None:
             keyword = self.request.GET.get('account')
             queryset = User.objects.filter(Q(username__icontains=keyword) | Q(first_name__icontains=keyword)).order_by('-id')
@@ -448,10 +420,7 @@ def make(request):
         except ObjectDoesNotExist :
             group = Group(name="teacher")
             group.save()
-        if action == 'set':            
-            # 記錄系統事件
-            log = Log(user_id=1, event=u'管理員設為教師<'+user.first_name+'>')
-            log.save()                        
+        if action == 'set':                                  
             group.user_set.add(user)
             # create Message
             title = "<" + request.user.first_name + u">設您為教師"
@@ -462,11 +431,7 @@ def make(request):
             # message for group member
             messagepoll = MessagePoll.create(message_id = message.id,reader_id=user_id)
             messagepoll.save()    
-        else : 
-            # 記錄系統事件
-            if is_event_open(request) :               
-                log = Log(user_id=1, event=u'取消教師<'+user.first_name+'>')
-                log.save()              
+        else :   
             group.user_set.remove(user)  
             # create Message
             title = "<"+ request.user.first_name + u">取消您為教師"
@@ -495,11 +460,7 @@ class LineListView(ListView):
     template_name = 'account/line_list.html'    
     paginate_by = 20
     
-    def get_queryset(self):
-        # 記錄系統事件
-        if is_event_open(self.request) :    
-            log = Log(user_id=self.request.user.id, event='查看所有私訊')
-            log.save()        
+    def get_queryset(self):     
         queryset = Message.objects.filter(author_id=self.request.user.id).order_by("-id")
         return queryset
 
@@ -513,11 +474,7 @@ class LineClassListView(ListView):
     context_object_name = 'enrolls'
     template_name = 'account/line_class.html'   
     
-    def get_queryset(self):
-        # 記錄系統事件
-        if is_event_open(self.request) :    
-            log = Log(user_id=self.request.user.id, event='列出同學以私訊')
-            log.save()        
+    def get_queryset(self):     
         queryset = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("seat")
         return queryset
         
@@ -557,11 +514,7 @@ class LineCreateView(CreateView):
                 content.save()
         # 訊息
         messagepoll = MessagePoll(message_id=self.object.id, reader_id=self.kwargs['user_id'], message_type=2, classroom_id=0-int(self.kwargs['classroom_id']))
-        messagepoll.save()
-        # 記錄系統事件
-        if is_event_open(self.request) :            
-            log = Log(user_id=self.request.user.id, event=u'新增私訊<'+self.object.title+'>')
-            log.save()                
+        messagepoll.save()              
         return redirect("/account/line/")      
         
     def get_context_data(self, **kwargs):
@@ -617,15 +570,7 @@ class VisitorListView(ListView):
     template_name = 'account/visitor_list.html'    
     paginate_by = 20
     
-    def get_queryset(self):
-        # 記錄系統事件
-        if is_event_open(self.request) :
-            if not self.request.user.is_authenticated():
-                user_id = 0
-            else :
-                user_id = self.request.user.id
-            log = Log(user_id=user_id, event='查看所有訪客')
-            log.save()        
+    def get_queryset(self):       
         visitors = Visitor.objects.all().order_by('-id')
         queryset = []
         for visitor in visitors:
@@ -655,10 +600,7 @@ class VisitorLogListView(ListView):
     
     def get_queryset(self):
         # 記錄系統事件
-        visitor = Visitor.objects.get(id=self.kwargs['visitor_id'])
-        if is_event_open(self.request) :    
-            log = Log(user_id=self.request.user.id, event='查看單日訪客<'+str(visitor.date)+'>')
-            log.save()        
+        visitor = Visitor.objects.get(id=self.kwargs['visitor_id'])    
         queryset = VisitorLog.objects.filter(visitor_id=self.kwargs['visitor_id']).order_by('-id')
         return queryset
         
@@ -692,18 +634,10 @@ def download(request, filename):
     else:
         filename_header = 'filename*=UTF-8\'\'%s' % urllib.quote(file_name.encode('utf-8'))
     response['Content-Disposition'] = 'attachment; ' + filename_header
-    # 記錄系統事件
-    if is_event_open(request) :       
-        log = Log(user_id=request.user.id, event=u'下載檔案<'+filename+'>')
-        log.save()     
     return response
 
 def avatar(request):
-    profile = Profile.objects.get(user = request.user)
-    # 記錄系統事件
-    if is_event_open(request) :       
-        log = Log(user_id=request.user.id, event=u'查看個人圖像')
-        log.save()        
+    profile = Profile.objects.get(user = request.user)    
     return render_to_response('account/avatar.html', {'avatar':profile.avatar}, context_instance=RequestContext(request))
     
 # 記錄系統事件
@@ -713,11 +647,7 @@ class EventListView(ListView):
     template_name = 'account/event_list.html'
 
     def get_queryset(self):    
-        user = User.objects.get(id=self.kwargs['user_id'])
-        # 記錄系統事件
-        if is_event_open(self.request) :           
-            log = Log(user_id=self.request.user.id, event=u'查看個人事件<'+user.first_name+'>')
-            log.save()       
+        user = User.objects.get(id=self.kwargs['user_id'])    
         if self.request.GET.get('q') != None:
             queryset = Log.objects.filter(user_id=self.kwargs['user_id'], event__icontains=self.request.GET.get('q')).order_by('-id')
         else :
@@ -742,10 +672,7 @@ class EventAdminListView(ListView):
     paginate_by = 50	
     template_name = 'account/event_admin_list.html'
 
-    def get_queryset(self):    
-        # 記錄系統事件
-        log = Log(user_id=1, event=u'管理員查看系統事件')
-        log.save()       
+    def get_queryset(self):     
         if self.request.GET.get('q') != None:
             queryset = Log.objects.filter(event__icontains=self.request.GET.get('q')).order_by('-id')
         else :
@@ -773,10 +700,6 @@ class EventAdminClassroomListView(ListView):
     template_name = 'account/event_admin_classroom_list.html'
 
     def get_queryset(self):    
-        # 記錄系統事件
-        classroom = Classroom.objects.get(id=self.kwargs['classroom_id'])
-        log = Log(user_id=1, event=u'管理員查看班級事件<'+classroom.name+'>')
-        log.save()
         if self.request.GET.get('q') != None:
             queryset = Log.objects.filter(classroom_id=self.kwargs['classroom_id'], event__icontains=self.request.GET.get('q')).order_by('-id')
         else :
@@ -804,10 +727,6 @@ class EventCalendarView(ListView):
     template_name = 'account/event_calendar.html'
 
     def get_queryset(self):    
-        # 記錄系統事件
-        user = User.objects.get(id=self.kwargs['user_id'])
-        log = Log(user_id=self.request.user.id, event=u'查看登入記錄<'+user.first_name+'>')
-        log.save()
         user_logs = Log.objects.filter(user_id=user.id, event="登入系統").extra({'logdate': "to_char(publish, 'YYYY-MM-DD')"}).values('logdate').annotate(count=Count('id')).order_by('logdate')
         return user_logs
         
@@ -824,10 +743,6 @@ class EventTimeLineView(ListView):
     template_name = 'account/event_timeline.html'
 
     def get_queryset(self):    
-        # 記錄系統事件
-        user = User.objects.get(id=self.kwargs['user_id'])
-        log = Log(user_id=self.request.user.id, event=u'查看使用記錄<'+user.first_name+'>')
-        log.save()
         #user_logs = Log.objects.filter(user_id=user.id, event="登入系統").extra({'logdate': "to_char(publish, 'YYYY-MM-DD')"}).values('logdate').annotate(count=Count('id')).order_by('logdate')
         user_logs = Log.objects.filter(user_id=user.id).order_by("id")
         logs = groupby(user_logs, key=lambda row: (localtime(row.publish).year, localtime(row.publish).month, localtime(row.publish).day, localtime(row.publish).hour))
@@ -880,8 +795,6 @@ class EventTimeLogView(ListView):
         month = int(date_string[4:6])
         day = int(date_string[6:8])
         hour = int(date_string[8:10])
-        log = Log(user_id=self.request.user.id, event=u'查看分時使用記錄<'+user.first_name+'>')
-        log.save()
         user_logs = Log.objects.filter(user_id=user.id, publish__year=year, publish__month=month, publish__day=day, publish__hour=hour).order_by("-id")
         return user_logs
         
@@ -904,11 +817,6 @@ class EventVideoView(ListView):
     template_name = 'account/event_video.html'
 
     def get_queryset(self):    
-				# 記錄系統事件
-				classroom = Classroom.objects.get(id=self.kwargs['classroom_id'])
-				log = Log(user_id=self.request.user.id, event=u'查看影片觀看記錄<'+classroom.name+'>')
-				log.save()
-
 				enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id'], seat__gt=0).order_by("seat")
 				events = []
 				for student in enrolls: 
@@ -947,18 +855,12 @@ def note_add(request):
     note_id = request.POST.get('noteid')
     if note_id == 0 or note_id == "0" :
         note = Note(classroom_id=classroom_id, user_id=user_id, lesson=lesson, memo=memo)
-        note.save()	
-        if is_event_open(request) :       
-            log = Log(user_id=request.user.id, event=u'新增教學筆記')
-            log.save()        
+        note.save()	    
     else : 
         try: 
             note = Note.objects.get(id=note_id)
             note.memo = memo
             note.save()
-            if is_event_open(request) :       
-                log = Log(user_id=request.user.id, event=u'編輯教學筆記')
-                log.save()    
         except:
             pass
     return JsonResponse({'status':'ok', 'note_id':note_id}, safe=False)
@@ -1001,10 +903,7 @@ class DomainListView(ListView):
     context_object_name = 'domains'
     template_name = 'account/domain.html'
 
-    def get_queryset(self):    
-        # 記錄系統事件
-        log = Log(user_id=1, event=u'管理員查看學習領域')
-        log.save()       
+    def get_queryset(self):        
         queryset = Domain.objects.all().order_by('-id')					
         return queryset
         
@@ -1030,9 +929,6 @@ class LevelListView(ListView):
     template_name = 'account/level.html'
 
     def get_queryset(self):    
-        # 記錄系統事件
-        log = Log(user_id=1, event=u'管理員查看年級')
-        log.save()       
         queryset = Level.objects.all().order_by('-id')					
         return queryset
         
@@ -1083,10 +979,7 @@ class ForumListView(ListView):
     template_name = 'account/forum_list.html'
     paginate_by = 10
 		
-    def get_queryset(self):    
-        # 記錄系統事件
-        log = Log(user_id=1, event=u'查看個人討論區作業')
-        log.save()       
+    def get_queryset(self):       
         classroom_ids = Enroll.objects.filter(student_id=self.kwargs['user_id'], seat__gt=0).values_list('classroom_id')				
         forum_dict = dict(((fwork.id, fwork) for fwork in FWork.objects.all()))
         fclasses = FClass.objects.filter(classroom_id__in=classroom_ids).order_by("-publication_date")
@@ -1114,10 +1007,7 @@ class SpeculationListView(ListView):
     template_name = 'account/speculation_list.html'
     paginate_by = 10
 		
-    def get_queryset(self):    
-        # 記錄系統事件
-        log = Log(user_id=1, event=u'查看個人思辨區作業')
-        log.save()       
+    def get_queryset(self):       
         classroom_ids = Enroll.objects.filter(student_id=self.kwargs['user_id'], seat__gt=0).values_list('classroom_id')				
         forum_dict = dict(((fwork.id, fwork) for fwork in SpeculationWork.objects.all()))
         fclasses = SpeculationClass.objects.filter(classroom_id__in=classroom_ids).order_by("-publication_date")
@@ -1144,10 +1034,7 @@ class ParentListView(ListView):
     context_object_name = 'users'
     template_name = 'account/parent_list.html'
 		
-    def get_queryset(self):    
-        # 記錄系統事件
-        log = Log(user_id=1, event=u'查看家長設定')
-        log.save()       
+    def get_queryset(self):         
         queryset= Parent.objects.filter(student_id=self.request.user.id)
         return queryset
         
@@ -1161,9 +1048,6 @@ class ParentSearchListView(ListView):
     template_name = 'account/parent_search.html'
 		
     def get_queryset(self):    
-        # 記錄系統事件
-        log = Log(user_id=self.request.user.id, event=u'搜尋家長帳號')
-        log.save()
         queryset = []
         if self.request.GET.get('word') != None:
             keyword = self.request.GET.get('word')
@@ -1201,10 +1085,7 @@ def parent_make(request):
             parents = Parent.objects.filter(student_id=student_id, parent_id=user_id)	
             if len(parents) == 0:
                 parent = Parent(student_id=student_id, parent_id=user_id)
-                parent.save()	
-                # 記錄系統事件
-                log = Log(user_id=student_id, event=u'<'+user_student.first_name+u'>設為家長<'+user_parent.first_name+'>')
-                log.save()                        
+                parent.save()	                     
                 # create Message
                 title = "<" + user_student.first_name + u">設您為家長"
                 url = "/account/forum/"+ str(student_id)
@@ -1214,11 +1095,7 @@ def parent_make(request):
                 # message for group member
                 messagepoll = MessagePoll.create(message_id = message.id,reader_id=user_id)
                 messagepoll.save()    
-        else : 
-            # 記錄系統事件
-            if is_event_open(request) :       							
-                log = Log(user_id=student_id, event=u'<'+user_student.first_name+u'>取消家長<'+user_parent.first_name+'>')
-                log.save()              
+        else :         
             parents = Parent.objects.filter(student_id=student_id, parent_id=user_id)
             for parent in parents:
                 parent.delete()
@@ -1267,11 +1144,7 @@ class TeacherPostCreateView(CreateView):
         # 訊息
         for teacher in teachers:
             messagepoll = MessagePoll(message_id=self.object.id, reader_id=teacher.id, message_type=3, classroom_id=0)
-            messagepoll.save()
-        # 記錄系統事件
-        if is_event_open(self.request) :            
-            log = Log(user_id=self.request.user.id, event=u'新增教師公告<'+self.object.title+'>')
-            log.save()                
+            messagepoll.save()             
         return redirect("/account/line/")      
         
     def get_context_data(self, **kwargs):
