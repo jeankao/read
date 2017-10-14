@@ -320,16 +320,13 @@ def forum_show(request, index, user_id, classroom_id):
 		works = SFWork.objects.filter(index=index, student_id=user_id).order_by("-id")
 		contents = FContent.objects.filter(forum_id=index).order_by("id")
 		publish = False
-		if len(works)>0:
+		if len(works)> 0:
 			work_new = works[0]
 			work_first = works.last()
 			publish = work_first.publish
 			replys = SFReply.objects.filter(index=index, work_id=work_first.id).order_by("-id")	
 			files = SFContent.objects.filter(index=index, student_id=user_id, visible=True).order_by("-id")	
-			return render_to_response('student/forum_show.html', {'publish':publish, 'classroom_id':classroom_id, 'contents':contents, 'replys':replys, 'files':files, 'forum':forum, 'user_id':user_id, 'work_first':work_first, 'work_new':work_new, 'teacher_id':teacher_id, 'works': works, 'is_teacher':is_teacher(classroom_id, request.user.id)}, context_instance=RequestContext(request))
-		else :
-			message = "尚無作品"
-			return render_to_response('message.html', {'message':message}, context_instance=RequestContext(request))
+		return render_to_response('student/forum_show.html', {'publish':publish, 'classroom_id':classroom_id, 'contents':contents, 'replys':replys, 'files':files, 'forum':forum, 'user_id':user_id, 'teacher_id':teacher_id, 'works': works, 'is_teacher':is_teacher(classroom_id, request.user.id)}, context_instance=RequestContext(request))
 		
  # 查詢某作業所有同學心得
 def forum_memo(request, classroom_id, index, action):
@@ -896,7 +893,7 @@ def group_join(request, group_id, number, enroll_id):
         group.group = number
     except ObjectDoesNotExist:
         group = StudentGroup(group_id=group_id, enroll_id=enroll_id, group=number)
-    if ClassroomGroup.objects.get(id=group_id).open:
+    if ClassroomGroup.objects.get(id=group_id).opening:
         group.save()			
 			
     return redirect("/student/group/list/"+group_id)
