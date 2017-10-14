@@ -1546,10 +1546,10 @@ class TeacherListView(ListView):
             classroom_ids = []									
             for classroom in rooms:
                 classroom_ids.append(classroom.id)
-            enroll = Enroll.objects.filter(classroom_id__in=classroom_ids).count()
+            enroll = Enroll.objects.filter(classroom_id__in=classroom_ids, seat__gt=0).count()
             fwork = filter(lambda w: w.teacher_id==teacher.id, fworks)
             swork = filter(lambda w: w.teacher_id==teacher.id, sworks)
-            queryset.append([teacher, len(rooms), len(fwork), len(swork), enroll-len(rooms)])
+            queryset.append([teacher, len(rooms), len(fwork), len(swork), enroll])
         return queryset
 			
 # 列出某教師的所有學生
