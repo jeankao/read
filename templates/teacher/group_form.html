@@ -11,8 +11,8 @@
 {% block content %}
          <form action="" enctype="multipart/form-data"  method="post">
             <table class="table">
-                <tr><th><label for="id_title">分組名稱:</label></th><td><input id="id_title" maxlength="250" name="title" type="text" /></td></tr>
-<tr><th><label for="id_numbers">分組數目:</label></th><td><input id="id_numbers" name="numbers" type="number" value="6" /></td></tr>
+                <tr><th><label for="id_title">分組名稱:</label></th><td><input class="form-control list-group-item-text" id="id_title" maxlength="250" name="title" type="text" /></td></tr>
+<tr><th><label for="id_numbers">分組數目:</label></th><td><input class="form-control list-group-item-text" id="id_numbers" name="numbers" type="number" value="6" /></td></tr>
 <tr><th><label for="id_assign">分組方式:</label></th><td>
       			<div class="input-group">
     				<div id="radioBtn" class="btn-group">
@@ -23,9 +23,14 @@
   </td></tr>        
                 </td>
               </tr>
+<tr>
+<td>
+  </td>
+<td>
+              <input type="submit" value="送出"></td></tr>
             </table>
             {% csrf_token %}
-            <input type="submit" value="送出">
+
         </form>
 {% endblock %}
            
@@ -38,5 +43,7 @@ $('#radioBtn a').on('click', function(){
     $('a[data-toggle="'+tog+'"]').not('[data-title="'+sel+'"]').removeClass('active').addClass('notActive');
     $('a[data-toggle="'+tog+'"][data-title="'+sel+'"]').removeClass('notActive').addClass('active');
 })     
+
+$("#id_title").focus();
            
 {% endblock %}

@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^group/add/(?P<classroom_id>\d+)/$', login_required(views.GroupCreateView.as_view())),  
     url(r'^group/edit/(?P<classroom_id>\d+)/(?P<pk>\d+)/$', login_required(views.GroupUpdateView.as_view())),    
     url(r'^group/make/$', login_required(views.make)),   
+    url(r'^group/make2/(?P<group_id>\d+)/(?P<action>\d+)/$', login_required(views.make2)),     
     #設定助教
     url(r'^assistant/$', login_required(views.AssistantClassroomListView.as_view())),  
     url(r'^assistant/make/$', login_required(views.assistant_make), name='make'),     

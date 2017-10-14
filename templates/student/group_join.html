@@ -2,6 +2,10 @@
 {% load tag %}
 {% block content %}
 <button class="btn btn-success">{{group.title}}</button>
+						{% if request.user|has_group:"teacher" %}
+               {% if group.opening %}<a href="/teacher/group/make2/{{group.id}}/0" data-groupid="{{ group.id }}" data-action="close" class="open btn btn-info" role="button">進行分組中</a>{% else %}<a href="/teacher/group/make2/{{group.id}}/1" data-groupid="{{ group.id }}" data-action="open" class="open btn btn-default" role="button">分組已結束</a>{% endif %}
+            {% endif %}
+
         <div class="row">
           <table class="table">
 <tr>
@@ -13,7 +17,7 @@
 </tr>            
          {% for number, members in groups %}
 <tr>
-<td>第{{number}}組</td>   
+<td>第{{number|add:1}}組</td>   
 <td>{% for member in members%}<img src="/static/images/avatar/s{{ member.student.profile.avatar}}.png">({{member.seat}}){{member.student.first_name}}{% endfor %}</td>
   {% if group.opening %}
   <td><a href="/student/group/add/{{group_id}}/{{number}}/{{enroll_id}}">加入此組</a></td>
@@ -27,3 +31,4 @@
 ({{seat}}){{student.first_name}}         
 {% endfor %}
 {% endblock %}
+          

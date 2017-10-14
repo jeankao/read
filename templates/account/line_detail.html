@@ -31,7 +31,7 @@
 		      {% endfor %}
 
 {% if not request.user.id == message.author_id %}
-<h1><a href="/account/line/add/{{message.classroom_id|abs_filter}}/{{message.author_id}}">回覆訊息</a></h1>
+<h1><a href="/account/line/reply/{{message.classroom_id|abs_filter}}/{{message.author_id}}/{{message.id}}">回覆訊息</a></h1>
 {% endif %}
 {% if lists and message.type == 2 %}
         <h1>歷史私訊</h1>

@@ -530,14 +530,67 @@ class LineCreateView(CreateView):
         context['messages'] = messages
         return context	 
         
+#回覆一個私訊
+class LineReplyView(CreateView):
+    model = Message
+    context_object_name = 'messages'    
+    form_class = LineForm
+    template_name = 'account/line_form_reply.html'     
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        user_name = User.objects.get(id=self.request.user.id).first_name
+        self.object.title = u"[私訊]" + user_name + ":" + self.object.title
+        self.object.author_id = self.request.user.id
+        self.object.reader_id = self.kwargs['user_id']
+        self.object.type = 2
+        self.object.save()
+        self.object.url = "/account/line/detail/" + self.kwargs['classroom_id'] + "/" + str(self.object.id)
+        self.object.classroom_id = 0 - int(self.kwargs['classroom_id'])
+        self.object.save()
+        if self.request.FILES:
+            for file in self.request.FILES.getlist('files'):
+                content = MessageContent()
+                fs = FileSystemStorage()
+                filename = uuid4().hex
+                content.title = file.name
+                content.message_id = self.object.id
+                content.filename = str(self.request.user.id)+"/"+filename
+                fs.save("static/upload/"+str(self.request.user.id)+"/"+filename, file)
+                content.save()
+        # 訊息
+        messagepoll = MessagePoll(message_id=self.object.id, reader_id=self.kwargs['user_id'], message_type=2, classroom_id=0-int(self.kwargs['classroom_id']))
+        messagepoll.save()              
+        return redirect("/account/line/")      
+        
+    def get_context_data(self, **kwargs):
+        context = super(LineReplyView, self).get_context_data(**kwargs)
+        context['user_id'] = self.kwargs['user_id']
+        context['classroom_id'] = self.kwargs['classroom_id']
+        message = Message.objects.get(id=self.kwargs['message_id'])
+        title = "RE:" + message.title[message.title.find(":")+1:]
+        context['title'] = title
+        messagepolls = MessagePoll.objects.filter(reader_id=self.kwargs['user_id'],  classroom_id=0 - int(self.kwargs['classroom_id'])).order_by('-id')
+        messages = []
+        for messagepoll in messagepolls:
+            message = Message.objects.get(id=messagepoll.message_id)
+            if message.author_id == self.request.user.id :
+                messages.append([message, messagepoll.read])
+        context['messages'] = messages
+        return context	 
+			
 # 查看私訊內容
 def line_detail(request, classroom_id, message_id):
     message = Message.objects.get(id=message_id)
     files = MessageContent.objects.filter(message_id=message_id)
     messes = Message.objects.filter(author_id=message.author_id, reader_id=request.user.id).order_by("-id")
     try:
-        messagepoll = MessagePoll.objects.get(message_id=message_id, reader_id=request.user.id)
-        messagepoll.read = True
+        if message.type == 2:
+            messagepoll = MessagePoll.objects.get(message_id=message_id)
+        else:
+            messagepoll = MessagePoll.objects.get(message_id=message_id, reader_id=request.user.id)
+        if request.user.id == messagepoll.reader_id:
+            messagepoll.read = True
         messagepoll.save()
     except :
         messagepoll = MessagePoll()

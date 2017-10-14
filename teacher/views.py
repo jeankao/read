@@ -6,7 +6,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from teacher.models import Classroom, TWork, FWork, FClass, FContent, Assistant, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation, ClassroomGroup
 from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, StudentGroup
 from account.models import Domain, Level, Parent, Log, Message, MessagePoll, MessageContent
-from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm, CategroyForm, DeadlineForm, AnnounceForm, SpeculationForm, SpeculationContentForm, SpeculationAnnotationForm, GroupForm
+from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm, CategroyForm, DeadlineForm, AnnounceForm, SpeculationForm, SpeculationContentForm, SpeculationAnnotationForm, GroupForm, GroupForm2
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
@@ -1611,7 +1611,7 @@ class GroupCreateView(CreateView):
 			
 class GroupUpdateView(UpdateView):
     model = ClassroomGroup
-    form_class = GroupForm		
+    form_class = GroupForm2		
     template_name = 'form.html'
     def get_success_url(self):
         succ_url =  '/student/group/list/'+self.kwargs['pk']
@@ -1643,3 +1643,14 @@ def make(request):
         return JsonResponse({'status':'ok'}, safe=False)
     else:
         return JsonResponse({'status':'fail'}, safe=False) 
+			
+# 分組
+def make2(request, group_id, action):
+        group = ClassroomGroup.objects.get(id=group_id)	
+        if is_teacher(request.user, group.classroom_id) or is_assistant(request.user, group.classroom_id):
+            if action == '1':            
+                group.opening = True   
+            else : 
+                group.opening = False
+            group.save()      
+        return redirect("/student/group/list/"+str(group.id))

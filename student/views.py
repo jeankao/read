@@ -863,9 +863,9 @@ def group_list(request, group_id):
                 student_groups[enroll_group.group]=[enroll]	            
         for i in range(numbers):
             if i in student_groups:
-                groups.append([i+1, student_groups[i]])
+                groups.append([i, student_groups[i]])
             else:
-                groups.append([i+1, []])
+                groups.append([i, []])
 					
         #找出尚未分組的學生
         no_group = []
