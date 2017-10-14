@@ -127,7 +127,7 @@ class SpeculationAnnotationForm(forms.ModelForm):
 class GroupForm(forms.ModelForm):
         class Meta:
            model = ClassroomGroup
-           fields = ['title','numbers']
+           fields = ['title','numbers', 'assign']
         
         def __init__(self, *args, **kwargs):
             super(GroupForm, self).__init__(*args, **kwargs)

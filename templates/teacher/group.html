@@ -36,11 +36,11 @@
 		      if (previous_action == 'open') {
                $(launcher).removeClass("btn-default").addClass("btn-info");
                $(launcher).html("進行分組中");
-               $(launcher).data('action', 'open');
+               $(launcher).data('action', 'close');
            } else {
                $(launcher).removeClass("btn-info").addClass("btn-default");
                $(launcher).html("分組已結束");
-               $(launcher).data('action', 'close');               
+               $(launcher).data('action', 'open');               
            }
         } else {
 			   	alert("hello");

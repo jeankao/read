@@ -1585,13 +1585,16 @@ class GroupListView(ListView):
 class GroupCreateView(CreateView):
     model = ClassroomGroup
     form_class = GroupForm
-    template_name = 'form.html'    
+    template_name = 'teacher/group_form.html'    
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        # 隨機分組
+        if form.cleaned_data['assign'] == 1:
+            return redirect("/student")
         self.object.classroom_id = self.kwargs['classroom_id']
         if is_teacher(self.request.user, self.kwargs['classroom_id']) or is_assistant(self.request.user, self.kwargs['classroom_id']):
             self.object.save()
-        return redirect("/teacher/group/"+ self.kwargs['classroom_id'])   
+        return redirect("/student/group/list/"+ str(self.object.id))   
 			
     def get_context_data(self, **kwargs):
         context = super(GroupCreateView, self).get_context_data(**kwargs)

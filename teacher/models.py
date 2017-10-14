@@ -117,6 +117,8 @@ class ClassroomGroup(models.Model):
     numbers = models.IntegerField(default=6)
     #開放分組
     opening = models.BooleanField(default=True)
+		#分組方式
+    assign = models.IntegerField(default=0)
        
     def __unicode__(self):
         return self.classroom_id

@@ -874,7 +874,7 @@ def group_list(request, group_id):
                 no_group.append([enroll.seat, enroll.student])
     
   	    enroll_user = Enroll.objects.get(student_id=request.user.id, classroom_id=group.classroom_id)
-        return render_to_response('student/group_join.html', {'open':group.opening, 'groups':groups, 'enroll_id':enroll_user.id, 'student_groups':student_groups, 'no_group':no_group, 'classroom_id':group.classroom_id, 'group_id':group_id}, context_instance=RequestContext(request))
+        return render_to_response('student/group_join.html', {'group':group, 'groups':groups, 'enroll_id':enroll_user.id, 'student_groups':student_groups, 'no_group':no_group, 'classroom_id':group.classroom_id, 'group_id':group_id}, context_instance=RequestContext(request))
 
 			
 # 顯示所有組別
