@@ -89,12 +89,12 @@
  <button type="button" class="btn btn-success">{{title}}</button>
     <div class="funkyradio">
         <div class="funkyradio-primary">
-            <input class="groups" data-groupid="0" data-forumid="{{speculation.id}}" type="radio" name="radio" id="radio0" {% if speculation.group == 0 %} checked {% endif %}/>
+            <input class="groups" data-groupid="0" data-classroomid="{{speculation.classroom_id}}" data-forumid="{{speculation.forum_id}}" type="radio" name="radio" id="radio0" {% if speculation.group == 0 %} checked {% endif %}/>
             <label for="radio0">不使用分組</label>
         </div>
       {% for group in groups %}
         <div class="funkyradio-primary">
-            <input class="groups" data-groupid="{{ group.id }}" data-forumid="{{speculation.id}}" type="radio" name="radio" id="radio{{group.id}}" {% if speculation.group == group.id %} checked {% endif %}/>
+            <input class="groups" data-groupid="{{ group.id }}" data-classroomid="{{speculation.classroom_id}}" data-forumid="{{speculation.forum_id}}" type="radio" name="radio" id="radio{{group.id}}" {% if speculation.group == group.id %} checked {% endif %}/>
             <label for="radio{{group.id}}">{{group.title}}</label>
         </div>
       {% endfor %}
@@ -110,10 +110,12 @@
       {
         groupid: $(launcher).data('groupid'),
         forumid: $(launcher).data('forumid'),
+        classroomid: $(launcher).data('classroomid'),
       },
       function(data){
         if (data['status'] == 'ok')
         {
+
         } else {
 			   	alert("hello");
 	    	}
