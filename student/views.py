@@ -75,7 +75,12 @@ class ClassroomListView(ListView):
         enrolls = Enroll.objects.filter(student_id=self.request.user.id).order_by("-id")
         for enroll in enrolls :
           classroom = Classroom.objects.get(id=enroll.classroom_id)
-          queryset.append([enroll, classroom.teacher_id])
+          try:
+              assistant = Assistant.objects.get(user_id=enroll.student_id, classroom_id=enroll.classroom_id)
+              ast = True
+          except ObjectDoesNotExist:
+              ast = False
+          queryset.append([enroll, classroom.teacher_id, ast])
         return queryset         			
     
 # 查看可加入的班級

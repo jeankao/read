@@ -60,6 +60,15 @@ def has_group(user, group_name):
         group = None
     return group in user.groups.all()
   
+@register.filter(name='teacher') 
+def teacher(user_id):
+    try:
+        group =  Group.objects.get(name="teacher") 
+    except ObjectDoesNotExist:
+        group = None
+    user = User.objects.get(id=user_id)
+    return group in user.groups.all()
+	
 @register.filter(name='assistant') 
 def assistant(user_id):
     assistants = Assistant.objects.filter(user_id=user_id)
