@@ -36,6 +36,7 @@ from datetime import datetime
 import docx 
 import os.path
 from django.utils.dateparse import parse_date
+from random import shuffle
 
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
@@ -1588,12 +1589,20 @@ class GroupCreateView(CreateView):
     template_name = 'teacher/group_form.html'    
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        # 隨機分組
-        if form.cleaned_data['assign'] == 1:
-            return redirect("/student")
         self.object.classroom_id = self.kwargs['classroom_id']
         if is_teacher(self.request.user, self.kwargs['classroom_id']) or is_assistant(self.request.user, self.kwargs['classroom_id']):
             self.object.save()
+            # 隨機分組
+            if form.cleaned_data['assign'] == 1:
+                enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id'], seat__gt=0).order_by('?')
+                number = 0
+                for enroll in enrolls:
+                    group = StudentGroup(group_id=self.object.id, enroll_id=enroll.id, group=(number % self.object.numbers))
+                    group.save()
+                    number += 1
+                self.object.opening=False
+                self.object.save()
+                
         return redirect("/student/group/list/"+ str(self.object.id))   
 			
     def get_context_data(self, **kwargs):

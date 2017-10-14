@@ -862,8 +862,8 @@ def group_list(request, group_id):
             else:
                 student_groups[enroll_group.group]=[enroll]	            
         for i in range(numbers):
-            if i+1 in student_groups:
-                groups.append([i+1, student_groups[i+1]])
+            if i in student_groups:
+                groups.append([i+1, student_groups[i]])
             else:
                 groups.append([i+1, []])
 					
