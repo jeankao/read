@@ -179,7 +179,7 @@ def in_deadline(forum_id, classroom_id):
 
 @register.filter
 def alert(deadline):
-    if (deadline - timezone.now()).days < 2 and (deadline - timezone.now()) > 0:
+    if (deadline - timezone.now()).days < 2 and deadline > timezone.now():
         return True
     else:
         return False
