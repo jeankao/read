@@ -12,7 +12,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ObjectDoesNotExist
 import re
 import json
-
+from datetime import timedelta
 register = template.Library()
 
 @register.filter
@@ -177,6 +177,17 @@ def in_deadline(forum_id, classroom_id):
             return fclass.deadline_date
     return ""
 
+@register.filter
+def alert(deadline):
+    if (deadline - timezone.now()).days < 2:
+        return True
+    else:
+        return False
+	
+@register.filter
+def due(deadline):
+    return str(deadline-timezone.now()).split('.')[0]
+			
 @register.filter
 def in_deadline_speculation(forum_id, classroom_id):
     try:

@@ -78,12 +78,12 @@ class ClassroomListView(ListView):
             classrooms = Classroom.objects.filter(teacher_id=self.request.user.id)
             for classroom in classrooms:
                 classroom_ids.append(classroom.id)
-            enrolls = Enroll.objects.filter(classroom_id__in=classroom_ids, student_id=self.request.user.id)
+            enrolls = Enroll.objects.filter(classroom_id__in=classroom_ids, student_id=self.request.user.id).order_by("-id")
         elif self.kwargs['role'] == "2":
             assistants = Assistant.objects.filter(user_id=self.request.user.id)
             for assistant in assistants:
                 classroom_ids.append(assistant.classroom_id)
-            enrolls = Enroll.objects.filter(classroom_id__in=classroom_ids, student_id=self.request.user.id)
+            enrolls = Enroll.objects.filter(classroom_id__in=classroom_ids, student_id=self.request.user.id).order_by("-id")
         else :
             enrolls = Enroll.objects.filter(student_id=self.request.user.id, seat__gt=0).order_by("-id")
         for enroll in enrolls:
