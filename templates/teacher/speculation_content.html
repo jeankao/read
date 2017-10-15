@@ -30,7 +30,7 @@
     <A href="/teacher/speculation/content/delete/{{forum_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
     <a href="/teacher/speculation/content/edit/{{forum_id}}/{{work.id}}"><img src="/static/images/edit.gif"> 編輯</a>
 </div>
-  <div class="panel-body"> <img src="/static/upload/{{work.filename}}"></div>                        
+  <div class="panel-body"> <img style="max-width: 100%" src="/static/upload/{{work.filename}}"></div>                        
               {% elif work.types == 4 %}
   <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button> 外部網址 
     <A href="/teacher/speculation/content/delete/{{forum_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
