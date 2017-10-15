@@ -61,7 +61,7 @@ Annotator.Plugin.Message = function(element, types) {
           load: function(field, annotation) {
             typeid = annotation['atype'] || 0;
             field = $(field);
-            if (type = types['t' + typeid])
+            if ((type = types['t' + typeid]) || 0)
               return field.addClass('annotator-hl atype-' + typeid).html(type.kind);
             return field.html('類別尚未指定');
           },

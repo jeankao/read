@@ -1,10 +1,8 @@
 Annotator.Plugin.Image = function (element, types) {
   if ($('img', element).length === 0)
     return;
-
   return {
     traceMouse: false,
-    annotations: [],
     pluginInit: function() {
       if (!Annotator.supported())
         return;
@@ -15,15 +13,14 @@ Annotator.Plugin.Image = function (element, types) {
       var imgHeight = $('img', element).height();
       var type_count = 0;
       var highlights = [];
-      let _annotations = this.annotations = [];
       
       for (let xi in types)
         type_count++;
-
+      
       function modifyHighlightColor(annotation) {
         let highlight = highlights['d'+annotation.id];
         if (highlight && type_count > 0) {
-          $(highlight).css('border-color', types['t'+annotation.atype].color);
+          $(highlight.div).css('border-color', types['t'+annotation.atype].color);
         }
       }
       
@@ -39,11 +36,27 @@ Annotator.Plugin.Image = function (element, types) {
         if (annotation) {
           $(div).data('annotation', annotation)
             .data('annotation-id', annotation.id);
-          if (!annotation.id) {
-            console.log(annotation, annotation.id, annotation.shapes, annotation.text);
-          }
-          highlights['d'+annotation.id] = div;
+          div.rect = {left: left, top: top, right: left+width, bottom: top+height};
+          highlights['d'+annotation.id] = {'div': div, 'annotation': annotation};
           modifyHighlightColor(annotation);
+          $(div).off('mouseover');
+          $(div).on('mouseover', function(event) {
+            var pos = $(event.target).position();
+            var x = pos.left + event.offsetX;
+            var y = pos.top + event.offsetY;
+            var annotations = [];
+            for (let i in highlights) {
+              let highlight = highlights[i];
+              let rect = highlight.div.rect;
+              if (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom)
+                annotations.push(highlight.annotation);
+            }
+            if (annotations.length > 1) {
+              window.setTimeout(function() {
+                annotator.showViewer(annotations, {left: x, top: y});
+              }, 100);
+            }
+          });
         }
         return div;
       }
@@ -131,7 +144,7 @@ Annotator.Plugin.Image = function (element, types) {
       this.annotator.subscribe("annotationDeleted", function(annotation) {
         let highlight = highlights['d'+annotation.id];
         if (highlight) {
-          $(highlight).remove();
+          $(highlight.div).remove();
           delete highlights['d'+annotation.id];
         }
       });
