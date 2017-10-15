@@ -9,7 +9,7 @@ urlpatterns = [
     # 選課
     url(r'^classroom/enroll/(?P<classroom_id>[^/]+)/$', login_required(views.classroom_enroll)),      
     url(r'^classroom/add/$', login_required(views.ClassroomAddListView.as_view())),  
-    url(r'^classroom/$', login_required(views.ClassroomListView.as_view())),
+    url(r'^classroom/(?P<role>\d+)/$', login_required(views.ClassroomListView.as_view())),
 		url(r'^classroom/seat/(?P<enroll_id>\d+)/(?P<classroom_id>\d+)/$', login_required(views.seat_edit), name='seat_edit'),
     # 同學
     url(r'^classmate/(?P<classroom_id>\d+)/$', login_required(views.classmate)), 

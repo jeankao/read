@@ -72,16 +72,28 @@ class ClassroomListView(ListView):
     
     def get_queryset(self):
         queryset = []
-        enrolls = Enroll.objects.filter(student_id=self.request.user.id).order_by("-id")
-        for enroll in enrolls :
-          classroom = Classroom.objects.get(id=enroll.classroom_id)
-          try:
-              assistant = Assistant.objects.get(user_id=enroll.student_id, classroom_id=enroll.classroom_id)
-              ast = True
-          except ObjectDoesNotExist:
-              ast = False
-          queryset.append([enroll, classroom.teacher_id, ast])
+        classroom_ids = []
+        #教師班級
+        if self.kwargs['role'] == "1":
+            classrooms = Classroom.objects.filter(teacher_id=self.request.user.id)
+            for classroom in classrooms:
+                classroom_ids.append(classroom.id)
+            enrolls = Enroll.objects.filter(classroom_id__in=classroom_ids, student_id=self.request.user.id)
+        elif self.kwargs['role'] == "2":
+            assistants = Assistant.objects.filter(user_id=self.request.user.id)
+            for assistant in assistants:
+                classroom_ids.append(assistant.classroom_id)
+            enrolls = Enroll.objects.filter(classroom_id__in=classroom_ids, student_id=self.request.user.id)
+        else :
+            enrolls = Enroll.objects.filter(student_id=self.request.user.id, seat__gt=0).order_by("-id")
+        for enroll in enrolls:
+            queryset.append([enroll, Classroom.objects.get(id=enroll.classroom_id).teacher_id])
         return queryset         			
+			
+    def get_context_data(self, **kwargs):
+        context = super(ClassroomListView, self).get_context_data(**kwargs)
+        context['role'] = self.kwargs['role']
+        return context	
     
 # 查看可加入的班級
 class ClassroomAddListView(ListView):

@@ -92,7 +92,7 @@ Licence URI: http://www.os-templates.com/template-terms
 						                        </ul>
                     </li>
 										
-			<li><a href="/student/classroom"><img src="/static/images/icon_class.png"> 班級</a></li>
+			<li><a href="/student/classroom/{% if request.user|has_group:'teacher' %}1{% else %}0{% endif %}"><img src="/static/images/icon_class.png"> 班級</a></li>
 						            <li class="dropdown">
                         <a href="#" data-toggle="dropdown" class="dropdown-toggle"><img  width=16 src="/static/images/icon_doc.png">檔案	<b class="caret"></b></a>
                         <ul class="dropdown-menu">

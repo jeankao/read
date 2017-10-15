@@ -11,14 +11,13 @@
 {% endblock %}
 {% block content %}
 <div class="row">
-<a href="add" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 加入班級</a>
+<a href="/student/classroom/add" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 加入班級</a>
 	{% if request.user.id|teacher or request.user.id|assistant %}
-<a href="#" class="teacher btn btn-info" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 教師班級</a>
-<a href="#" class="assistant btn btn-default" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 助教班級</a>
-<a href="#" class="student btn btn-default" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 學生班級</a>
-	<div id="teacher">
-	{% for enroll, teacher_id, ast in enrolls %}
-	{% if request.user.id == teacher_id %}
+<a href="/student/classroom/1" class="btn btn-{% if role == '1' %}info{% else %}default{% endif %}" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 教師班級</a>
+<a href="/student/classroom/2" class="btn btn-{% if role == '2' %}info{% else %}default{% endif %}" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 助教班級</a>
+<a href="/student/classroom/0" class="btn btn-{% if role == '0' %}info{% else %}default{% endif %}" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 學生班級</a>
+{% endif %}
+	{% for enroll, teacher_id in enrolls %}
 		<div class="panel panel-default">
 			<div class="panel-heading">{{enroll.classroom}}--{{teacher_id|realname}}老師</div>
 			<div class="panel-body">
@@ -31,107 +30,11 @@
 				<a href="/student/speculation/{{enroll.classroom_id}}/0" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span> 思辨區</a>
 			</div>
 		</div>
-		{% endif %}
 		{% endfor %}
 	</div>
-	
-	<div id="assistant">
-	{% for enroll, teacher_id, ast in enrolls %}
-	{% if ast %}
-		<div class="panel panel-default">
-			<div class="panel-heading">{{enroll.classroom}}--{{teacher_id|realname}}老師</div>
-			<div class="panel-body">
-				<a href="/student/classroom/seat/{{enroll.id}}/{{enroll.classroom_id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> 座號</a>
-				<a href="/student/classmate/{{enroll.classroom_id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-phone-alt" aria-hidden="true"></span> 同學</a>
-				<a href="/account/line/class/{{enroll.classroom_id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> 私訊</a>
-				<a href="/student/group/{{enroll.classroom_id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> 分組</a>
-				<a href="/student/announce/{{enroll.classroom_id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> 公告</a>				
-				<a href="/student/forum/{{enroll.classroom_id}}/0" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span> 討論區</a>
-				<a href="/student/speculation/{{enroll.classroom_id}}/0" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span> 思辨區</a>
-				<!--
-				<a href="/student/work/{{enroll.classroom_id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span> 專題</a>
--->
-			</div>
-		</div>
-		{% endif %}
-		{% endfor %}
-	</div>
-	
-		<div id="student">
-	{% for enroll, teacher_id, ast in enrolls %}
-	{% if not ast and not request.user.id == teacher_id %}
-		<div class="panel panel-default">
-			<div class="panel-heading">{{enroll.classroom}}--{{teacher_id|realname}}老師</div>
-			<div class="panel-body">
-				<a href="/student/classroom/seat/{{enroll.id}}/{{enroll.classroom_id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> 座號</a>
-				<a href="/student/classmate/{{enroll.classroom_id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-phone-alt" aria-hidden="true"></span> 同學</a>
-				<a href="/account/line/class/{{enroll.classroom_id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> 私訊</a>
-				<a href="/student/group/{{enroll.classroom_id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> 分組</a>
-				<a href="/student/announce/{{enroll.classroom_id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> 公告</a>				
-				<a href="/student/forum/{{enroll.classroom_id}}/0" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span> 討論區</a>
-				<a href="/student/speculation/{{enroll.classroom_id}}/0" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span> 思辨區</a>
-				<!--
-				<a href="/student/work/{{enroll.classroom_id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span> 專題</a>
--->
-			</div>
-			</div>
-		{% endif %}
-		{% endfor %}
-	</div>
-
-	{% else %}
-	{% for enroll, teacher_id, ast in enrolls %}
-		<div class="panel panel-default">
-			<div class="panel-heading">{{enroll.classroom}}--{{teacher_id|realname}}老師</div>
-			<div class="panel-body">
-				<a href="/student/classroom/seat/{{enroll.id}}/{{enroll.classroom_id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> 座號</a>
-				<a href="/student/classmate/{{enroll.classroom_id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-phone-alt" aria-hidden="true"></span> 同學</a>
-				<a href="/account/line/class/{{enroll.classroom_id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> 私訊</a>
-				<a href="/student/group/{{enroll.classroom_id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> 分組</a>
-				<a href="/student/announce/{{enroll.classroom_id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> 公告</a>				
-				<a href="/student/forum/{{enroll.classroom_id}}/0" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span> 討論區</a>
-				<a href="/student/speculation/{{enroll.classroom_id}}/0" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span> 思辨區</a>
-				<!--
-				<a href="/student/work/{{enroll.classroom_id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span> 專題</a>
--->
-			</div>
-	</div>
-		{% endfor %}
-	{% endif %}
 					</div>
 		{% load pagination %}
     {% get_pagination %}
 
 	{% endblock %}		
 	
-{% block domready %}
-	  $(document).ready(function(){
-
-    $(".teacher").click(function(){
-	   $(".teacher").removeClass("btn-default").addClass("btn-info");
-	   $(".assistant").removeClass("btn-info").addClass("btn-default");	
-	   $(".student").removeClass("btn-info").addClass("btn-default");		
-     $("#teacher").show();
-	   $("#assistant").hide();
-	   $("#student").hide();	
-    });
-
-    $(".assistant").click(function(){
-	   $(".teacher").removeClass("btn-info").addClass("btn-default");
-	   $(".assistant").removeClass("btn-default").addClass("btn-info");	
-	   $(".student").removeClass("btn-info").addClass("btn-default");		
-     $("#teacher").hide();
-	   $("#assistant").show();
-	   $("#student").hide();	
-    });
-	
-	  $(".student").click(function(){
-	   $(".teacher").removeClass("btn-info").addClass("btn-default");
-	   $(".assistant").removeClass("btn-info").addClass("btn-default");	
-	   $(".student").removeClass("btn-default").addClass("btn-info");		
-     $("#teacher").hide();
-	   $("#assistant").hide();
-	   $("#student").show();	
-    });
-  });
-	{% endblock %}
