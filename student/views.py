@@ -23,6 +23,7 @@ from django.http import HttpResponse
 from django.db.models import F
 from account.avatar import *
 from django.db.models import Q
+import os
 
 def is_event_open(request):
 		return True
