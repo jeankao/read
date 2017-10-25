@@ -518,7 +518,7 @@ def forum_score(request):
     user_id = request.POST.get('userid')  		
     score = request.POST.get('score')
     comment = request.POST.get('comment')		
-    if work_id :
+    if work_id and is_teacher(classroom_id, request.user.id):
         sfwork = SFWork.objects.get(id=work_id)
         sfwork.score = score
         sfwork.comment = comment

@@ -126,7 +126,7 @@
 							<button class="reply_submit" data-workid={{last.id}} data-classroomid={{enroll.classroom_id}} data-forumid={{last.index}} data-userid={{request.user.id}}>送出</button>
 
 						</div>						
-<div class="blockquote" {% if not last.comment %} style="display:none" {% endif %}>
+<div class="teacher_blockquote" {% if not last.comment %} style="display:none" {% endif %}>
 <blockquote>
   <p class="teacher_comment">{{last.comment}}</p>
   <footer>教師評語：{{last.scorer|realname}} <cite title="Source Title" class="teacher_comment_date">{{last.comment_publication_date}}</cite></footer>
@@ -316,7 +316,7 @@ $(document).ready(function () {
         {
             $(launcher).parent().hide();
             blockquote = '<blockquote><p>'+ $(launcher).parent().find("textarea").val()+'</p><footer>{{request.user.id|realname}} <cite title="Source Title">'+Date().toString()+'</cite></footer></blockquote>'	
-	          $(launcher).parent().parent().find("#blockquote").html(blockquote+$(launcher).parent().parent().find("#blockquote").html());
+	          $(launcher).parent().parent().parent().find("#blockquote").html(blockquote+$(launcher).parent().parent().parent().find("#blockquote").html());
             reply_count = parseInt($(launcher).parent().parent().find('#reply_count').html()) + 1;
             $(launcher).parent().parent().find('#reply_count').html(reply_count);	
             $('a.btn.reply').attr('disabled', true);
@@ -522,8 +522,10 @@ $(function(){
 			} else {
 			$(launcher).parent().parent().parent().parent().parent().parent().parent().find('.star1').removeClass("checked")
 			}
+			if (comment.length > 0) {
 			$(launcher).parent().parent().parent().parent().parent().parent().parent().find('p.teacher_comment').text(comment);
-			$(launcher).parent().parent().parent().parent().parent().parent().parent().find('.blockquote').show();			
+			$(launcher).parent().parent().parent().parent().parent().parent().parent().find('.teacher_blockquote').show();			
+			}
         } else {
 			   	alert("hello!");
 	    	}
