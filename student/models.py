@@ -48,6 +48,8 @@ class SFWork(models.Model):
     reply_date = models.DateTimeField(default=timezone.now)
     score = models.IntegerField(default=0)
     scorer = models.IntegerField(default=0)
+    comment = models.TextField(default='',null=True,blank=True)
+    comment_publication_date = models.DateTimeField(default=timezone.now)		
     likes = models.TextField(default='')
     like_count = models.IntegerField(default=0)	
     reply = models.IntegerField(default=0)

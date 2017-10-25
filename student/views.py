@@ -514,11 +514,16 @@ def forum_people(request):
 
 def forum_score(request):
     work_id = request.POST.get('workid')  
+    classroom_id = request.POST.get('classroomid')  
+    user_id = request.POST.get('userid')  		
     score = request.POST.get('score')
-    if work_id:
+    comment = request.POST.get('comment')		
+    if work_id :
         sfwork = SFWork.objects.get(id=work_id)
         sfwork.score = score
+        sfwork.comment = comment
         sfwork.scorer = request.user.id
+        sfwork.comment_publication_date = timezone.now()
         sfwork.save()
         return JsonResponse({'status':'ok'}, safe=False)
     else:
