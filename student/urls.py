@@ -3,7 +3,7 @@ from django.conf.urls import url
 from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
-from student.views import ForumListView, AnnounceListView, SpeculationListView, SpeculationAnnotateView, SpeculationAnnotateClassView, GroupListView
+from student.views import ForumListView, AnnounceListView, SpeculationListView, SpeculationAnnotateView, SpeculationAnnotateClassView, GroupListView, ExamListView
 
 urlpatterns = [
     # 選課
@@ -46,4 +46,7 @@ urlpatterns = [
 	  url(r'^speculation/annotateclass/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<id>\d+)/$', login_required(SpeculationAnnotateClassView.as_view()), name='speculation-annotate-class'), 		
 	  url(r'^speculation/download/(?P<file_id>\d+)/$', views.speculation_download, name='forum-download'), 
 	  url(r'^speculation/showpic/(?P<file_id>\d+)/$', login_required(views.speculation_showpic), name='forum-showpic'), 		
+	  #測驗
+	  url(r'^exam/(?P<classroom_id>\d+)/$', login_required(ExamListView.as_view())), 
+	  url(r'^exam/question/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<question_id>\d+)$', login_required(views.exam_question)), 	
 ]

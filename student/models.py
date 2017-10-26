@@ -115,3 +115,16 @@ class StudentGroup(models.Model):
         unique_together = ('enroll_id', 'group_id',)				
 
     
+#測驗
+class ExamWork(models.Model):
+    student_id = models.IntegerField(default=0)
+    exam_id = models.IntegerField()    
+    publish = models.BooleanField(default=False)
+    publication_date = models.DateTimeField(default=timezone.now)
+    score = models.IntegerField(default=0)
+    scorer = models.IntegerField(default=0)
+		
+    def __unicode__(self):
+        user = User.objects.filter(id=self.student_id)[0]
+        index = self.index
+        return user.first_name+"("+str(index)+")"		

@@ -3,8 +3,8 @@ from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, CreateView
-from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, SSpeculationWork, SSpeculationContent, StudentGroup
-from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant, SpeculationClass, SpeculationWork, SpeculationContent, SpeculationAnnotation, ClassroomGroup
+from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, SSpeculationWork, SSpeculationContent, StudentGroup, ExamWork
+from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant, SpeculationClass, SpeculationWork, SpeculationContent, SpeculationAnnotation, ClassroomGroup, Exam, ExamClass, ExamQuestion
 from account.models import VisitorLog,  Profile, Parent, Log, Message, PointHistory, MessagePoll
 from student.forms import EnrollForm, SeatForm, ForumSubmitForm, SpeculationSubmitForm
 from django.core.exceptions import ObjectDoesNotExist
@@ -911,3 +911,53 @@ def group_join(request, group_id, number, enroll_id):
         group.save()			
 			
     return redirect("/student/group/list/"+group_id)
+	
+# 列出所有討論測驗
+class ExamListView(ListView):
+    model = Exam
+    context_object_name = 'exams'
+    template_name = 'student/exam_list.html'    
+    
+    def get_queryset(self):
+        queryset = []
+        examclass_dict = dict(((examclass.exam_id, examclass) for examclass in ExamClass.objects.filter(classroom_id=self.kwargs['classroom_id'])))	
+        #fclasses = FClass.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("-id")
+        exams = Exam.objects.filter(id__in=examclass_dict.keys()).order_by("-id")
+        examwork_pool = ExamWork.objects.filter(student_id=self.request.user.id).order_by("-id")
+        for exam in exams:
+            examworks = filter(lambda w: w.index==exam.id, examwork_pool)
+            if len(examworks)> 0 :
+                queryset.append([exam, examworks[0].publish, examclass_dict[exam.id], len(examworks)])
+            else :
+                queryset.append([exam, False, examclass_dict[exam.id], 0])
+        def getKey(custom):
+            return custom[2].publication_date, custom[2].exam_id
+        queryset = sorted(queryset, key=getKey, reverse=True)	
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super(ExamListView, self).get_context_data(**kwargs)
+        context['classroom_id'] = self.kwargs['classroom_id']
+        context['examclasses'] = dict(((examclass.exam_id, examclass) for examclass in ExamClass.objects.filter(classroom_id=self.kwargs['classroom_id'])))
+        return context	    
+
+    # 限本班同學
+    def render_to_response(self, context):
+        try:
+            enroll = Enroll.objects.get(student_id=self.request.user.id, classroom_id=self.kwargs['classroom_id'])
+        except ObjectDoesNotExist :
+            return redirect('/')
+        return super(ExamListView, self).render_to_response(context)    	
+			
+def exam_question(request, classroom_id, exam_id, question_id):
+    exam = Exam.objects.get(id=exam_id)
+    questions = ExamQuestion.objects.filter(exam_id=exam_id).order_by("id")
+    question_ids = []
+    for question in questions:
+        question_ids.append(question.id)
+    if not question_id == "0":
+        question = ExamQuestion.objects.get(id=question_id)
+    else :
+        question = ExamQuestion(exam_id=exam_id)
+    return render_to_response('student/exam_question.html', {'exam':exam, 'question_ids':question_ids, 'question':question, 'question_id':question_id}, context_instance=RequestContext(request))
+			
