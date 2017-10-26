@@ -9,6 +9,7 @@ from teacher.views import ForumListView, ForumCreateView, ForumContentListView, 
 from teacher.views import AssistantListView, ForumAllListView, ForumEditUpdateView, AnnounceCreateView
 from teacher.views import SpeculationListView, SpeculationCreateView, SpeculationContentListView, SpeculationContentCreateView, SpeculationClassListView
 from teacher.views import SpeculationAllListView, SpeculationEditUpdateView, SpeculationAnnotationListView, SpeculationAnnotationCreateView
+from teacher.views import ExamListView, ExamCreateView, ExamEditUpdateView, ExamClassListView, ExamQuestionListView, ExamQuestionCreateView
 
 urlpatterns = [
     url(r'^member/$', login_required(views.TeacherListView.as_view())),
@@ -89,5 +90,18 @@ urlpatterns = [
     url(r'^speculation/annotation/add/(?P<forum_id>\d+)/$', login_required(SpeculationAnnotationCreateView.as_view()), name='forum-content-add'),
     url(r'^speculation/annotation/delete/(?P<forum_id>\d+)/(?P<content_id>\d+)/$', login_required(views.speculation_annotation_delete), name='forum-content-delete'),   
     url(r'^speculation/annotation/edit/(?P<forum_id>\d+)/(?P<content_id>\d+)/$', login_required(views.speculation_annotation_edit), name='forum-content-edit'),    
-
+    #  測驗區
+    url(r'^exam/(?P<classroom_id>\d+)/$', login_required(ExamListView.as_view())),
+    url(r'^exam/add/(?P<classroom_id>\d+)/$', login_required(ExamCreateView.as_view())),
+    url(r'^exam/edit/(?P<classroom_id>\d+)/(?P<pk>\d+)/$', login_required(ExamEditUpdateView.as_view())),   
+    url(r'^exam/category/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/$', login_required(views.exam_categroy)),  
+    url(r'^exam/class/(?P<exam_id>\d+)/$',  login_required(ExamClassListView.as_view())), 
+    url(r'^exam/class/switch/$', login_required(views.exam_switch)),        
+    url(r'^exam/deadline/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/$', login_required(views.exam_deadline)),  
+    url(r'^exam/deadline/set/$', login_required(views.exam_deadline_set)), 
+    url(r'^exam/deadline/date/$', login_required(views.exam_deadline_date)),   
+    url(r'^exam/question/(?P<exam_id>\d+)/$', login_required(ExamQuestionListView.as_view())), 
+    url(r'^exam/question/add/(?P<exam_id>\d+)/$', login_required(ExamQuestionCreateView.as_view())),
+    url(r'^exam/question/delete/(?P<exam_id>\d+)/(?P<question_id>\d+)/$', login_required(views.exam_question_delete)),   
+    url(r'^exam/question/edit/(?P<exam_id>\d+)/(?P<question_id>\d+)/$', login_required(views.exam_question_edit)),  
 ]

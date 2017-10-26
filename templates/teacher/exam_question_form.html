@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load tag %}
+{% block header %}
+<style class="cp-pen-styles">
+ul.tabs {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+ul.tabs li {
+  border: gray solid 1px;
+  border-bottom: none;
+  float: left;
+  margin: 0 .25em 0 0;
+  padding: .25em .5em;
+}
+ul.tabs li a {
+  color: gray;
+  font-weight: bold;
+  text-decoration: none;
+}
+ul.tabs li.active {
+  background: gray;
+}
+ul.tabs li.active a {
+  color: white;
+}
+.clr {
+  clear: both;
+}
+article {
+  border-top: gray solid 1px;
+  padding: 0 1em;
+}</style>
+<script>
+
+$(function () {
+    $('.block article').hide();
+    var defaultTab = $('ul.tabs li:first');
+    var defaultArticle = $('.block article:first');
+    if (location.hash && $(location.hash)) {
+        $('ul.tabs li a').each(function(index, element){
+            if($(element).attr('href') === location.hash) {
+                defaultTab = $(element).parent();
+                defaultArticle = $(location.hash);
+            }
+        });
+        location.hash = ""
+    }
+    $(defaultTab).addClass('active');
+    $(defaultArticle).show();
+    $('ul.tabs li').on('click', function () {
+        $('ul.tabs li').removeClass('active');
+        $(this).addClass('active');
+        $('.block article').hide();
+        var activeTab = $(this).find('a').attr('href');
+        $(activeTab).show();
+        return false;
+    });
+});
+//# sourceURL=pen.js
+
+</script>
+{% endblock %}
+{% block content %}
+<a href="" class="btn btn-success" role="btn">{{exam.title}}</a>
+<section class="wrapper">
+<ul class="tabs">
+    <li><a href="#tab1">是非題</a></li>
+    <li><a href="#tab2">選擇題</a></li>
+  </ul>
+  <div class="clr"></div>
+  <section class="block">
+    <article id="tab1">
+      <BR>
+         <form action=""  method="post"  enctype="multipart/form-data">
+           <input type=hidden name=types value="1">
+           <input type=hidden name=forum_id value={{forum.id}}>
+           文章褾題:<input id="id_content_title" maxlength="250" name="title" type="text" placeholder="開啟連結" class="form-control list-group-item-text">
+           文章網址:<input id="id_content_link" maxlength="250" name="link" type="text" class="form-control list-group-item-text">
+        說明：<textarea name="memo" id="memo" cols="30" rows="10" class="form-control list-group-item-text"></textarea>
+           {% csrf_token %}<input type="submit" value="送出">
+        </form>
+    </article>
+<!--------------------------------------------------------->
+    <article id="tab2">
+      <BR>
+    <form action=""  method="post" enctype="multipart/form-data">
+           <input type=hidden name=types value="2">
+           <input type=hidden name=forum_id value={{forum.id}}>           
+           影片網址：<input id="id_content_youtube" maxlength="250" name="youtube" type="text" class="form-control list-group-item-text"/>
+        說明：<textarea name="memo" id="memo" cols="30" rows="10" class="form-control list-group-item-text"></textarea>
+
+      <input type="submit" value="送出">
+            {% csrf_token %}         
+        </form>
+    </article>
+<!--------------------------------------------------------->
+</section>
+{% endblock %}
+      	{% block domready %}
+	    $('body').css('background-image','url(/static/images/back1.gif)');
+	{% endblock %}

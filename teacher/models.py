@@ -122,3 +122,34 @@ class ClassroomGroup(models.Model):
        
     def __unicode__(self):
         return self.classroom_id
+
+#測驗
+class Exam(models.Model):
+    title = models.CharField(max_length=250,verbose_name= '測驗主題')
+    user_id = models.IntegerField(default=0)		
+    classroom_id = models.IntegerField(default=0)
+    time = models.DateTimeField(default=timezone.now) 
+    domains = models.TextField(default='')    
+    levels = models.TextField(default='')    	
+	
+class ExamClass(models.Model):
+    exam_id = models.IntegerField(default=0)
+    classroom_id =  models.IntegerField(default=0)
+    publication_date = models.DateTimeField(default=timezone.now)
+    deadline = models.BooleanField(default=False)
+    deadline_date = models.DateTimeField(default=get_deadline)
+	
+    def __unicode__(self):
+        return str(self.exam_id)
+			
+class ExamQuestion(models.Model):
+    exam_id = models.IntegerField(default=0)
+    types = models.IntegerField(default=0)
+    title = models.TextField(default='')    		
+    option1 = models.CharField(max_length=250,null=True,blank=True)
+    option2 = models.CharField(max_length=250,null=True,blank=True)		
+    option3 = models.CharField(max_length=250,null=True,blank=True)		
+    option4 = models.CharField(max_length=250,null=True,blank=True)		
+    answer = models.IntegerField(default=0)		
+    answer_text = models.TextField(default='')    				
+		

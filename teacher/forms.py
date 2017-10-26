@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from account.models import Message
-from teacher.models import Classroom, TWork, FWork, FContent, FClass, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation, ClassroomGroup
+from teacher.models import Classroom, TWork, FWork, FContent, FClass, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation, ClassroomGroup, Exam, ExamClass, ExamQuestion
 
 
 # 新增一個課程表單
@@ -17,16 +17,16 @@ class ClassroomForm(forms.ModelForm):
             self.fields['name'].widget.attrs.update({'class' : 'form-control list-group-item-text'})						
 						
 # 新增一個課程表單
-class CategroyForm(forms.ModelForm):
+class ForumCategroyForm(forms.ModelForm):
         class Meta:
            model = FWork
            fields = ['domains', 'levels']
         
         def __init__(self, *args, **kwargs):
-            super(CategroyForm, self).__init__(*args, **kwargs)			
+            super(ForumCategroyForm, self).__init__(*args, **kwargs)			
 						
 # 新增一個繳交期長表單
-class DeadlineForm(forms.ModelForm):
+class ForumDeadlineForm(forms.ModelForm):
         class Meta:
            model = FClass
            fields = ['deadline', 'deadline_date']
@@ -144,3 +144,48 @@ class GroupForm2(forms.ModelForm):
             super(GroupForm2, self).__init__(*args, **kwargs)
             self.fields['title'].label = "分組名稱"							
             self.fields['numbers'].label = "分組數目"	
+
+# 新增一個測驗
+class ExamForm(forms.ModelForm):
+        class Meta:
+           model = Exam                    
+           fields = ['title']
+        
+        def __init__(self, *args, **kwargs):
+            super(ExamForm, self).__init__(*args, **kwargs)
+            self.fields['title'].label = "測驗主題"
+            self.fields['title'].widget.attrs.update({'class' : 'form-control list-group-item-text'})							
+												
+# 新增一個測驗分類表單
+class ExamCategroyForm(forms.ModelForm):
+        class Meta:
+           model = Exam
+           fields = ['domains', 'levels']
+        
+        def __init__(self, *args, **kwargs):
+            super(ExamCategroyForm, self).__init__(*args, **kwargs)										
+
+# 新增一個繳交期長表單
+class ExamDeadlineForm(forms.ModelForm):
+        class Meta:
+           model = ExamClass
+           fields = ['deadline', 'deadline_date']
+        
+        def __init__(self, *args, **kwargs):
+            super(ExamDeadlineForm, self).__init__(*args, **kwargs)								
+						
+# 新增一個題目
+class ExamQuestionForm(forms.ModelForm):
+        class Meta:
+           model = ExamQuestion
+           fields = ['exam_id', 'types', 'title', 'option1', 'option2', 'option3', 'option4', 'answer']
+        
+        def __init__(self, *args, **kwargs):
+            super(ExamQuestionForm, self).__init__(*args, **kwargs)
+            self.fields['exam_id'].required = False		
+            self.fields['title'].required = False						
+            self.fields['option1'].required = False
+            self.fields['option2'].required = False
+            self.fields['option3'].required = False
+            self.fields['option4'].required = False
+            self.fields['answer'].required = False						
