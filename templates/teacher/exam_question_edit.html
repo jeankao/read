@@ -116,60 +116,36 @@ $(function () {
 {% endblock %}
 {% block content %}
 <a href="" class="btn btn-success" role="btn">{{exam.title}}</a>
-<section class="wrapper">
-<ul class="tabs">	
-  <li><a href="#tab2">選擇題</a></li>
-  <li><a href="#tab3">匯入選擇題</a></li>	
-	<li><a href="#tab1">是非題</a></li>
-  </ul>
-  <div class="clr"></div>	
-  <section class="block">
 <!--------------------------------------------------------->		
-    <article id="tab2">
-      <BR>
+{% if question.types == 2 %}
+選擇題
     <form action=""  method="post" enctype="multipart/form-data">
            <input type=hidden name=types value="2">
            <input type=hidden name=exam_id value={{exam.id}}>           
-        題目：<textarea name="title" id="id_title" cols="30" rows="10" class="form-control list-group-item-text"></textarea>
-<BR>選項1：<input style='display:inline; width:70%' id="id_option1" maxlength="250" name="option1" type="text" class="form-control list-group-item-text"/>
-<BR><BR>選項2：<input style='display:inline; width:70%' id="id_option2" maxlength="250" name="option2" type="text" class="form-control list-group-item-text"/>
-<BR><BR>選項3：<input style='display:inline; width:70%' id="id_option3" maxlength="250" name="option3" type="text" class="form-control list-group-item-text"/>
-<BR><BR>選項4：<input style='display:inline; width:70%' id="id_option4" maxlength="250" name="option4" type="text" class="form-control list-group-item-text"/>		
+           <input type=hidden name=question_id value={{question.id}}>                
+        題目：<textarea name="title" id="id_title" cols="30" rows="10" class="form-control list-group-item-text">{{question.title}}</textarea>
+<BR>選項1：<input style='display:inline; width:70%' id="id_option1" maxlength="250" name="option1" type="text" class="form-control list-group-item-text" value="{{question.option1}}"/>
+<BR><BR>選項2：<input style='display:inline; width:70%' id="id_option2" maxlength="250" name="option2" type="text" class="form-control list-group-item-text" value="{{question.option2}}"/>
+<BR><BR>選項3：<input style='display:inline; width:70%' id="id_option3" maxlength="250" name="option3" type="text" class="form-control list-group-item-text" value="{{question.option3}}"/>
+<BR><BR>選項4：<input style='display:inline; width:70%' id="id_option4" maxlength="250" name="option4" type="text" class="form-control list-group-item-text" value="{{question.option4}}"/>		
 <BR><BR>答案：
  <select name="answer" class="form-control" title="Choose one of the following..." style="display:inline;width:70%">
-  <option selected disabled value=0>請選擇</option>	 
-  <option value=1>選項1</option>
-  <option value=2>選項2</option>
-  <option value=3>選項3</option>
-  <option value=4>選項4</option>	 
+  <option {% if question.answer == 1 %}selected{% endif %} value=1>選項1</option>
+  <option {% if question.answer == 2 %}selected{% endif %} value=2>選項2</option>
+  <option {% if question.answer == 3 %}selected{% endif %} value=3>選項3</option>
+  <option {% if question.answer == 4 %}selected{% endif %} value=4>選項4</option>	 
 </select>
 <BR><BR>      <input type="submit" value="送出">
             {% csrf_token %}         
         </form>
     </article>
-<!--------------------------------------------------------->		
-    <article id="tab3">
-      <BR>
-    {% if form.errors %}
-        <p style="color: red;">
-            Please correct the error{{ form.errors|pluralize }} below.
-        </p>
-    {% endif %}
-    <a href="/static/files/exam.xlsx" class="btn btn-primary" role="btn">選擇題格式範本.xlsx</a>
-      <BR><BR><BR>
-    <form action="/teacher/exam/import2/upload/{{exam.id}}/" enctype="multipart/form-data"  method="post">
-        <table>
-            <tr><th><label for="id_file">File:</label></th><td><input style="display:inline;" id="id_file" name="file" type="file" /><input style="display:inline" type="submit" value="上傳"></td></tr>
-        </table>
-            {% csrf_token %}     
-    </form>
-    </article>	
 <!--------------------------------------------------------->	
-    <article id="tab1">
+{% elif question.types == 1 %}  
       <BR>
          <form action=""  method="post"  enctype="multipart/form-data">
            <input type=hidden name=types value="1">
            <input type=hidden name=exam_id value={{exam.id}}>
+           <input type=hidden name=question_id value={{question.id}}>              
            問題:<textarea name="title" id="title" cols="30" rows="10" class="form-control list-group-item-text"></textarea>
 					 <BR>
            答案:
@@ -181,9 +157,8 @@ $(function () {
     				<input type="hidden" name="happy" id="happy">
            {% csrf_token %}<input type="submit" value="送出">
         </form>
-    </article>	
+{% endif %}
 <!--------------------------------------------------------->
-</section>
 {% endblock %}
       	{% block domready %}
 						 

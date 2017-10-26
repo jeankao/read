@@ -104,4 +104,7 @@ urlpatterns = [
     url(r'^exam/question/add/(?P<exam_id>\d+)/$', login_required(ExamQuestionCreateView.as_view())),
     url(r'^exam/question/delete/(?P<exam_id>\d+)/(?P<question_id>\d+)/$', login_required(views.exam_question_delete)),   
     url(r'^exam/question/edit/(?P<exam_id>\d+)/(?P<question_id>\d+)/$', login_required(views.exam_question_edit)),  
+	  #大量匯入選擇題
+    url(r'^exam/import2/upload/(?P<exam_id>\d+)/$', login_required(views.exam_import_sheet)),   	
+    url(r'^exam/import2/question/(?P<exam_id>\d+)/$', login_required(views.exam_import_question)),   
 ]

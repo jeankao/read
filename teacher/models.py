@@ -153,3 +153,10 @@ class ExamQuestion(models.Model):
     answer = models.IntegerField(default=0)		
     answer_text = models.TextField(default='')    				
 		
+class ExamImportQuestion2(models.Model):
+    title = models.TextField(default='')    		
+    option1 = models.CharField(max_length=250,null=True,blank=True)
+    option2 = models.CharField(max_length=250,null=True,blank=True)		
+    option3 = models.CharField(max_length=250,null=True,blank=True)		
+    option4 = models.CharField(max_length=250,null=True,blank=True)		
+    answer = models.IntegerField(default=0)		

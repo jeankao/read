@@ -3,11 +3,11 @@ from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
-from teacher.models import Classroom, TWork, FWork, FClass, FContent, Assistant, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation, ClassroomGroup, Exam, ExamClass, ExamQuestion
+from teacher.models import Classroom, TWork, FWork, FClass, FContent, Assistant, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation, ClassroomGroup, Exam, ExamClass, ExamQuestion, ExamImportQuestion2
 from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, StudentGroup
 from account.models import Domain, Level, Parent, Log, Message, MessagePoll, MessageContent
 from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm, ForumCategroyForm, ForumDeadlineForm, AnnounceForm, SpeculationForm, SpeculationContentForm, SpeculationAnnotationForm, GroupForm, GroupForm2
-from .forms import ExamForm, ExamCategroyForm, ExamDeadlineForm, ExamQuestionForm
+from .forms import ExamForm, ExamCategroyForm, ExamDeadlineForm, ExamQuestionForm, UploadFileForm
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
@@ -1920,36 +1920,70 @@ class ExamQuestionCreateView(CreateView):
         return ctx
 
 def exam_question_delete(request, exam_id, question_id):
-    instance = FContent.objects.get(id=content_id)
+    instance = ExamQuestion.objects.get(id=question_id)
     instance.delete()
 
-    return redirect("/teacher/forum/content/"+forum_id)  
+    return redirect("/teacher/exam/question/"+exam_id)  
 	
 def exam_question_edit(request, exam_id, question_id):
+    exam = Exam.objects.get(id=exam_id)
     try:
-        instance = FContent.objects.get(id=content_id)
+        instance = ExamQuestion.objects.get(id=question_id)
     except:
         pass
     if request.method == 'POST':
-            content_id = request.POST.get("id", "")
+            question_id = request.POST.get("question_id", "")
             try:
-                content = FContent.objects.get(id=content_id)
+                question = ExamQuestion.objects.get(id=question_id)
             except ObjectDoesNotExist:
-	              content = FContent(forum_id= request.POST.get("forum_id", ""), types=form.cleaned_data['types'])
-            if content.types == 1:
-                content.title = request.POST.get("title", "")
-                content.link = request.POST.get("link", "")
-            elif content.types == 2:
-                content.youtube = request.POST.get("youtube", "")
-            elif content.types == 3:
-                myfile =  request.FILES.get("content_file", "")
-                fs = FileSystemStorage()
-                filename = uuid4().hex
-                content.title = myfile.name
-                content.filename = str(request.user.id)+"/"+filename
-                fs.save("static/upload/"+str(request.user.id)+"/"+filename, myfile)
-            content.memo = request.POST.get("memo", "")
-            content.save()
-            return redirect('/teacher/forum/content/'+forum_id)   
-    return render_to_response('teacher/forum_edit.html',{'content': instance, 'forum_id':forum_id, 'content_id':content_id}, context_instance=RequestContext(request))		
+	              question = ExamQuestion(exam_id= request.POST.get("exam_id", ""), types=form.cleaned_data['types'])
+            if question.types == 1:
+                question.answer = request.POST.get("answer", "")	
+            elif question.types == 2:
+                question.answer = request.POST.get("answer", "")	
+            question.title = request.POST.get("title", "")
+            question.save()
+            return redirect('/teacher/exam/question/'+exam_id)   
+    return render_to_response('teacher/exam_question_edit.html',{'question': instance, 'exam':exam, 'quesiton_id':question_id}, context_instance=RequestContext(request))		
 			
+# Create your views here.
+def exam_import_sheet(request, exam_id):
+    #if request.user.id != 1:
+    #    return redirect("/")
+    if request.method == "POST":
+        form = UploadFileForm(request.POST,
+                              request.FILES)
+        if form.is_valid():
+            ExamImportQuestion2.objects.all().delete()
+            request.FILES['file'].save_to_database(
+                name_columns_by_row=0,
+                model=ExamImportQuestion2,
+                mapdict=['title', 'option1', 'option2','option3','option4','answer'])
+            questions = ExamImportQuestion2.objects.all()
+            return render(request, 'teacher/exam_import_question2.html',{'questions':questions, 'exam_id': exam_id})
+        else:
+            return HttpResponseBadRequest()
+    else:	
+        form = UploadFileForm()
+    return render(
+        request,
+        'teacher/exam_upload_form.html',
+        {
+					  'exam_id': exam_id, 
+            'form': form,
+            'title': 'Excel file upload and download example',
+            'header': ('Please choose any excel file ' +
+                       'from your cloned repository:')
+        })
+	
+# Create your views here.
+def exam_import_question(request, exam_id):
+    #if request.user.id != 1:
+    #    return redirect("/")
+           
+    questions = ExamImportQuestion2.objects.all()
+    for question in questions:
+            new_question = ExamQuestion(exam_id=exam_id, types=2, title=question.title, option1=question.option1, option2=question.option2, option3=question.option3, option4=question.option4, answer=question.answer)
+            new_question.save()
+            
+    return redirect('/teacher/exam/'+exam_id)			

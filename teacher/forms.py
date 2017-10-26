@@ -189,3 +189,8 @@ class ExamQuestionForm(forms.ModelForm):
             self.fields['option3'].required = False
             self.fields['option4'].required = False
             self.fields['answer'].required = False						
+
+
+#上傳檔案
+class UploadFileForm(forms.Form):
+    file = forms.FileField()						
