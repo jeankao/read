@@ -928,9 +928,9 @@ class ExamListView(ListView):
             questions = ExamQuestion.objects.filter(exam_id=exam.id)					
             examworks = filter(lambda w: w.exam_id==exam.id, examwork_pool)
             if len(examworks)> 0 :
-                queryset.append([exam, examworks[0].publish, examclass_dict[exam.id], examworks, len(questions)])
+                queryset.append([exam, examworks[0].publish, examclass_dict[exam.id], examworks, len(questions), examclass_dict[exam.id]])
             else :
-                queryset.append([exam, False, examclass_dict[exam.id], 0, len(questions)])
+                queryset.append([exam, False, examclass_dict[exam.id], 0, len(questions), examclass_dict[exam.id]])
         def getKey(custom):
             return custom[2].publication_date, custom[2].exam_id
         queryset = sorted(queryset, key=getKey, reverse=True)	
@@ -954,7 +954,10 @@ def exam_question(request, classroom_id, exam_id, question_id):
     exam = Exam.objects.get(id=exam_id)
     examworks = ExamWork.objects.filter(exam_id=exam_id, student_id=request.user.id).order_by("-id")
     if len(examworks)> 0:
-        examwork = examworks[0]
+        if examworks[0].publish:
+            examwork = ExamWork(exam_id=exam_id, student_id=request.user.id)					
+        else :
+            examwork = examworks[0]
     else :
         examwork = ExamWork(exam_id=exam_id, student_id=request.user.id)
     examwork.save()
