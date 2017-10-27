@@ -1790,7 +1790,7 @@ class ExamClassListView(ListView):
         for assistant in assistants:
             classroom = Classroom.objects.get(id=assistant.classroom_id)
             if not classroom.id in classroom_ids:
-                if classroom.id in fclass_dict:
+                if classroom.id in eclass_dict:
                     classroom_list.append([classroom, True, eclass_dict[classroom.id].deadline, eclass_dict[classroom.id].deadline_date])
                 else :
                     classroom_list.append([classroom, False, False, timezone.now()])
