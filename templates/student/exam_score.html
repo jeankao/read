@@ -362,62 +362,20 @@ label .glyphicon {
 </style>
 {% endblock %}
 {% block content %}
+<div class="panel panel-{% if score < 60 %}danger{% else %}success{% endif %}">
+  <div class="panel-heading">得分：{{score}} / {{score_total}}</div>
+</div>
+
 {% for q, a  in qas %}
-<a href="{{q}}" role="btn" class="btn btn-xs btn-{% if not q|slugify  == question_id %}{% if a == 0 %}default{% else %}info{% endif %}{% else %}primary{% endif %}">{{forloop.counter}}</a>
+<a href="{{q.id}}" role="btn" class="btn btn-xs btn-{% if not q.id  == question.id %}{% if a == 0 %}default{% else %}{% if q.answer == a %}success{% else %}info{% endif %}{% endif %}{% else %}primary{% endif %}">{{forloop.counter}} {% if q.answer == a %}V{% else %}X{% endif %}</a>
 {% endfor %}
-<a href="/student/exam/score/{{classroom_id}}/{{question.exam_id}}/{{examwork.id}}/0" onclick="return confirm('確定要交卷嗎?')" role="btn" class="btn btn-xs btn-warning">交卷</a>
 <pre style="font-size: 16px">{{question.title}}({{question.score}}分)</pre>
 
           <div class="quiz" id="quiz" data-toggle="buttons">
-           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="element-animation1 btn btn-lg btn-default btn-block {% if answer == 1 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="1">{{question.option1}}</label>
-           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="element-animation2 btn btn-lg btn-default btn-block {% if answer == 2 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="2">{{question.option2}}</label>
-           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="element-animation3 btn btn-lg btn-default btn-block {% if answer == 3 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="3">{{question.option3}}</label>
-           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="element-animation4 btn btn-lg btn-default btn-block {% if answer == 4 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="4">{{question.option4}}</label>
+           <label class="element-animation1 btn btn-lg btn-{% if question.answer == 1 %}success{% else %}default{% endif %} btn-block {% if answer == 1 %}active{% endif %}"><span class="btn-label"><i class="glyphicon {% if question.answer == 1 %}glyphicon-ok{% else %}{% if answer == 1 %}glyphicon-remove{% else %}glyphicon-chevron-right{% endif %}{% endif %}"></i></span> <input type="radio" name="q_answer" value="1">{{question.option1}}</label>
+           <label class="element-animation2 btn btn-lg btn-{% if question.answer == 2 %}success{% else %}default{% endif %} btn-block {% if answer == 2 %}active{% endif %}"><span class="btn-label"><i class="glyphicon {% if question.answer == 2 %}glyphicon-ok{% else %}{% if answer == 2 %}glyphicon-remove{% else %}glyphicon-chevron-right{% endif %}{% endif %}"></i></span> <input type="radio" name="q_answer" value="2">{{question.option2}}</label>
+           <label class="element-animation3 btn btn-lg btn-{% if question.answer == 3 %}success{% else %}default{% endif %} btn-block {% if answer == 3 %}active{% endif %}"><span class="btn-label"><i class="glyphicon {% if question.answer == 3 %}glyphicon-ok{% else %}{% if answer == 3 %}glyphicon-remove{% else %}glyphicon-chevron-right{% endif %}{% endif %}"></i></span> <input type="radio" name="q_answer" value="3">{{question.option3}}</label>
+           <label class="element-animation4 btn btn-lg btn-{% if question.answer == 4 %}success{% else %}default{% endif %} btn-block {% if answer == 4 %}active{% endif %}"><span class="btn-label"><i class="glyphicon {% if question.answer == 4 %}glyphicon-ok{% else %}{% if answer == 4 %}glyphicon-remove{% else %}glyphicon-chevron-right{% endif %}{% endif %}"></i></span> <input type="radio" name="q_answer" value="4">{{question.option4}}</label>
        </div>
-
 {% endblock %}
 
-	{% block domready %}
-$(function(){
-    var loading = $('#loadbar').hide();
-    $(document)
-    .ajaxStart(function () {
-        loading.show();
-    }).ajaxStop(function () {
-    	loading.hide();
-    });
-    
-    $("label.btn").on('click',function (e) {
-    var launcher = this;  
-		var score =  $(this).find('input:radio').val();
-    e.preventDefault();
-	  
-    $.post('/student/exam/answer/',
-      {
-        examworkid: $(launcher).data('examworkid'),	
-        questionid: $(launcher).data('questionid'),	
-	      answer: score,
-      },
-      function(data){
-        if (data['status'] == 'ok')
-        {
-         //alert("hi");
-			} else {
-			   	//alert("hello!");
-	    	}
-      });
-     	//var choice = $(this).find('input:radio').val();
-    	//$('#loadbar').show();
-    	//$('#quiz').fadeOut();
-    	//setTimeout(function(){
-           //$( "#answer" ).html(  $(this).checking(choice) );      
-            //$('#quiz').show();
-            //$('#loadbar').fadeOut();
-           /* something else */
-    	//}, 1500);
-    });
-
-});	
-
-	    $('body').css('background-image','url(/static/images/back1.gif)');
-	{% endblock %}

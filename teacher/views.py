@@ -1958,7 +1958,7 @@ def exam_import_sheet(request, exam_id):
             request.FILES['file'].save_to_database(
                 name_columns_by_row=0,
                 model=ExamImportQuestion2,
-                mapdict=['title', 'option1', 'option2','option3','option4','answer'])
+                mapdict=['title', 'option1', 'option2','option3','option4','answer', 'score'])
             questions = ExamImportQuestion2.objects.all()
             return render(request, 'teacher/exam_import_question2.html',{'questions':questions, 'exam_id': exam_id})
         else:
@@ -1983,7 +1983,25 @@ def exam_import_question(request, exam_id):
            
     questions = ExamImportQuestion2.objects.all()
     for question in questions:
-            new_question = ExamQuestion(exam_id=exam_id, types=2, title=question.title, option1=question.option1, option2=question.option2, option3=question.option3, option4=question.option4, answer=question.answer)
+            new_question = ExamQuestion(exam_id=exam_id, types=2, title=question.title, option1=question.option1, option2=question.option2, option3=question.option3, option4=question.option4, answer=question.answer, score=question.score)
             new_question.save()
             
-    return redirect('/teacher/exam/'+exam_id)			
+    return redirect('/teacher/exam/question/'+exam_id)			
+	
+def exam_round(request, classroom_id, exam_id):
+    if not is_teacher(request.user, classroom_id):
+        return redirect("/")
+    examclass = ExamClass.objects.get(classroom_id=classroom_id, exam_id=exam_id)
+    return render_to_response('teacher/exam_round.html',{'examclass':examclass}, context_instance=RequestContext(request))		
+	
+def exam_round_set(request):
+    exam_id = request.POST.get('examid')
+    classroom_id = request.POST.get('classroomid')		
+    round_limit = request.POST.get('round_limit')
+    try:
+        examclass = ExamClass.objects.get(exam_id=exam_id, classroom_id=classroom_id)
+    except ObjectDoesNotExist:
+        examclass = Examclass(exam_id=exam_id, classroom_id=classroom_id)
+    examclass.round_limit = int(round_limit)
+    examclass.save()
+    return JsonResponse({'status':'ok'}, safe=False)  	

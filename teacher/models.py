@@ -138,6 +138,7 @@ class ExamClass(models.Model):
     publication_date = models.DateTimeField(default=timezone.now)
     deadline = models.BooleanField(default=False)
     deadline_date = models.DateTimeField(default=get_deadline)
+    round_limit = models.IntegerField(default=1)
 	
     def __unicode__(self):
         return str(self.exam_id)
@@ -161,3 +162,4 @@ class ExamImportQuestion2(models.Model):
     option3 = models.CharField(max_length=250,null=True,blank=True)		
     option4 = models.CharField(max_length=250,null=True,blank=True)		
     answer = models.IntegerField(default=0)		
+    score = models.IntegerField(default=0)				

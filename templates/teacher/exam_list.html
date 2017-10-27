@@ -15,11 +15,12 @@
 						<a href="/teacher/exam/category/{{classroom.id}}/{{exam.id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-check" aria-hidden="true"></span> 分類</a>
 						<a href="/teacher/exam/class/{{exam.id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span> 班級</a>
             <a href="/teacher/exam/deadline/{{classroom.id}}/{{exam.id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> 期限</a>		
+            <a href="/teacher/exam/round/{{classroom.id}}/{{exam.id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> 次數</a>				
             <a href="/teacher/exam/question/{{exam.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> 題目</a>
 						{% else %}
             <a href="/teacher/exam/show/{{exam.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> 素材</a>								
 						{% endif %}
-           <a href="/student/exam/{{classroom.id}}/0/#{{exam.id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> 學生</a>						
+           <a href="/student/exam/{{classroom.id}}/#{{exam.id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> 學生</a>						
 	</div>
 </div>
         {% endfor %}

@@ -2,15 +2,20 @@
 {% load tag %}
 {% block content %}
 <button class="btn btn-success">{{classroom_id|classname}}</button>
-	        {% for exam, examwork, exmaclass, count in exams %}
+	        {% for exam, examwork, exmaclass, examworks, question_count in exams %}
 <h2 id="{{work.id}}"></h2>
 <div class="panel panel-default">
 	<div class="panel-heading">{{exam.title}} {% if not examwork %}<font color=red>(尚未發表)</font>{% endif %} -- {{examclass.publication_date}} {{exam.user_id|realname}}老師 -- 期限:{% if examclass.deadline %}{{examclass.deadline_date}}{% if examclass.deadline_date|alert and not examwork %}<font color=red>還剩 {{examclass.deadline_date|due}}</font><img src="/static/images/alert.png">{% endif %}{% else %}無{% endif %}</div>
   <div class="panel-body">
-		{% if not examclass.exam_id|in_deadline:classroom_id == '' or examwork %}<button class="btn btn-default">作答({{count}})</button>{% else %}<a href="/student/exam/question/{{classroom_id}}/{{exam.id}}/0" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> 作答({{count}})</a>{% endif %}
-{% if request.user.id == work.teacher_id %}	
-<a href="/teacher/exam/{{classroom_id}}/#{{exam.id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> 教師</a>	
+		{% if not examclass.exam_id|in_deadline:classroom_id == '' or examwork or not question_count > 0 %}<button class="btn btn-default"><span class="glyphicon glyphicon-pencil" aria-hidden="true">作答({{examworks|length}})</span></button>{% else %}<a href="/student/exam/question/{{classroom_id}}/{{exam.id}}/0" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> 作答({{examworks|length}})</a>{% endif %}
+{% if examworks|length > 0 and examwork %}		
+{% for examwork in examworks %}		
+<a href="/student/exam/score/{{classroom_id}}/{{exam.id}}/{{examwork.id}}/0" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span> 結果{{forloop.counter}}</a>	
+{% endfor %}
 {% endif %}
+		{% if request.user.id == work.teacher_id %}	
+<a href="/teacher/exam/{{classroom_id}}/#{{exam.id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> 教師</a>	
+		{% endif %}
 	</div>
 </div>
         {% endfor %}

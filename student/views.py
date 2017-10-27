@@ -925,11 +925,12 @@ class ExamListView(ListView):
         exams = Exam.objects.filter(id__in=examclass_dict.keys()).order_by("-id")
         examwork_pool = ExamWork.objects.filter(student_id=self.request.user.id).order_by("-id")
         for exam in exams:
-            examworks = filter(lambda w: w.index==exam.id, examwork_pool)
+            questions = ExamQuestion.objects.filter(exam_id=exam.id)					
+            examworks = filter(lambda w: w.exam_id==exam.id, examwork_pool)
             if len(examworks)> 0 :
-                queryset.append([exam, examworks[0].publish, examclass_dict[exam.id], len(examworks)])
+                queryset.append([exam, examworks[0].publish, examclass_dict[exam.id], examworks, len(questions)])
             else :
-                queryset.append([exam, False, examclass_dict[exam.id], 0])
+                queryset.append([exam, False, examclass_dict[exam.id], 0, len(questions)])
         def getKey(custom):
             return custom[2].publication_date, custom[2].exam_id
         queryset = sorted(queryset, key=getKey, reverse=True)	
@@ -949,14 +950,20 @@ class ExamListView(ListView):
             return redirect('/')
         return super(ExamListView, self).render_to_response(context)    	
 			
-def exam_question(request, classroom_id, exam_id, question_id):
+def exam_question(request, classroom_id, exam_id, question_id):	
     exam = Exam.objects.get(id=exam_id)
+    examworks = ExamWork.objects.filter(exam_id=exam_id, student_id=request.user.id).order_by("-id")
+    if len(examworks)> 0:
+        examwork = examworks[0]
+    else :
+        examwork = ExamWork(exam_id=exam_id, student_id=request.user.id)
+    examwork.save()
     questions = ExamQuestion.objects.filter(exam_id=exam_id).order_by("id")
     question_ids = []
     qas = []
     for question in questions:
         question_ids.append(question.id)
-    answer_dict = dict(((answer.question_id, answer) for answer in ExamAnswer.objects.filter(exam_id=exam_id, question_id__in=question_ids, student_id=request.user.id)))		
+    answer_dict = dict(((answer.question_id, answer) for answer in ExamAnswer.objects.filter(examwork_id=examwork.id, question_id__in=question_ids, student_id=request.user.id)))		
     for question in questions:
         if question.id in answer_dict:
             qas.append([question.id, answer_dict[question.id]])
@@ -965,23 +972,26 @@ def exam_question(request, classroom_id, exam_id, question_id):
     if not question_id == "0":
         question = ExamQuestion.objects.get(id=question_id)
     else :
-        return redirect('/student/exam/question/'+classroom_id+'/'+exam_id+'/'+str(question_ids[0]))
+        if len(questions)> 0 :
+            return redirect('/student/exam/question/'+classroom_id+'/'+exam_id+'/'+str(question_ids[0]))
+        else :
+            return redirect('/student/exam/'+classroom_id)
     try :
-        answer = ExamAnswer.objects.get(exam_id=exam_id, question_id=question_id, student_id=request.user.id).answer
+        answer = ExamAnswer.objects.get(examwork_id=examwork.id, question_id=question_id, student_id=request.user.id).answer
     except ObjectDoesNotExist:
         answer = 0
-    return render_to_response('student/exam_question.html', {'answer':answer, 'exam':exam, 'qas':qas, 'question':question, 'question_id':question_id}, context_instance=RequestContext(request))
+    return render_to_response('student/exam_question.html', {'examwork': examwork, 'answer':answer, 'exam':exam, 'qas':qas, 'question':question, 'question_id':question_id, 'classroom_id': classroom_id}, context_instance=RequestContext(request))
 			
 # Ajax 設定測驗答案
 def exam_answer(request):
-    exam_id = request.POST.get('examid')	
+    examwork_id = request.POST.get('examworkid')	
     question_id = request.POST.get('questionid')
     input_answer = request.POST.get('answer')
-    if exam_id :
+    if examwork_id :
         try :
-            answer = ExamAnswer.objects.get(exam_id=exam_id, question_id=question_id, student_id=request.user.id) 	
+            answer = ExamAnswer.objects.get(examwork_id=examwork_id, question_id=question_id, student_id=request.user.id) 	
         except ObjectDoesNotExist :
-            answer = ExamAnswer(exam_id=exam_id, question_id=question_id, student_id=request.user.id)
+            answer = ExamAnswer(examwork_id=examwork_id, question_id=question_id, student_id=request.user.id)
         answer.answer = input_answer
         answer.save()
         return JsonResponse({'status':'ok'}, safe=False)
@@ -989,8 +999,44 @@ def exam_answer(request):
         return JsonResponse({'status':'fail'}, safe=False)
 	
 		
-def exam_submit(request, exam_id):
+def exam_score(request, classroom_id, exam_id, examwork_id, question_id):
+    score = 0
+    score_total = 0
     exam = Exam.objects.get(id=exam_id)
-    return render_to_response('student/exam_submit.html', {'exam':exam}, context_instance=RequestContext(request))
+    examworks = ExamWork.objects.filter(exam_id=exam_id, student_id=request.user.id).order_by("-id")
+    if len(examworks)> 0:
+        examwork = examworks[0]
+    else :
+        examwork = ExamWork(exam_id=exam_id, student_id=request.user.id)		
+    questions = ExamQuestion.objects.filter(exam_id=exam_id).order_by("id")		
+    question_ids = []
+    qas = []
+    for question in questions:
+        question_ids.append(question.id)
+        score_total += question.score
+    answer_dict = dict(((answer.question_id, answer.answer) for answer in ExamAnswer.objects.filter(examwork_id=examwork.id, question_id__in=question_ids, student_id=request.user.id)))		
+    for question in questions:
+        if question.id in answer_dict:
+            if question.answer == answer_dict[question.id] :
+                score += question.score
+            qas.append([question, answer_dict[question.id]])
+        else :
+            qas.append([question, 0])
+    if not question_id == "0":
+        question = ExamQuestion.objects.get(id=question_id)
+    else :
+        return redirect('/student/exam/score/'+classroom_id+'/'+exam_id+'/'+str(examwork.id)+'/'+str(question_ids[0]))
+    try :
+        answer = ExamAnswer.objects.get(examwork_id=examwork.id, question_id=question_id, student_id=request.user.id).answer
+    except ObjectDoesNotExist:
+        answer = 0
+				
+    examwork.publish = True
+    examwork.publication_date = timezone.now()
+    examwork.score = score
+    examwork.scorer = 0
+    examwork.save()
+    examworks = ExamWork.objects.filter(exam_id=exam_id, student_id=request.user.id).order_by("-id")		
+    return render_to_response('student/exam_score.html', {'examworks': examworks, 'score_total': score_total, 'score':score, 'question':question, 'answer':answer, 'exam':exam, 'qas':qas}, context_instance=RequestContext(request))
 			
 		
