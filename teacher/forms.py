@@ -32,7 +32,7 @@ class ForumDeadlineForm(forms.ModelForm):
            fields = ['deadline', 'deadline_date']
         
         def __init__(self, *args, **kwargs):
-            super(DeadlineForm, self).__init__(*args, **kwargs)			
+            super(ForumDeadlineForm, self).__init__(*args, **kwargs)			
 
 # 新增一個作業
 class WorkForm(forms.ModelForm):
