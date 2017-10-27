@@ -128,3 +128,14 @@ class ExamWork(models.Model):
         user = User.objects.filter(id=self.student_id)[0]
         index = self.index
         return user.first_name+"("+str(index)+")"		
+			
+#測驗答案
+class ExamAnswer(models.Model):
+    exam_id = models.IntegerField(default=0)
+    question_id = models.IntegerField(default=0)
+    student_id = models.IntegerField(default=0)
+    answer = models.IntegerField(default=0)
+		
+    class Meta:
+        unique_together = ('student_id', 'exam_id', 'question_id')		
+		

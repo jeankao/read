@@ -152,6 +152,7 @@ class ExamQuestion(models.Model):
     option4 = models.CharField(max_length=250,null=True,blank=True)		
     answer = models.IntegerField(default=0)		
     answer_text = models.TextField(default='')    				
+    score = models.IntegerField(default=0)		
 		
 class ExamImportQuestion2(models.Model):
     title = models.TextField(default='')    		

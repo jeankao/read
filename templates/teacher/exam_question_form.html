@@ -120,7 +120,9 @@ $(function () {
 <ul class="tabs">	
   <li><a href="#tab2">選擇題</a></li>
   <li><a href="#tab3">匯入選擇題</a></li>	
+	<!--
 	<li><a href="#tab1">是非題</a></li>
+-->
   </ul>
   <div class="clr"></div>	
   <section class="block">
@@ -143,6 +145,7 @@ $(function () {
   <option value=3>選項3</option>
   <option value=4>選項4</option>	 
 </select>
+<BR><BR>配分：<input style='display:inline; width:70%' id="id_score" maxlength="250" name="score" type="number" class="form-control list-group-item-text" value="10"/>		
 <BR><BR>      <input type="submit" value="送出">
             {% csrf_token %}         
         </form>

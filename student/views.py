@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, CreateView
-from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, SSpeculationWork, SSpeculationContent, StudentGroup, ExamWork
+from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, SSpeculationWork, SSpeculationContent, StudentGroup, ExamWork, ExamAnswer
 from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant, SpeculationClass, SpeculationWork, SpeculationContent, SpeculationAnnotation, ClassroomGroup, Exam, ExamClass, ExamQuestion
 from account.models import VisitorLog,  Profile, Parent, Log, Message, PointHistory, MessagePoll
 from student.forms import EnrollForm, SeatForm, ForumSubmitForm, SpeculationSubmitForm
@@ -953,11 +953,44 @@ def exam_question(request, classroom_id, exam_id, question_id):
     exam = Exam.objects.get(id=exam_id)
     questions = ExamQuestion.objects.filter(exam_id=exam_id).order_by("id")
     question_ids = []
+    qas = []
     for question in questions:
         question_ids.append(question.id)
+    answer_dict = dict(((answer.question_id, answer) for answer in ExamAnswer.objects.filter(exam_id=exam_id, question_id__in=question_ids, student_id=request.user.id)))		
+    for question in questions:
+        if question.id in answer_dict:
+            qas.append([question.id, answer_dict[question.id]])
+        else :
+            qas.append([question.id, 0])
     if not question_id == "0":
         question = ExamQuestion.objects.get(id=question_id)
     else :
-        question = ExamQuestion(exam_id=exam_id)
-    return render_to_response('student/exam_question.html', {'exam':exam, 'question_ids':question_ids, 'question':question, 'question_id':question_id}, context_instance=RequestContext(request))
+        return redirect('/student/exam/question/'+classroom_id+'/'+exam_id+'/'+str(question_ids[0]))
+    try :
+        answer = ExamAnswer.objects.get(exam_id=exam_id, question_id=question_id, student_id=request.user.id).answer
+    except ObjectDoesNotExist:
+        answer = 0
+    return render_to_response('student/exam_question.html', {'answer':answer, 'exam':exam, 'qas':qas, 'question':question, 'question_id':question_id}, context_instance=RequestContext(request))
 			
+# Ajax 設定測驗答案
+def exam_answer(request):
+    exam_id = request.POST.get('examid')	
+    question_id = request.POST.get('questionid')
+    input_answer = request.POST.get('answer')
+    if exam_id :
+        try :
+            answer = ExamAnswer.objects.get(exam_id=exam_id, question_id=question_id, student_id=request.user.id) 	
+        except ObjectDoesNotExist :
+            answer = ExamAnswer(exam_id=exam_id, question_id=question_id, student_id=request.user.id)
+        answer.answer = input_answer
+        answer.save()
+        return JsonResponse({'status':'ok'}, safe=False)
+    else:
+        return JsonResponse({'status':'fail'}, safe=False)
+	
+		
+def exam_submit(request, exam_id):
+    exam = Exam.objects.get(id=exam_id)
+    return render_to_response('student/exam_submit.html', {'exam':exam}, context_instance=RequestContext(request))
+			
+		
