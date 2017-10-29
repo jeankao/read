@@ -340,6 +340,9 @@ def forum_show(request, index, user_id, classroom_id):
 			publish = work_first.publish
 			replys = SFReply.objects.filter(index=index, work_id=work_first.id).order_by("-id")	
 			files = SFContent.objects.filter(index=index, student_id=user_id, visible=True).order_by("-id")	
+		else :
+			work_new = SFWork(index=index, student_id=user_id)
+			work_first = SFWork(index=index, student_id=user_id)			
 		return render_to_response('student/forum_show.html', {'work_new': work_new, 'work_first':work_first, 'publish':publish, 'classroom_id':classroom_id, 'contents':contents, 'replys':replys, 'files':files, 'forum':forum, 'user_id':user_id, 'teacher_id':teacher_id, 'works': works, 'is_teacher':is_teacher(classroom_id, request.user.id)}, context_instance=RequestContext(request))
 		
  # 查詢某作業所有同學心得
