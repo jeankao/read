@@ -2,7 +2,7 @@
 {% load tag %}
 {% block title %} Teachers {% endblock %}
 {% block content %}
-		{% if question.user_id == request.user.id %}
+		{% if exam.user_id == request.user.id %}
         <a href="/teacher/exam/question/add/{{exam_id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 新增題目</a>
 {% endif %}
 <button type="button" class="btn btn-success">{{exam.title}}</button>
