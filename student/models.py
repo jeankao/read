@@ -126,8 +126,8 @@ class ExamWork(models.Model):
 		
     def __unicode__(self):
         user = User.objects.filter(id=self.student_id)[0]
-        index = self.index
-        return user.first_name+"("+str(index)+")"		
+        exam_id = self.exam_id
+        return user.first_name+"("+str(exam_id)+")"		
 			
 #測驗答案
 class ExamAnswer(models.Model):

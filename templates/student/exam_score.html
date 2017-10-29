@@ -363,7 +363,7 @@ label .glyphicon {
 {% endblock %}
 {% block content %}
 <div class="panel panel-{% if score < 60 %}danger{% else %}success{% endif %}">
-  <div class="panel-heading">得分：{{score}} / {{score_total}}</div>
+  <div class="panel-heading">得分：{{score}} / {{score_total}}  --{{examwork.publication_date}}</div>
 </div>
 
 {% for q, a  in qas %}

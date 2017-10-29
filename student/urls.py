@@ -50,5 +50,6 @@ urlpatterns = [
 	  url(r'^exam/(?P<classroom_id>\d+)/$', login_required(ExamListView.as_view())), 
 	  url(r'^exam/question/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<question_id>\d+)$', login_required(views.exam_question)), 	
 	  url(r'^exam/answer/$', login_required(views.exam_answer)), 	
+	  url(r'^exam/submit/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/$', login_required(views.exam_submit)), 
 	  url(r'^exam/score/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/(?P<question_id>\d+)$', login_required(views.exam_score)), 
 ]

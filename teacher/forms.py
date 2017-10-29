@@ -178,7 +178,7 @@ class ExamDeadlineForm(forms.ModelForm):
 class ExamQuestionForm(forms.ModelForm):
         class Meta:
            model = ExamQuestion
-           fields = ['exam_id', 'types', 'title', 'option1', 'option2', 'option3', 'option4', 'answer']
+           fields = ['exam_id', 'types', 'title', 'option1', 'option2', 'option3', 'option4', 'answer', 'score']
         
         def __init__(self, *args, **kwargs):
             super(ExamQuestionForm, self).__init__(*args, **kwargs)
@@ -188,7 +188,8 @@ class ExamQuestionForm(forms.ModelForm):
             self.fields['option2'].required = False
             self.fields['option3'].required = False
             self.fields['option4'].required = False
-            self.fields['answer'].required = False						
+            self.fields['answer'].required = False			
+            self.fields['score'].required = False				
 
 
 #上傳檔案

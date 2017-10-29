@@ -4,7 +4,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from teacher.models import Classroom, TWork, FWork, FClass, FContent, Assistant, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation, ClassroomGroup, Exam, ExamClass, ExamQuestion, ExamImportQuestion2
-from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, StudentGroup
+from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, StudentGroup, ExamWork
 from account.models import Domain, Level, Parent, Log, Message, MessagePoll, MessageContent
 from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm, ForumCategroyForm, ForumDeadlineForm, AnnounceForm, SpeculationForm, SpeculationContentForm, SpeculationAnnotationForm, GroupForm, GroupForm2
 from .forms import ExamForm, ExamCategroyForm, ExamDeadlineForm, ExamQuestionForm, UploadFileForm
@@ -38,7 +38,7 @@ import docx
 import os.path
 from django.utils.dateparse import parse_date
 from random import shuffle
-
+from operator import attrgetter
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
     return user.groups.filter(name='teacher').exists() and Classroom.objects.filter(teacher_id=user.id, id=classroom_id).exists()
@@ -1886,6 +1886,8 @@ class ExamQuestionListView(ListView):
         exam = Exam.objects.get(id=self.kwargs['exam_id'])
         context['exam']= exam
         context['exam_id'] = self.kwargs['exam_id']
+        questions = ExamQuestion.objects.filter(exam_id=self.kwargs['exam_id'])
+        context['score_total'] = sum(question.score for question in questions)			
         return context	
 			
 #新增一個題目
@@ -1910,6 +1912,7 @@ class ExamQuestionCreateView(CreateView):
             question.option3 = self.object.option3
             question.option4 = self.object.option4						
             question.answer = self.object.answer
+            question.score = self.object.score
         question.save()         
   
         return redirect("/teacher/exam/question/"+self.kwargs['exam_id'])  
@@ -1940,10 +1943,15 @@ def exam_question_edit(request, exam_id, question_id):
             if question.types == 1:
                 question.answer = request.POST.get("answer", "")	
             elif question.types == 2:
+                question.option1 = request.POST.get("option1", "")	
+                question.option2 = request.POST.get("option2", "")	
+                question.option3 = request.POST.get("option3", "")	
+                question.option4 = request.POST.get("option4", "")	
+                question.score = request.POST.get("score", "")	
                 question.answer = request.POST.get("answer", "")	
             question.title = request.POST.get("title", "")
             question.save()
-            return redirect('/teacher/exam/question/'+exam_id)   
+            return redirect('/teacher/exam/question/'+exam_id+"#"+str(question.id))   
     return render_to_response('teacher/exam_question_edit.html',{'question': instance, 'exam':exam, 'quesiton_id':question_id}, context_instance=RequestContext(request))		
 			
 # Create your views here.
@@ -2005,3 +2013,61 @@ def exam_round_set(request):
     examclass.round_limit = int(round_limit)
     examclass.save()
     return JsonResponse({'status':'ok'}, safe=False)  	
+	
+def exam_score(request, classroom_id, exam_id):
+    if not is_teacher(request.user, classroom_id):
+        return redirect("/")
+    exam = Exam.objects.get(id=exam_id)
+    classroom = Classroom.objects.get(id=classroom_id)
+    examclass = ExamClass.objects.get(classroom_id=classroom_id, exam_id=exam_id)
+    enrolls = Enroll.objects.filter(classroom_id=classroom_id, seat__gt=0).order_by("seat")
+    enroll_ids = []
+    for enroll in enrolls:
+        enroll_ids.append(enroll.student_id)
+    examworks = ExamWork.objects.filter(exam_id=exam_id, student_id__in=enroll_ids, publish=True).order_by("-id")
+    scores = []
+    for enroll in enrolls:
+        works = filter(lambda w: w.student_id == enroll.student_id, examworks)
+        if len(works) > 0 :
+            score_max = max(work.score for work in works)
+            score_avg = sum(work.score for work in works) / len(works)	
+        else :
+            score_max = 0
+            score_avg = 0
+        scores.append([enroll, works, score_avg, score_max])
+    return render_to_response('teacher/exam_score.html',{'classroom': classroom, 'exam':exam, 'scores':scores}, context_instance=RequestContext(request))		
+	
+# 列出所有討論測驗
+class ExamAllListView(ListView):
+    model = Exam
+    context_object_name = 'exams'
+    template_name = "teacher/exam_all.html"		
+    paginate_by = 20
+		
+    def get_queryset(self):
+      # 年級
+      if self.kwargs['categroy'] == "1":
+        queryset = Exam.objects.filter(levels__contains=self.kwargs['categroy_id']).order_by("-id")
+      # 學習領域
+      elif self.kwargs['categroy'] == "2":
+        queryset = Exam.objects.filter(domains__contains=self.kwargs['categroy_id']).order_by("-id")   
+      else:
+        queryset = Exam .objects.all().order_by("-id")
+      if self.request.GET.get('account') != None:
+        keyword = self.request.GET.get('account')
+        users = User.objects.filter(Q(username__icontains=keyword) | Q(first_name__icontains=keyword)).order_by('-id')
+        user_list = []
+        for user in users:
+            user_list.append(user.id)
+        exams = queryset.filter(teacher_id__in=user_list)
+        return exams
+      else:				
+        return queryset
+			
+    def get_context_data(self, **kwargs):
+        context = super(ExamAllListView, self).get_context_data(**kwargs)
+        context['categroy'] = self.kwargs['categroy']							
+        context['categroy_id'] = self.kwargs['categroy_id']							
+        context['levels'] = Level.objects.all()				
+        context['domains'] = Domain.objects.all()
+        return context	

@@ -365,7 +365,7 @@ label .glyphicon {
 {% for q, a  in qas %}
 <a href="{{q}}" role="btn" class="btn btn-xs btn-{% if not q|slugify  == question_id %}{% if a == 0 %}default{% else %}info{% endif %}{% else %}primary{% endif %}">{{forloop.counter}}</a>
 {% endfor %}
-<a href="/student/exam/score/{{classroom_id}}/{{question.exam_id}}/{{examwork.id}}/0" onclick="return confirm('確定要交卷嗎?')" role="btn" class="btn btn-xs btn-warning">交卷</a>
+<a href="/student/exam/submit/{{classroom_id}}/{{question.exam_id}}/{{examwork.id}}" onclick="return confirm('確定要交卷嗎?')" role="btn" class="btn btn-xs btn-warning">交卷</a>
 <pre style="font-size: 16px">{{question.title}}({{question.score}}分)</pre>
 
           <div class="quiz" id="quiz" data-toggle="buttons">

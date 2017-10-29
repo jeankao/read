@@ -135,6 +135,7 @@ $(function () {
   <option {% if question.answer == 3 %}selected{% endif %} value=3>選項3</option>
   <option {% if question.answer == 4 %}selected{% endif %} value=4>選項4</option>	 
 </select>
+<BR><BR>配分：<input style='display:inline; width:70%' id="id_score" maxlength="250" name="score" type="number" class="form-control list-group-item-text" value="{{question.score}}"/>
 <BR><BR>      <input type="submit" value="送出">
             {% csrf_token %}         
         </form>
