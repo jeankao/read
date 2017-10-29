@@ -8,7 +8,7 @@
 	<div class="panel-heading">{{work.title}} {% if not sfwork %}<font color=red>(尚未發表)</font>{% endif %} -- {{fclass.publication_date}} {{work.teacher_id|realname}}老師 -- 期限:{% if fclass.deadline %}{{fclass.deadline_date}}{% if fclass.deadline_date|alert and not sfwork %}<font color=red>還剩 {{fclass.deadline_date|due}}</font><img src="/static/images/alert.png">{% endif %}{% else %}無{% endif %}</div>
   <div class="panel-body">
 							<a href="/student/forum/show/{{work.id}}/{{request.user.id}}/{{classroom_id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-search" aria-hidden="true"></span> 課程</a>
-		{% if request.user.id|is_teacher:classroom_id or not fclass.forum_id|in_deadline:classroom_id == '' or sfwork %}
+		{% if request.user.id|is_assistant:classroom_id or request.user.id|is_teacher:classroom_id or not fclass.forum_id|in_deadline:classroom_id == '' or sfwork %}
 		<button class="btn btn-default">繳交({{count}})</button>
 		<a href="/student/forum/memo/{{classroom_id}}/{{work.id}}/1" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> 座號</a>		
 							<a href="/student/forum/memo/{{classroom_id}}/{{work.id}}/0" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> 班級心得</a>		
