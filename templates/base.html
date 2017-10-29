@@ -118,7 +118,7 @@ Licence URI: http://www.os-templates.com/template-terms
 				</ul>
           <ul class="nav navbar-nav navbar-right">
   		{% if request.user.is_authenticated %}		  
-          <li><a href="/account/avatar/" style="padding:0px; padding-right:10px"><img src="/static/images/avatar/s{{request.user.profile.avatar}}.png" style="width:60px;margin:0px;">{{ request.user.first_name }}</a></li>
+          <li class="hidden-sm"><a href="/account/avatar/" style="padding:0px; padding-right:10px"><img src="/static/images/avatar/s{{request.user.profile.avatar}}.png" style="width:60px;margin:0px;">{{ request.user.first_name }}</a></li>
 				<li><a href="/account/logout" class='btn btn-default' role="btn">登出</a></li>
 			{% else %}
 			<li><a href="/account/register" class='btn btn-default' role="btn">註冊新帳號</a></li>
