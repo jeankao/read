@@ -802,6 +802,7 @@ def forum_grade(request, classroom_id, action):
 
 def forum_deadline(request, classroom_id, forum_id):
     forum = FWork.objects.get(id=forum_id)
+    classroom = Classroom.objects.get(id=classroom_id)
     if request.method == 'POST':
         form = CategroyForm(request.POST)
         if form.is_valid():
@@ -812,7 +813,8 @@ def forum_deadline(request, classroom_id, forum_id):
     else:
         fclass = FClass.objects.get(classroom_id=classroom_id, forum_id=forum_id)
         form = ForumDeadlineForm(instance=fclass)
-    return render_to_response('teacher/forum_deadline_form.html',{'fclass':fclass}, context_instance=RequestContext(request))
+        fclasses = FClass.objects.filter(forum_id=forum_id).order_by("-id")
+    return render_to_response('teacher/forum_deadline_form.html',{'fclasses':fclasses, 'fclass':fclass, 'forum':forum, 'classroom':classroom}, context_instance=RequestContext(request))
 
 	
 # Ajax 設定期限、取消期限
@@ -841,7 +843,7 @@ def forum_deadline_date(request):
     except ObjectDoesNotExist:
         fclass = FClass(forum_id=forum_id, classroom_id=classroom_id)
     #fclass.deadline_date = deadline_date.strftime('%d/%m/%Y')
-    fclass.deadline_date = datetime.strptime(deadline_date, '%Y %B %d - %I:%M %p')
+    fclass.deadline_date = datetime.strptime(deadline_date, '%Y %B %d - %H:%M')
     fclass.save()
     return JsonResponse({'status':deadline_date}, safe=False)             
         
