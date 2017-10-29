@@ -340,7 +340,7 @@ def forum_show(request, index, user_id, classroom_id):
 			publish = work_first.publish
 			replys = SFReply.objects.filter(index=index, work_id=work_first.id).order_by("-id")	
 			files = SFContent.objects.filter(index=index, student_id=user_id, visible=True).order_by("-id")	
-		return render_to_response('student/forum_show.html', {'publish':publish, 'classroom_id':classroom_id, 'contents':contents, 'replys':replys, 'files':files, 'forum':forum, 'user_id':user_id, 'teacher_id':teacher_id, 'works': works, 'is_teacher':is_teacher(classroom_id, request.user.id)}, context_instance=RequestContext(request))
+		return render_to_response('student/forum_show.html', {'work_new': work_new, 'work_first':work_first, 'publish':publish, 'classroom_id':classroom_id, 'contents':contents, 'replys':replys, 'files':files, 'forum':forum, 'user_id':user_id, 'teacher_id':teacher_id, 'works': works, 'is_teacher':is_teacher(classroom_id, request.user.id)}, context_instance=RequestContext(request))
 		
  # 查詢某作業所有同學心得
 def forum_memo(request, classroom_id, index, action):
@@ -1031,11 +1031,10 @@ def exam_score(request, classroom_id, exam_id, examwork_id, question_id):
     score = 0
     score_total = 0
     exam = Exam.objects.get(id=exam_id)
-    examworks = ExamWork.objects.filter(exam_id=exam_id, student_id=request.user.id).order_by("-id")
-    if len(examworks)> 0:
-        examwork = examworks[0]
-    else :
-        examwork = ExamWork(exam_id=exam_id, student_id=request.user.id)		
+    try:
+        examwork = ExamWork.objects.get(id=examwork_id)
+    except ObjectDoesNotExist:
+        pass
     questions = ExamQuestion.objects.filter(exam_id=exam_id).order_by("id")		
     question_ids = []
     qas = []
@@ -1055,7 +1054,7 @@ def exam_score(request, classroom_id, exam_id, examwork_id, question_id):
     else :
         return redirect('/student/exam/score/'+classroom_id+'/'+exam_id+'/'+examwork_id+'/'+str(question_ids[0]))
     try :
-        answer = ExamAnswer.objects.get(examwork_id=examwork.id, question_id=question_id, student_id=request.user.id).answer
+        answer = ExamAnswer.objects.get(examwork_id=examwork_id, question_id=question_id, student_id=request.user.id).answer
     except ObjectDoesNotExist:
         answer = 0
 

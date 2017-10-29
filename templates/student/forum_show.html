@@ -4,11 +4,32 @@
 
 {% block header %}
 <link rel="stylesheet" href="/static/js/annotator/annotator.min.css" type="text/css" media="all" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <script type="text/javascript" src="/static/js/annotator/annotator-full.min.js"></script>
 {% if is_teacher %}
 <link rel="stylesheet" href="/static/js/annotator/annotator.touch.css" type="text/css" media="all" />
 <script type="text/javascript" src="/static/js/annotator/annotator.touch.min.js"></script>
 {% endif %}
+<style>
+.checked {
+    color: orange;
+}
+.rating{
+	float:right;
+}
+.animated {
+    -webkit-transition: height 0.2s;
+    -moz-transition: height 0.2s;
+    transition: height 0.2s;
+}
+
+.stars
+{
+    margin: 20px 0;
+    font-size: 24px;
+    color: #d17581;
+}	
+</style>
 {% endblock %}
 
 {% block content %}
@@ -100,14 +121,16 @@
 			<a href="#" data-workid="{{work_first.id}}" class="guestbooks">
 			<span id="reply_count">{{replys|length}}</span>則留言
 		</a>
-<fieldset class="rating">
-    <input {% if work_first.score == 5 %}checked{% endif %} data-workid="{{work_first.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star5_{{work_first.id}}" name="rating{{work_first.id}}" value="5"/><label class = "full" for="star5_{{work_first.id}}" title="太棒了 - 5顆星"></label>
-    <input {% if work_first.score == 4 %}checked{% endif %} data-workid="{{work_first.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star4_{{work_first.id}}" name="rating{{work_first.id}}" value="4" /><label class = "full" for="star4_{{work_first.id}}" title="好棒 - 4顆星"></label>
-    <input {% if work_first.score == 3 %}checked{% endif %} data-workid="{{work_first.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star3_{{work_first.id}}" name="rating{{work_first.id}}" value="3" /><label class = "full" for="star3_{{work_first.id}}" title="不錯 - 3顆星"></label>
-    <input {% if work_first.score == 2 %}checked{% endif %} data-workid="{{work_first.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star2_{{work_first.id}}" name="rating{{work_first.id}}" value="2" /><label class = "full" for="star2_{{work_first.id}}" title="再加油 - 2顆星"></label>
-    <input {% if work_first.score == 1 %}checked{% endif %} data-workid="{{work_first.id}}" type="radio" {% ifnotequal request.user.id  teacher_id %} onclick="return false;"{% endifnotequal  %} id="star1_{{work_first.id}}" name="rating{{work_first.id}}" value="1" /><label class = "full" for="star1_{{work_first.id}}" title="繼續努力 - 1顆星"></label>
-</fieldset>
-			        <div id="reply" style="display:none">
+											<span class="rating">				
+												<span class="staring">
+	  <span class="fa fa-star star1 {% if work_first.score >= 1 %}checked{% endif %}"></span>
+	  <span class="fa fa-star star2 {% if work_first.score >= 2 %}checked{% endif %}"></span>
+	  <span class="fa fa-star star3 {% if work_first.score >= 3 %}checked{% endif %}"></span>
+	  <span class="fa fa-star star4 {% if work_first.score >= 4 %}checked{% endif %}"></span>
+	  <span class="fa fa-star star5 {% if work_first.score >= 5 %}checked{% endif %}"></span>
+												</span>			        
+				</span>					
+							<div id="reply" style="display:none">
 							<textarea  autofocus name="reply" id="reply_memo" cols="30" rows="5" class="form-control list-group-item-text"></textarea>
 							<button class="reply_submit" data-workid={{work.id}} data-index={{work.index}} data-userid={{request.user.id}}>送出</button>
 
