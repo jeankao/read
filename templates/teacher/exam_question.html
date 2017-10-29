@@ -23,7 +23,7 @@
               {% elif question.types == 2 %}
 	 <a name="{{question.id}}"></a>
   <div class="panel-heading"><button type="button" class="btn btn-primary">{{forloop.revcounter}}</button> ({{question.score}}分) 選擇題
-		{% if question.user_id == request.user.id %}
+		{% if exam.user_id == request.user.id %}
     <A href="/teacher/exam/question/delete/{{exam_id}}/{{question.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
     <a href="/teacher/exam/question/edit/{{exam_id}}/{{question.id}}"><img src="/static/images/edit.gif"> 編輯</a>
 		{% endif %}
