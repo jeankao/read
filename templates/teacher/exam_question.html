@@ -29,7 +29,9 @@
 		{% endif %}
 </div>
   <div class="panel-body">
-		<pre style="font-size: 16px">{{question.title}} </pre> <BR>
+<div class="panel panel-default">
+  <div class="panel-body" style="font-size:16px">{{question.title|linebreaksbr}}({{question.score}}分)</div>
+</div>
 <button class="btn btn-{% if question.answer == 1 %}info{% else %}default{% endif %}">{{question.option1}}</button>
 <button class="btn btn-{% if question.answer == 2 %}info{% else %}default{% endif %}">{{question.option2}}</button>	
 <button class="btn btn-{% if question.answer == 3 %}info{% else %}default{% endif %}">{{question.option3}}</button>

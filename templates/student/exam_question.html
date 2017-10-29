@@ -366,7 +366,9 @@ label .glyphicon {
 <a href="{{q}}" role="btn" class="btn btn-xs btn-{% if not q|slugify  == question_id %}{% if a == 0 %}default{% else %}info{% endif %}{% else %}primary{% endif %}">{{forloop.counter}}</a>
 {% endfor %}
 <a href="/student/exam/submit/{{classroom_id}}/{{question.exam_id}}/{{examwork.id}}" onclick="return confirm('確定要交卷嗎?')" role="btn" class="btn btn-xs btn-warning">交卷</a>
-<pre style="font-size: 16px">{{question.title}}({{question.score}}分)</pre>
+<div class="panel panel-default">
+  <div class="panel-body" style="font-size:16px">{{question.title|linebreaksbr}}({{question.score}}分)</div>
+</div>
 
           <div class="quiz" id="quiz" data-toggle="buttons">
            <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="element-animation1 btn btn-lg btn-default btn-block {% if answer == 1 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="1">{{question.option1}}</label>

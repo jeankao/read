@@ -219,3 +219,4 @@ def unread(user_id):
 @register.filter(name='abs_filter')
 def abs_filter(value):
     return abs(value)
+	
