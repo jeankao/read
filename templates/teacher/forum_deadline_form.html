@@ -39,7 +39,7 @@
 		</div>
 	{% for class in fclasses %}
 {% if not class.classroom_id == fclass.classroom_id %}
-  <div class="col-xs-12 col-sm-6 col-md-4 other_class" {% if not fclass.deadline %}style="display:none;"{% endif %}>
+  <div class="col-xs-12 col-sm-6 col-md-4 other_class" {% if not class.deadline %}style="display:none;"{% endif %}>
 	<div class="panel panel-default">
 		<div class="panel-heading">{{class.classroom_id|classname}} --期限：<span class="deadline_string">{% if class.deadline %}{{class.deadline_date|date:'Y F d - H:i'}}{% else %}無{% endif %}</span></div>
 		<div class="panel-body"><a data-forumid="{{class.forum_id}}" data-classroomid="{{class.classroom_id}}" href="#" role="btn" class="btn btn-primary apply">套用</a> <a data-forumid="{{class.forum_id}}" data-classroomid="{{class.classroom_id}}"  href="#" role="btn" class="btn btn-primary cancle">取消</a></div>
