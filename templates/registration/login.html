@@ -18,3 +18,10 @@
         </form>
   </div>
 {% endblock %}
+
+{% block footer_script %}
+<script>
+$('form>p').addClass('form-group form-inline');
+$('form>p>input').addClass('form-control');
+</script>
+{% endblock %}

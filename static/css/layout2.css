@@ -7,3 +7,7 @@
   margin-left: auto;
   max-width: 1000px; /* or 950px */
 }
+
+.tab-pane {
+  padding-top: 10pt;
+}

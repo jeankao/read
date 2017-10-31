@@ -1161,10 +1161,10 @@ class SpeculationContentCreateView(CreateView):
         if self.object.types == 1:
             work.types = 1
             work.text = self.object.text
-        if self.object.types  == 2:
+        elif self.object.types  == 2:
             work.types = 2					
             work.youtube = self.object.youtube
-        if self.object.types  == 3:
+        elif self.object.types  == 3:
             work.types = 3
             myfile = self.request.FILES['content_file']
             fs = FileSystemStorage()
@@ -1172,13 +1172,15 @@ class SpeculationContentCreateView(CreateView):
             work.title = myfile.name
             work.filename = str(self.request.user.id)+"/"+filename
             fs.save("static/upload/"+str(self.request.user.id)+"/"+filename, myfile)	
-        if self.object.types  == 4:
+        elif self.object.types  == 4:
             work.types = 4
             work.link = self.object.link
             work.title = self.object.title
         work.memo = self.object.memo
         work.save()         
-  
+
+        if self.object.types == 3:
+          return JsonResponse({'files': [{'name': work.filename}]}, safe=False)
         return redirect("/teacher/speculation/content/"+self.kwargs['forum_id'])  
 
     def get_context_data(self, **kwargs):

@@ -47,7 +47,7 @@ def annotations(request):
 #
 #
 def single_annotation(request, annotation_id):
-  try: 
+  try:
     # 只有自己可以刪除或修改自己的建立的標註資料
     annotation = Annotation.objects.get(id=annotation_id, user_id=request.user.id)
     if request.method == "DELETE":
@@ -89,7 +89,7 @@ def single_annotation(request, annotation_id):
 #
 #
 def search(request):
-  ftype = request.GET.get('ftype', default=0)  
+  ftype = request.GET.get('ftype', default=0)
   findex = request.GET.get('findex')
   stuid = request.GET.get('stuid', default=0)
   classroom = request.GET.get('classroom', default=0)
@@ -107,7 +107,7 @@ def search(request):
   # 若有指定思辨素材 id
   if mid > 0:
     qs = qs.filter(mid=mid)
-  
+
   annotations = [a for a in qs.order_by('id')]
   total = len(annotations)
   rows = []
@@ -119,11 +119,11 @@ def search(request):
     anno['updated'] = annotation.updated
     user = User.objects.filter(id=annotation.user_id)[0]
     anno['supervisor'] = user.first_name
-    if 'shapes' in anno: 
+    if 'shapes' in anno:
       anno['ranges'] = [{'start': '', 'end': '', 'startOffset': 0, 'endOffset': 0}]
     rows.append(anno)
   data = {
-    "total": total, 
+    "total": total,
     "rows": rows,
   }
   return JsonResponse(data, safe=False)
