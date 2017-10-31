@@ -152,8 +152,12 @@ def classroom_enroll(request, classroom_id):
                     try:
                         classroom = Classroom.objects.get(id=classroom_id)
                         if classroom.password == form.cleaned_data['password']:
-                                enroll = Enroll(classroom_id=classroom_id, student_id=request.user.id, seat=form.cleaned_data['seat'])
-                                enroll.save()                                
+                                try:
+                                    enroll = Enroll.objects.get(classroom_id=classroom_id, student_id=request.user.id)
+                                    return redirect("/student/classroom/0")
+                                except ObjectDoesNotExist:
+                                    enroll = Enroll(classroom_id=classroom_id, student_id=request.user.id, seat=form.cleaned_data['seat'])
+                                    enroll.save()                                
                                 messages = Message.objects.filter(author_id=classroom.teacher_id, classroom_id=classroom_id)	 
                                 for message in messages:
                                     messagepoll = MessagePoll(message_type=1, message_id=message.id, reader_id=request.user.id, classroom_id=classroom_id)
@@ -165,7 +169,7 @@ def classroom_enroll(request, classroom_id):
                         pass
                     
                     
-                    return redirect("/student/classroom/")
+                    return redirect("/student/classroom/0")
         else:
             form = EnrollForm()
         return render_to_response('student/classroom_enroll.html', {'form':form}, context_instance=RequestContext(request))
