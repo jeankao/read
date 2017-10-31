@@ -1,75 +1,16 @@
 {% extends "base.html" %}
 {% block title %} Teachers {% endblock %}
-{% block header %}
-<style class="cp-pen-styles">
-.wrapper_tab {
-  margin: auto;
-  padding: 1em;
-  width: 900px;
-}
-ul.tabs {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-ul.tabs li {
-  border: gray solid 1px;
-  border-bottom: none;
-  float: left;
-  margin: 0 .25em 0 0;
-  padding: .25em .5em;
-}
-ul.tabs li a {
-  color: gray;
-  font-weight: bold;
-  text-decoration: none;
-}
-ul.tabs li.active {
-  background: gray;
-}
-ul.tabs li.active a {
-  color: white;
-}
-.clr {
-  clear: both;
-}
-.block article {
-    display: none;
-}
-article {
-  border-top: gray solid 1px;
-  padding: 0 1em;
-}
-</style>
-<script>
-$(function () {
-    $('ul.tabs li:first').addClass('active');
-    $('.block article').hide();
-    $('.block article:first').show();
-    $('ul.tabs li').on('click', function () {
-        $('ul.tabs li').removeClass('active');
-        $(this).addClass('active');
-        $('.block article').hide();
-        var activeTab = $(this).find('a').attr('href');
-        $(activeTab).show();
-        return false;
-    });
-});
-//# sourceURL=pen.js
-
-</script>
-{% endblock %}
 {% load tag %}
 {% block content %}
 <section class="wrapper_tab">
   <h1>系統事件</h1>
-  <ul class="tabs">
-    <li><a href="#tab1">事件</a></li>
-    <li><a href="#tab2">班級</a></li>
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a aria-control="tab1" data-toggle="tab" role="tab"  href="#tab1">事件</a></li>
+    <li role="presentation"><a aria-control="tab2" data-toggle="tab" role="tab"  href="#tab2">班級</a></li>
   </ul>
   <div class="clr"></div>
-  <section class="block">
-    <article id="tab1">
+  <section class="tab-content">
+    <article id="tab1" class="tab-pane fade in active" role="tabpanel">
         <BR>
  搜尋記錄：
     <form action="."  method="get">
@@ -94,17 +35,19 @@ $(function () {
         {% get_pagination %}
         <BR>
     </article>
-    <article id="tab2">
+    <article id="tab2" class="tab-pane fade" role="tabpanel">
     <BR>
-        <table class="table">
+        <table class="table table-hover table-condensed">
+					<thead>
         <tr>
-        <td>班級名稱</td>
-        <Td>任課教師</Td>
-        <Td>所有事件記錄</Td>
-        <Td>影片事件記錄</Td>
-        <Td>班級事件</Td>
-            
+        <th>班級名稱</th>
+        <Th>任課教師</th>
+        <Th>所有事件記錄</Th>
+        <Th>影片事件記錄</Th>
+        <Th>班級事件</Th>
         </tr>
+					</thead>
+					<tbody>
         {% for classroom in classrooms %}
         <Tr><Td>{{classroom.name}}</Td>
         <Td>{{classroom.teacher_id|realname}}</Td>
@@ -112,6 +55,7 @@ $(function () {
         <Td>{{classroom.event_video_open}}</Td>
         <Td><a href="/account/event/admin/classroom/{{classroom.id}}">事件</a></Td>
         </Tr>
+						</tbody>
         {% endfor %}
         </table>
 </article>     

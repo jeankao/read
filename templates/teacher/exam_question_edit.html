@@ -1,178 +1,103 @@
 {% extends "base.html" %}
 {% load tag %}
-{% block header %}
-<style class="cp-pen-styles">
-.btn.dropdown-toggle ~ .dropdown-menu, 
-ul.nav li.dropdown ul.dropdown-menu {
-    background-color: rgb(244, 244, 244);
-	background-color: rgb(255, 255, 255);
-	border: 0 solid rgb(66, 133, 244);
-	box-shadow: 0px 0px 3px rgba(25, 25, 25, 0.3);
-	top: 0px;
-	margin: 0px;
-    padding: 0px;
-}
-ul.nav li.dropdown ul.dropdown-menu {
-    position: absolute;
-    width: 100%;
-}
-.dropdown-menu .dropdown-plus-title {
-	width: 100%;
-	color: rgb(51, 51, 51);
-	padding: 6px 12px;
-	font-weight: 800;
-	border: 0 solid rgb(173, 173, 173);
-	border-bottom-width: 2px;
-	cursor: pointer;
-}
 
-ul.nav li.dropdown ul.dropdown-menu .dropdown-plus-title {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    line-height: 20px;
-}
-
-.btn.dropdown-toggle.btn-primary ~ .dropdown-menu .dropdown-plus-title {
-    border-color: rgb(53, 126, 189);
-}
-.btn.dropdown-toggle.btn-success ~ .dropdown-menu .dropdown-plus-title {
-    border-color: rgb(76, 174, 76);
-}
-.btn.dropdown-toggle.btn-info ~ .dropdown-menu .dropdown-plus-title {
-    border-color: rgb(70, 184, 218);
-}
-.btn.dropdown-toggle.btn-warning ~ .dropdown-menu .dropdown-plus-title {
-    border-color: rgb(238, 162, 54);
-}
-.btn.dropdown-toggle.btn-danger ~ .dropdown-menu .dropdown-plus-title {
-    border-color: rgb(212, 63, 58);
-}
-
-#radioBtn .notActive{
-    color: #3276b1;
-    background-color: #fff;
-}
-	
-ul.tabs {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-ul.tabs li {
-  border: gray solid 1px;
-  border-bottom: none;
-  float: left;
-  margin: 0 .25em 0 0;
-  padding: .25em .5em;
-}
-ul.tabs li a {
-  color: gray;
-  font-weight: bold;
-  text-decoration: none;
-}
-ul.tabs li.active {
-  background: gray;
-}
-ul.tabs li.active a {
-  color: white;
-}
-.clr {
-  clear: both;
-}
-article {
-  border-top: gray solid 1px;
-  padding: 0 1em;
-}</style>
-<script>
-	
-$(function () {
-    $('.block article').hide();
-    var defaultTab = $('ul.tabs li:first');
-    var defaultArticle = $('.block article:first');
-    if (location.hash && $(location.hash)) {
-        $('ul.tabs li a').each(function(index, element){
-            if($(element).attr('href') === location.hash) {
-                defaultTab = $(element).parent();
-                defaultArticle = $(location.hash);
-            }
-        });
-        location.hash = ""
-    }
-    $(defaultTab).addClass('active');
-    $(defaultArticle).show();
-    $('ul.tabs li').on('click', function () {
-        $('ul.tabs li').removeClass('active');
-        $(this).addClass('active');
-        $('.block article').hide();
-        var activeTab = $(this).find('a').attr('href');
-        $(activeTab).show();
-        return false;
-    });
-});
-	
-//# sourceURL=pen.js
-
-</script>
-{% endblock %}
 {% block content %}
 <a href="" class="btn btn-success" role="btn">{{exam.title}}</a>
 <!--------------------------------------------------------->		
 {% if question.types == 2 %}
 選擇題
-    <form action=""  method="post" enctype="multipart/form-data">
-           <input type=hidden name=types value="2">
-           <input type=hidden name=exam_id value={{exam.id}}>           
-           <input type=hidden name=question_id value={{question.id}}>                
-        題目：<textarea name="title" id="id_title" cols="30" rows="10" class="form-control list-group-item-text">{{question.title}}</textarea>
-<BR>選項1：<input style='display:inline; width:70%' id="id_option1" maxlength="250" name="option1" type="text" class="form-control list-group-item-text" value="{{question.option1}}"/>
-<BR><BR>選項2：<input style='display:inline; width:70%' id="id_option2" maxlength="250" name="option2" type="text" class="form-control list-group-item-text" value="{{question.option2}}"/>
-<BR><BR>選項3：<input style='display:inline; width:70%' id="id_option3" maxlength="250" name="option3" type="text" class="form-control list-group-item-text" value="{{question.option3}}"/>
-<BR><BR>選項4：<input style='display:inline; width:70%' id="id_option4" maxlength="250" name="option4" type="text" class="form-control list-group-item-text" value="{{question.option4}}"/>		
-<BR><BR>答案：
- <select name="answer" class="form-control" title="Choose one of the following..." style="display:inline;width:70%">
-  <option {% if question.answer == 1 %}selected{% endif %} value=1>選項1</option>
-  <option {% if question.answer == 2 %}selected{% endif %} value=2>選項2</option>
-  <option {% if question.answer == 3 %}selected{% endif %} value=3>選項3</option>
-  <option {% if question.answer == 4 %}selected{% endif %} value=4>選項4</option>	 
-</select>
-<BR><BR>配分：<input style='display:inline; width:70%' id="id_score" maxlength="250" name="score" type="number" class="form-control list-group-item-text" value="{{question.score}}"/>
-<BR><BR>      <input type="submit" value="送出">
-            {% csrf_token %}         
-        </form>
-    </article>
-<!--------------------------------------------------------->	
+<form action="" method="post" enctype="multipart/form-data" class="form-horizontal">
+  {% csrf_token %}
+  <input type=hidden name=types value="2">
+  <input type=hidden name=exam_id value={{exam.id}}>
+  <input type=hidden name=question_id value={{question.id}}>
+  <div class="form-group">
+    <label for="id_title" class="col-sm-2 control-label">題目</label>
+    <div class="col-sm-10">
+      <textarea name="title" id="id_title" rows="10" class="form-control">{{question.title}}</textarea>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="id_option1" class="col-sm-2 control-label">選項1</label>
+    <div class="col-sm-10">
+      <input id="id_option1" maxlength="250" name="option1" type="text" class="form-control" value="{{question.option1}}" />
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="id_option2" class="col-sm-2 control-label">選項2</label>
+    <div class="col-sm-10">
+      <input id="id_option2" maxlength="250" name="option2" type="text" class="form-control" value="{{question.option2}}" />
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="id_option3" class="col-sm-2 control-label">選項3</label>
+    <div class="col-sm-10">
+      <input id="id_option3" maxlength="250" name="option3" type="text" class="form-control" value="{{question.option3}}" />
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="id_option4" class="col-sm-2 control-label">選項4</label>
+    <div class="col-sm-10">
+      <input id="id_option4" maxlength="250" name="option4" type="text" class="form-control" value="{{question.option4}}" />
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="id_answer" class="col-sm-2 control-label">答案</label>
+    <div class="col-sm-10">
+      <select id="id_answer" name="answer" class="form-control" title="Choose one of the following...">
+        <option {% if question.answer == 1 %}selected{% endif %} value=1>選項1</option>
+        <option {% if question.answer == 2 %}selected{% endif %} value=2>選項2</option>
+        <option {% if question.answer == 3 %}selected{% endif %} value=3>選項3</option>
+        <option {% if question.answer == 4 %}selected{% endif %} value=4>選項4</option>	 
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="id_score" class="col-sm-2 control-label">配分</label>
+    <div class="col-sm-10">
+      <input id="id_score" maxlength="250" name="score" type="number" class="form-control" value="{{question.score}}" />
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <input type="submit" class="btn btn-default" value="送出" />
+    </div>
+  </div>
+</form>
 {% elif question.types == 1 %}  
-      <BR>
-         <form action=""  method="post"  enctype="multipart/form-data">
-           <input type=hidden name=types value="1">
-           <input type=hidden name=exam_id value={{exam.id}}>
-           <input type=hidden name=question_id value={{question.id}}>              
-           問題:<textarea name="title" id="title" cols="30" rows="10" class="form-control list-group-item-text"></textarea>
-					 <BR>
-           答案:
-    				<div id="radioBtn" class="btn-group">
-    					<a class="btn btn-primary btn-sm active" data-toggle="happy" data-title="Y">是</a>
-    					<a class="btn btn-primary btn-sm notActive" data-toggle="happy" data-title="N">否</a>
-    				</div>
-					 <BR><BR>
-    				<input type="hidden" name="happy" id="happy">
-           {% csrf_token %}<input type="submit" value="送出">
-        </form>
+<form action="" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <input type=hidden name=types value="1">
+  <input type=hidden name=exam_id value={{exam.id}}>
+  <div class="form-control">
+    <label for="title">問題</label>
+    <textarea name="title" id="title" rows="10" class="form-control"></textarea>
+  </div>
+  <div class="form-group">
+    <label for="radioBtn">答案</label>
+    <div id="radioBtn" class="btn-group">
+      <a class="btn btn-primary btn-sm active" data-toggle="happy" data-title="Y">是</a>
+      <a class="btn btn-primary btn-sm notActive" data-toggle="happy" data-title="N">否</a>
+    </div>
+  </div>
+  <input type="hidden" name="happy" id="happy" />
+  <input type="submit" class="btn btn-default" value="送出" />
+</form>
 {% endif %}
 <!--------------------------------------------------------->
 {% endblock %}
-      	{% block domready %}
-						 
-		$("#title").focus();
 
-			$('#radioBtn a').on('click', function(){
+{% block domready %}
+  $("#title").focus();
+
+  $('#radioBtn a').on('click', function(){
     var sel = $(this).data('title');
     var tog = $(this).data('toggle');
     $('#'+tog).prop('value', sel);
-    
+
     $('a[data-toggle="'+tog+'"]').not('[data-title="'+sel+'"]').removeClass('active').addClass('notActive');
     $('a[data-toggle="'+tog+'"][data-title="'+sel+'"]').removeClass('notActive').addClass('active');
-});				
-			
-	    $('body').css('background-image','url(/static/images/back1.gif)');
-	{% endblock %}
+  });
+
+  $('body').css('background-image','url(/static/images/back1.gif)');
+{% endblock %}
