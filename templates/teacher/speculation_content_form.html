@@ -133,6 +133,7 @@ $(function() {
   var data_pool = [];
   $('#fileupload').fileupload({
     dataType: 'json',
+    sequentialUploads: true, 
     add: function(e, data) {
       var node = $('<tr/>').append($('<td/>').text(data.files[0].name))
         .append($('<td/>').text(data.files[0].size));
