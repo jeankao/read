@@ -961,7 +961,7 @@ class ExamListView(ListView):
             return redirect('/')
         return super(ExamListView, self).render_to_response(context)    	
 			
-def exam_question(request, classroom_id, exam_id, question_id):	
+def exam_question(request, classroom_id, exam_id, examwork_id, question_id):	
     exam = Exam.objects.get(id=exam_id)
     examworks = ExamWork.objects.filter(exam_id=exam_id, student_id=request.user.id).order_by("-id")
 
@@ -988,15 +988,16 @@ def exam_question(request, classroom_id, exam_id, question_id):
     qas = []
     answer_dict = dict(((answer.question_id, answer) for answer in ExamAnswer.objects.filter(examwork_id=examwork.id, question_id__in=question_ids, student_id=request.user.id))) 
     for question in question_ids:
+        question = int(question)
         if question in answer_dict:
-            qas.append([question, answer_dict[question.id]])
+            qas.append([question, answer_dict[question]])
         else :
             qas.append([question, 0])
     if not question_id == "0":
         question = ExamQuestion.objects.get(id=question_id)
     else :
         if len(questions)> 0 :
-            return redirect('/student/exam/question/'+classroom_id+'/'+exam_id+'/'+str(question_ids[0]))
+            return redirect('/student/exam/question/'+classroom_id+'/'+exam_id+'/'+examwork_id+'/'+str(question_ids[0]))
         else :
             return redirect('/student/exam/'+classroom_id)
     try :
@@ -1011,12 +1012,17 @@ def exam_answer(request):
     question_id = request.POST.get('questionid')
     input_answer = request.POST.get('answer')
     if examwork_id :
-        try :
-            answer = ExamAnswer.objects.get(examwork_id=examwork_id, question_id=question_id, student_id=request.user.id) 	
-        except ObjectDoesNotExist :
-            answer = ExamAnswer(examwork_id=examwork_id, question_id=question_id, student_id=request.user.id)
-        answer.answer = input_answer
-        answer.save()
+        try:
+            examwork = ExamWork.objects.get(id=examwork_id)
+        except ObjectDoesNotExist:
+	         examwork = ExamWork(exam_id=exam_id, student_id=request.user.id)
+        if not examwork.publish :
+            try :
+               answer = ExamAnswer.objects.get(examwork_id=examwork_id, question_id=question_id, student_id=request.user.id) 	
+            except ObjectDoesNotExist :
+                answer = ExamAnswer(examwork_id=examwork_id, question_id=question_id, student_id=request.user.id)
+            answer.answer = input_answer
+            answer.save()
         return JsonResponse({'status':'ok'}, safe=False)
     else:
         return JsonResponse({'status':'fail'}, safe=False)
@@ -1028,7 +1034,7 @@ def exam_submit(request, classroom_id, exam_id, examwork_id):
         try:
             examwork = ExamWork.objects.get(id=examwork_id)
         except ObjectDoesNotExist:
-	         examwork = ExamWork(exam_id=exam_id, student_id=request.user.id)	
+	          examwork = ExamWork(exam_id=exam_id, student_id=request.user.id)	
         examwork.publish = True
         examwork.publication_date = timezone.now()
         questions = ExamQuestion.objects.filter(exam_id=exam_id).order_by("id")	

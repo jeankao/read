@@ -7,13 +7,13 @@
 <div class="panel panel-default">
 	<div class="panel-heading">{{exam.title}} {% if not examwork %}<font color=red>(尚未交卷)</font>{% endif %} -- {{examclass.publication_date}} {{exam.user_id|realname}}老師 -- 期限:{% if examclass.deadline %}{{examclass.deadline_date}}{% if examclass.deadline_date|alert and not examwork %}<font color=red>還剩 {{examclass.deadline_date|due}}</font><img src="/static/images/alert.png">{% endif %}{% else %}無{% endif %}</div>
   <div class="panel-body">
-		{% if not examclass.exam_id|in_deadline:classroom_id == '' or examwork or not question_count > 0 %}<button class="btn btn-default"><span class="glyphicon glyphicon-pencil" aria-hidden="true">作答({{examworks|length}})</span></button>{% else %}<a href="/student/exam/question/{{classroom_id}}/{{exam.id}}/0" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> 作答({{examworks|length}})</a>{% endif %}
+		{% if not examclass.exam_id|in_deadline:classroom_id == '' or examwork or not question_count > 0 %}<button class="btn btn-default"><span class="glyphicon glyphicon-pencil" aria-hidden="true">作答({{examworks|length}})</span></button>{% else %}<a href="/student/exam/question/{{classroom_id}}/{{exam.id}}/{% if examworks|length == 0 %}0{% else %}{{examworks.0.id}}{% endif %}/0" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> 作答({{examworks|length}})</a>{% endif %}
 {% if examworks|length > 0 and examwork %}		
 {% for examwork in examworks %}		
 <a href="/student/exam/score/{{classroom_id}}/{{exam.id}}/{{examwork.id}}/0" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span> 結果{{forloop.revcounter}}</a>	
 {% endfor %}
 {% if examwork and retest %}																								 
-<a href="/student/exam/question/{{classroom_id}}/{{examclass.exam_id}}/0" class="btn btn-warning"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>重考</a>
+<a href="/student/exam/question/{{classroom_id}}/{{examclass.exam_id}}/{{examworks.0.id}}/0" class="btn btn-warning"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>重考</a>
 {% endif %}
 {% endif %}
 		{% if request.user.id == work.teacher_id %}	
