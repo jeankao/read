@@ -1024,27 +1024,26 @@ def exam_answer(request):
 def exam_submit(request, classroom_id, exam_id, examwork_id):
     examclass = ExamClass.objects.get(exam_id=exam_id, classroom_id=classroom_id)
     examworks = ExamWork.objects.filter(exam_id=exam_id, student_id=request.user.id)
-    if examclass.round_limit > 0 and len(examworks) >= examclass.round_limit:
-	      return redirect('/student/exam/score/'+classroom_id+'/'+exam_id+'/'+examwork_id+'/0')  
-    try:
-        examwork = ExamWork.objects.get(id=examwork_id)
-    except ObjectDoesNotExist:
-	      examwork = ExamWork(exam_id=exam_id, student_id=request.user.id)	
-    examwork.publish = True
-    examwork.publication_date = timezone.now()
-    questions = ExamQuestion.objects.filter(exam_id=exam_id).order_by("id")	
-    question_ids = []
-    score = 0
-    for question in questions:
-        question_ids.append(question.id)		
-    answer_dict = dict(((answer.question_id, answer.answer) for answer in ExamAnswer.objects.filter(examwork_id=examwork_id, question_id__in=question_ids, student_id=request.user.id)))		
-    for question in questions:
-        if question.id in answer_dict:
-            if question.answer == answer_dict[question.id] :
-                score += question.score		
-    examwork.score = score
-    examwork.scorer = 0
-    examwork.save()
+    if examclass.round_limit == 0 or len(examworks) <= examclass.round_limit:
+        try:
+            examwork = ExamWork.objects.get(id=examwork_id)
+        except ObjectDoesNotExist:
+	         examwork = ExamWork(exam_id=exam_id, student_id=request.user.id)	
+        examwork.publish = True
+        examwork.publication_date = timezone.now()
+        questions = ExamQuestion.objects.filter(exam_id=exam_id).order_by("id")	
+        question_ids = []
+        score = 0
+        for question in questions:
+            question_ids.append(question.id)		
+        answer_dict = dict(((answer.question_id, answer.answer) for answer in ExamAnswer.objects.filter(examwork_id=examwork_id, question_id__in=question_ids, student_id=request.user.id)))		
+        for question in questions:
+            if question.id in answer_dict:
+                if question.answer == answer_dict[question.id] :
+                    score += question.score		
+        examwork.score = score
+        examwork.scorer = 0
+        examwork.save()
     return redirect('/student/exam/score/'+classroom_id+'/'+exam_id+'/'+examwork_id+'/0')
 
 def exam_score(request, classroom_id, exam_id, examwork_id, question_id):
