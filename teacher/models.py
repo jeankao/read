@@ -143,6 +143,9 @@ class ExamClass(models.Model):
     def __unicode__(self):
         return str(self.exam_id)
 			
+    class Meta:
+        unique_together = ('exam_id', 'classroom_id',)		
+			
 class ExamQuestion(models.Model):
     exam_id = models.IntegerField(default=0)
     types = models.IntegerField(default=0)

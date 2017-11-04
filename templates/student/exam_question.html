@@ -371,15 +371,31 @@ label .glyphicon {
 </div>
 
           <div class="quiz" id="quiz" data-toggle="buttons">
-           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="element-animation1 btn btn-lg btn-default btn-block {% if answer == 1 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="1">{{question.option1}}</label>
-           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="element-animation2 btn btn-lg btn-default btn-block {% if answer == 2 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="2">{{question.option2}}</label>
-           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="element-animation3 btn btn-lg btn-default btn-block {% if answer == 3 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="3">{{question.option3}}</label>
-           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="element-animation4 btn btn-lg btn-default btn-block {% if answer == 4 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="4">{{question.option4}}</label>
+           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation1 btn btn-lg btn-default btn-block {% if answer == 1 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="1">{{question.option1}}</label>
+           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation2 btn btn-lg btn-default btn-block {% if answer == 2 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="2">{{question.option2}}</label>
+           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation3 btn btn-lg btn-default btn-block {% if answer == 3 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="3">{{question.option3}}</label>
+           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation4 btn btn-lg btn-default btn-block {% if answer == 4 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="4">{{question.option4}}</label>
        </div>
+
+                        <script type='text/javascript'>
+
+                        </script>
+
+                </div>
 
 {% endblock %}
 
 	{% block domready %}
+$(function() {
+   var container22 = $("#quiz");
+   var cbs = container22.children("label");
+   var index;
+  var entry;
+   for (index = 0; index < cbs.length; ++index) {
+      entry = $(cbs[Math.floor(Math.random() * cbs.length)]);
+      entry.add(entry.next()).appendTo(container22);
+     }
+});
 $(function(){
     var loading = $('#loadbar').hide();
     $(document)

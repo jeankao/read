@@ -964,25 +964,34 @@ class ExamListView(ListView):
 def exam_question(request, classroom_id, exam_id, question_id):	
     exam = Exam.objects.get(id=exam_id)
     examworks = ExamWork.objects.filter(exam_id=exam_id, student_id=request.user.id).order_by("-id")
+
     if len(examworks)> 0:
         if examworks[0].publish:
-            examwork = ExamWork(exam_id=exam_id, student_id=request.user.id)					
+            questions = ExamQuestion.objects.filter(exam_id=exam_id).order_by("?")
+            question_ids = []		
+            for question in questions:
+                question_ids.append(question.id)
+            question_string = ",".join(str(question_id) for question_id in question_ids)			
+            examwork = ExamWork(exam_id=exam_id, student_id=request.user.id, questions=question_string)
         else :
             examwork = examworks[0]
     else :
-        examwork = ExamWork(exam_id=exam_id, student_id=request.user.id)
+        questions = ExamQuestion.objects.filter(exam_id=exam_id).order_by("?")
+        question_ids = []		
+        for question in questions:
+            question_ids.append(question.id)
+        question_string = ",".join(str(question_id) for question_id in question_ids)			
+        examwork = ExamWork(exam_id=exam_id, student_id=request.user.id, questions=question_string)
     examwork.save()
-    questions = ExamQuestion.objects.filter(exam_id=exam_id).order_by("id")
-    question_ids = []
+    questions = examwork.questions
+    question_ids = questions.split(',')
     qas = []
-    for question in questions:
-        question_ids.append(question.id)
-    answer_dict = dict(((answer.question_id, answer) for answer in ExamAnswer.objects.filter(examwork_id=examwork.id, question_id__in=question_ids, student_id=request.user.id)))		
-    for question in questions:
-        if question.id in answer_dict:
-            qas.append([question.id, answer_dict[question.id]])
+    answer_dict = dict(((answer.question_id, answer) for answer in ExamAnswer.objects.filter(examwork_id=examwork.id, question_id__in=question_ids, student_id=request.user.id))) 
+    for question in question_ids:
+        if question in answer_dict:
+            qas.append([question, answer_dict[question.id]])
         else :
-            qas.append([question.id, 0])
+            qas.append([question, 0])
     if not question_id == "0":
         question = ExamQuestion.objects.get(id=question_id)
     else :
@@ -1013,6 +1022,10 @@ def exam_answer(request):
         return JsonResponse({'status':'fail'}, safe=False)
 	
 def exam_submit(request, classroom_id, exam_id, examwork_id):
+    examclass = ExamClass.objects.get(exam_id=exam_id, classroom_id=classroom_id)
+    examworks = ExamWork.objects.filter(exam_id=exam_id, student_id=request.user.id)
+    if examclass.round_limit > 0 and len(examworks) >= examclass.round_limit:
+	      return redirect('/student/exam/score/'+classroom_id+'/'+exam_id+'/'+examwork_id+'/0')  
     try:
         examwork = ExamWork.objects.get(id=examwork_id)
     except ObjectDoesNotExist:
@@ -1042,20 +1055,20 @@ def exam_score(request, classroom_id, exam_id, examwork_id, question_id):
         examwork = ExamWork.objects.get(id=examwork_id)
     except ObjectDoesNotExist:
         pass
-    questions = ExamQuestion.objects.filter(exam_id=exam_id).order_by("id")		
-    question_ids = []
+    question_ids = examwork.questions.split(',')
+    score_answer = dict(((question.id, [question.score, question.answer]) for question in ExamQuestion.objects.filter(exam_id=exam_id)))			
     qas = []
-    for question in questions:
-        question_ids.append(question.id)
-        score_total += question.score
+    for question in question_ids:
+        score_total += score_answer[int(question)][0]
     answer_dict = dict(((answer.question_id, answer.answer) for answer in ExamAnswer.objects.filter(examwork_id=examwork_id, question_id__in=question_ids, student_id=request.user.id)))		
-    for question in questions:
-        if question.id in answer_dict:
-            if question.answer == answer_dict[question.id] :
-                score += question.score
-            qas.append([question, answer_dict[question.id]])
+    for question in question_ids:
+        question = int(question)
+        if question in answer_dict:
+            if score_answer[question][1] == answer_dict[question] :
+                score += score_answer[question][0]
+            qas.append([question, score_answer[question][1], answer_dict[question]])
         else :
-            qas.append([question, 0])
+            qas.append([question, score_answer[question][1], 0])
     if not question_id == "0":
         question = ExamQuestion.objects.get(id=question_id)
     else :

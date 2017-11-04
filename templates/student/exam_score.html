@@ -366,11 +366,12 @@ label .glyphicon {
   <div class="panel-heading">得分：{{score}} / {{score_total}}  --{{examwork.publication_date}}</div>
 </div>
 
-{% for q, a  in qas %}
-<a href="{{q.id}}" role="btn" class="btn btn-xs btn-{% if not q.id  == question.id %}{% if a == 0 %}default{% else %}{% if q.answer == a %}success{% else %}info{% endif %}{% endif %}{% else %}primary{% endif %}">{{forloop.counter}} {% if q.answer == a %}V{% else %}X{% endif %}</a>
+{% for q, answer, a  in qas %}
+<a href="{{q}}" role="btn" class="btn btn-xs btn-{% if not q  == question.id %}{% if a == 0 %}default{% else %}{% if answer == a %}success{% else %}info{% endif %}{% endif %}{% else %}primary{% endif %}">{{forloop.counter}} {% if answer == a %}V{% else %}X{% endif %}</a>
 {% endfor %}
-<pre style="font-size: 16px">{{question.title}}({{question.score}}分)</pre>
-
+<div class="panel panel-default">
+  <div class="panel-body" style="font-size:16px">{{question.title|linebreaksbr}}({{question.score}}分)</div>
+</div>
           <div class="quiz" id="quiz" data-toggle="buttons">
            <label class="element-animation1 btn btn-lg btn-{% if question.answer == 1 %}success{% else %}default{% endif %} btn-block {% if answer == 1 %}active{% endif %}"><span class="btn-label"><i class="glyphicon {% if question.answer == 1 %}glyphicon-ok{% else %}{% if answer == 1 %}glyphicon-remove{% else %}glyphicon-chevron-right{% endif %}{% endif %}"></i></span> <input type="radio" name="q_answer" value="1">{{question.option1}}</label>
            <label class="element-animation2 btn btn-lg btn-{% if question.answer == 2 %}success{% else %}default{% endif %} btn-block {% if answer == 2 %}active{% endif %}"><span class="btn-label"><i class="glyphicon {% if question.answer == 2 %}glyphicon-ok{% else %}{% if answer == 2 %}glyphicon-remove{% else %}glyphicon-chevron-right{% endif %}{% endif %}"></i></span> <input type="radio" name="q_answer" value="2">{{question.option2}}</label>

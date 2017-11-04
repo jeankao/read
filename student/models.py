@@ -119,6 +119,7 @@ class StudentGroup(models.Model):
 class ExamWork(models.Model):
     student_id = models.IntegerField(default=0)
     exam_id = models.IntegerField()    
+    questions = models.TextField(default='')
     publish = models.BooleanField(default=False)
     publication_date = models.DateTimeField(default=timezone.now)
     score = models.IntegerField(default=0)
