@@ -28,6 +28,7 @@
 		  <td>{{exam.user_id|realname}}</td>  
 						<td>	
 						{% if exam.user_id == request.user.id %}
+						<a href="/teacher/exam/class/{{exam.id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span> 班級</a>							
             <a href="/teacher/exam/question/{{exam.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> 題目</a>
 						{% else %}
              <a href="/teacher/exam/question/{{exam.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> 題目</a>
