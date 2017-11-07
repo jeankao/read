@@ -4,7 +4,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, CreateView
 from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, SSpeculationWork, SSpeculationContent, StudentGroup, ExamWork, ExamAnswer
-from teacher.models import Classroom, TWork, FWork, FContent, FClass, Assistant, SpeculationClass, SpeculationWork, SpeculationContent, SpeculationAnnotation, ClassroomGroup, Exam, ExamClass, ExamQuestion
+from teacher.models import Classroom, FWork, FContent, FClass, Assistant, SpeculationClass, SpeculationWork, SpeculationContent, SpeculationAnnotation, ClassroomGroup, Exam, ExamClass, ExamQuestion
 from account.models import VisitorLog,  Profile, Parent, Log, Message, PointHistory, MessagePoll
 from student.forms import EnrollForm, SeatForm, ForumSubmitForm, SpeculationSubmitForm
 from django.core.exceptions import ObjectDoesNotExist

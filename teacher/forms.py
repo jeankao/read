@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from account.models import Message
-from teacher.models import Classroom, TWork, FWork, FContent, FClass, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation, ClassroomGroup, Exam, ExamClass, ExamQuestion
+from teacher.models import Classroom, FWork, FContent, FClass, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation, ClassroomGroup, Exam, ExamClass, ExamQuestion
+from teacher.models import TeamWork, TeamClass
 
 
 # 新增一個課程表單
@@ -34,16 +35,7 @@ class ForumDeadlineForm(forms.ModelForm):
         def __init__(self, *args, **kwargs):
             super(ForumDeadlineForm, self).__init__(*args, **kwargs)			
 
-# 新增一個作業
-class WorkForm(forms.ModelForm):
-        class Meta:
-           model = TWork
-           fields = ['title']
-        
-        def __init__(self, *args, **kwargs):
-            super(WorkForm, self).__init__(*args, **kwargs)
-            self.fields['title'].label = "作業名稱"
-            
+						
 # 新增一個作業
 class ForumForm(forms.ModelForm):
         class Meta:
@@ -195,3 +187,34 @@ class ExamQuestionForm(forms.ModelForm):
 #上傳檔案
 class UploadFileForm(forms.Form):
     file = forms.FileField()						
+		
+# 新增一個任務
+class TeamForm(forms.ModelForm):
+        class Meta:
+           model = TeamWork
+           fields = ['title']
+        
+        def __init__(self, *args, **kwargs):
+            super(TeamForm, self).__init__(*args, **kwargs)
+            self.fields['title'].label = "任務主題"
+            self.fields['title'].widget.attrs.update({'class' : 'form-control list-group-item-text'})									
+		
+# 新增一個課程表單
+class TeamCategroyForm(forms.ModelForm):
+        class Meta:
+           model = TeamWork
+           fields = ['domains', 'levels']
+        
+        def __init__(self, *args, **kwargs):
+            super(TeamCategroyForm, self).__init__(*args, **kwargs)			
+						
+# 新增一個繳交期限表單
+class TeamDeadlineForm(forms.ModelForm):
+        class Meta:
+           model = TeamClass
+           fields = ['deadline', 'deadline_date']
+        
+        def __init__(self, *args, **kwargs):
+            super(TeamDeadlineForm, self).__init__(*args, **kwargs)			
+
+		

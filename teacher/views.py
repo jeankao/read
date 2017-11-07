@@ -3,11 +3,12 @@ from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
-from teacher.models import Classroom, TWork, FWork, FClass, FContent, Assistant, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation, ClassroomGroup, Exam, ExamClass, ExamQuestion, ExamImportQuestion2
-from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, StudentGroup, ExamWork
+from teacher.models import Classroom, FWork, FClass, FContent, Assistant, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation
+from teacher.models import ClassroomGroup, Exam, ExamClass, ExamQuestion, ExamImportQuestion2, TeamWork, TeamClass
+from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, StudentGroup, ExamWork, StudentGroup
 from account.models import Domain, Level, Parent, Log, Message, MessagePoll, MessageContent
-from .forms import ClassroomForm, WorkForm, ForumForm, ForumContentForm, ForumCategroyForm, ForumDeadlineForm, AnnounceForm, SpeculationForm, SpeculationContentForm, SpeculationAnnotationForm, GroupForm, GroupForm2
-from .forms import ExamForm, ExamCategroyForm, ExamDeadlineForm, ExamQuestionForm, UploadFileForm
+from .forms import ClassroomForm, ForumForm, ForumContentForm, ForumCategroyForm, ForumDeadlineForm, AnnounceForm, SpeculationForm, SpeculationContentForm, SpeculationAnnotationForm, GroupForm, GroupForm2
+from .forms import ExamForm, ExamCategroyForm, ExamDeadlineForm, ExamQuestionForm, UploadFileForm, TeamForm, TeamCategroyForm, TeamDeadlineForm
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
@@ -189,86 +190,8 @@ def unenroll(request, enroll_id, classroom_id):
     enroll.delete()
     classroom_name = Classroom.objects.get(id=classroom_id).name
     return redirect('/student/classmate/'+classroom_id)  
-  
-# 列出所有課程
-class WorkListView(ListView):
-    model = TWork
-    context_object_name = 'works'
-    paginate_by = 20
-    def get_queryset(self):
-        queryset = TWork.objects.filter(teacher_id=self.request.user.id, classroom_id=self.kwargs['classroom_id']).order_by("-id")
-        return queryset
-			
-    def get_context_data(self, **kwargs):
-        context = super(WorkListView, self).get_context_data(**kwargs)
-        context['classroom_id'] = self.kwargs['classroom_id']
-        return context	
-        
-#新增一個課程
-class WorkCreateView(CreateView):
-    model = TWork
-    form_class = WorkForm
-    template_name = "form.html"
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.teacher_id = self.request.user.id
-        self.object.classroom_id = self.kwargs['classroom_id']
-        self.object.save()  
-  
-        return redirect("/teacher/work/"+self.kwargs['classroom_id'])        
-        
-# 修改選課密碼
-def work_edit(request, classroom_id):
-    # 限本班任課教師
-    if not is_teacher(request.user, classroom_id):
-        return redirect("homepage")
-    classroom = Classroom.objects.get(id=classroom_id)
-    if request.method == 'POST':
-        form = ClassroomForm(request.POST)
-        if form.is_valid():
-            classroom.name =form.cleaned_data['name']
-            classroom.password = form.cleaned_data['password']
-            classroom.save()
-                  
-            return redirect('/teacher/classroom')
-    else:
-        form = ClassroomForm(instance=classroom)
 
-    return render_to_response('form.html',{'form': form}, context_instance=RequestContext(request))        
-    			
-# 列出某作業所有同學名單
-def work_class(request, classroom_id, work_id):
-    enrolls = Enroll.objects.filter(classroom_id=classroom_id)
-    classroom_name = Classroom.objects.get(id=classroom_id).name
-    classmate_work = []
-    scorer_name = ""
-    for enroll in enrolls:
-        try:    
-            work = SWork.objects.get(student_id=enroll.student_id, index=work_id)
-            if work.scorer > 0 :
-                scorer = User.objects.get(id=work.scorer)
-                scorer_name = scorer.first_name
-            else :
-                scorer_name = "1"
-        except ObjectDoesNotExist:
-            work = SWork(index=work_id, student_id=1)
-        try:
-            group_name = EnrollGroup.objects.get(id=enroll.group).name
-        except ObjectDoesNotExist:
-            group_name = "沒有組別"
-        assistant = Assistant.objects.filter(classroom_id=classroom_id, student_id=enroll.student_id, lesson=work_id)
-        if assistant.exists():
-            classmate_work.append([enroll,work,1, scorer_name, group_name])
-        else :
-            classmate_work.append([enroll,work,0, scorer_name, group_name])   
-    def getKey(custom):
-        return custom[0].seat
-	
-    classmate_work = sorted(classmate_work, key=getKey)
-    
-        
-    return render_to_response('teacher/twork_class.html',{'classmate_work': classmate_work, 'classroom_id':classroom_id, 'index': work_id}, context_instance=RequestContext(request))
-	
+
 # 列出所有討論主題
 class ForumListView(ListView):
     model = FWork
@@ -2075,3 +1998,316 @@ class ExamAllListView(ListView):
         context['levels'] = Level.objects.all()				
         context['domains'] = Domain.objects.all()
         return context	
+
+       
+
+# 列出所有討論主題
+class TeamListView(ListView):
+    model = TeamWork
+    context_object_name = 'teams'
+    template_name = "teacher/team_list.html"		
+    paginate_by = 20
+    def get_queryset(self):        
+        teamclasses = TeamClass.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("-publication_date", "-team_id")
+        teams = []
+        for teamclass in teamclasses:
+            team = TeamWork.objects.get(id=teamclass.team_id)
+            teams.append([team, teamclass])
+        return teams
+			
+    def get_context_data(self, **kwargs):
+        context = super(TeamListView, self).get_context_data(**kwargs)
+        classroom = Classroom.objects.get(id=self.kwargs['classroom_id'])
+        context['classroom'] = classroom
+        return context	
+        
+#新增一個討論主題
+class TeamCreateView(CreateView):
+    model = TeamWork
+    form_class = TeamForm
+    template_name = "teacher/team_form.html"
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.teacher_id = self.request.user.id
+        self.object.classroom_id = self.kwargs['classroom_id']
+        self.object.domains = self.request.POST.getlist('domains')
+        self.object.levels = self.request.POST.getlist('levels')	        
+        self.object.save()  
+        classrooms = self.request.POST.getlist('classrooms')
+        for classroom in classrooms:
+          teamclass = TeamClass(team_id=self.object.id, classroom_id=classroom)
+          teamclass.save()
+        
+        return redirect("/teacher/team/"+self.kwargs['classroom_id'])           
+        
+    def get_context_data(self, **kwargs):
+        context = super(TeamCreateView, self).get_context_data(**kwargs)
+        classroom_list = []
+        classrooms = Classroom.objects.filter(teacher_id=self.request.user.id)
+        for classroom in classrooms:
+            classroom_list.append(classroom.id)
+        assistants = Assistant.objects.filter(user_id=self.request.user.id)
+        for assistant in assistants:
+            if not assistant.classroom_id in classroom_list:
+                classroom_list.append(assistant.classroom_id)
+        classrooms = Classroom.objects.filter(id__in=classroom_list).order_by("-id")
+        context['classrooms'] = classrooms
+        context['classroom_id'] = int(self.kwargs['classroom_id'])
+        context['classroom'] = Classroom.objects.get(id=self.kwargs['classroom_id'])
+        context['domains'] = Domain.objects.all()
+        context['levels'] = Level.objects.all()
+        return context	
+	
+# 列出所有討論主題
+class TeamAllListView(ListView):
+    model = FWork
+    context_object_name = 'forums'
+    template_name = "teacher/forum_all.html"		
+    paginate_by = 20
+		
+    def get_queryset(self):
+      # 年級
+      if self.kwargs['categroy'] == "1":
+        queryset = FWork.objects.filter(levels__contains=self.kwargs['categroy_id']).order_by("-id")
+      # 學習領域
+      elif self.kwargs['categroy'] == "2":
+        queryset = FWork.objects.filter(domains__contains=self.kwargs['categroy_id']).order_by("-id")   
+      else:
+        queryset = FWork.objects.all().order_by("-id")
+      if self.request.GET.get('account') != None:
+        keyword = self.request.GET.get('account')
+        users = User.objects.filter(Q(username__icontains=keyword) | Q(first_name__icontains=keyword)).order_by('-id')
+        user_list = []
+        for user in users:
+            user_list.append(user.id)
+        forums = queryset.filter(teacher_id__in=user_list)
+        return forums
+      else:				
+        return queryset
+			
+    def get_context_data(self, **kwargs):
+        context = super(TeamAllListView, self).get_context_data(**kwargs)
+        context['categroy'] = self.kwargs['categroy']							
+        context['categroy_id'] = self.kwargs['categroy_id']							
+        context['levels'] = Level.objects.all()				
+        context['domains'] = Domain.objects.all()
+        return context	
+			
+def team_categroy(request, classroom_id, team_id):
+    team = TeamWork.objects.get(id=team_id)
+    domains = Domain.objects.all()
+    levels = Level.objects.all()		
+    if request.method == 'POST':
+        form = TeamCategroyForm(request.POST)
+        if form.is_valid():
+            team.domains = request.POST.getlist('domains')
+            team.levels = request.POST.getlist('levels')	
+            team.save()
+            return redirect('/teacher/team/'+classroom_id+'/#'+str(team.id))
+    else:
+        form = TeamCategroyForm(instance=team)
+        
+    return render_to_response('teacher/team_categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'team':team}, context_instance=RequestContext(request))
+
+	
+# 列出所有討論主題
+class TeamAllListView(ListView):
+    model = FWork
+    context_object_name = 'forums'
+    template_name = "teacher/forum_all.html"		
+    paginate_by = 20
+		
+    def get_queryset(self):
+      # 年級
+      if self.kwargs['categroy'] == "1":
+        queryset = FWork.objects.filter(levels__contains=self.kwargs['categroy_id']).order_by("-id")
+      # 學習領域
+      elif self.kwargs['categroy'] == "2":
+        queryset = FWork.objects.filter(domains__contains=self.kwargs['categroy_id']).order_by("-id")   
+      else:
+        queryset = FWork.objects.all().order_by("-id")
+      if self.request.GET.get('account') != None:
+        keyword = self.request.GET.get('account')
+        users = User.objects.filter(Q(username__icontains=keyword) | Q(first_name__icontains=keyword)).order_by('-id')
+        user_list = []
+        for user in users:
+            user_list.append(user.id)
+        forums = queryset.filter(teacher_id__in=user_list)
+        return forums
+      else:				
+        return queryset
+			
+    def get_context_data(self, **kwargs):
+        context = super(ForumAllListView, self).get_context_data(**kwargs)
+        context['categroy'] = self.kwargs['categroy']							
+        context['categroy_id'] = self.kwargs['categroy_id']							
+        context['levels'] = Level.objects.all()				
+        context['domains'] = Domain.objects.all()
+        return context	
+
+
+# 列出某任務主題的班級
+class TeamClassListView(ListView):
+    model = TeamWork
+    context_object_name = 'classrooms'
+    template_name = "teacher/team_class.html"		
+    paginate_by = 20
+	
+    def get_queryset(self):        		
+        teamclass_dict = dict(((teamclass.classroom_id, teamclass) for teamclass in TeamClass.objects.filter(team_id=self.kwargs['team_id'])))		
+        classroom_list = []
+        classroom_ids = []
+        classrooms = Classroom.objects.filter(teacher_id=self.request.user.id).order_by("-id")
+        for classroom in classrooms:
+            if classroom.id in teamclass_dict:
+                classroom_list.append([classroom, True, teamclass_dict[classroom.id].deadline, teamclass_dict[classroom.id].deadline_date])
+            else :
+                classroom_list.append([classroom, False, False, timezone.now()])
+            classroom_ids.append(classroom.id)
+        assistants = Assistant.objects.filter(user_id=self.request.user.id)
+        for assistant in assistants:
+            classroom = Classroom.objects.get(id=assistant.classroom_id)
+            if not classroom.id in classroom_ids:
+                if classroom.id in teamclass_dict:
+                    classroom_list.append([classroom, True, teamclass_dict[classroom.id].deadline, teamclass_dict[classroom.id].deadline_date])
+                else :
+                    classroom_list.append([classroom, False, False, timezone.now()])
+        return classroom_list
+			
+    def get_context_data(self, **kwargs):
+        context = super(TeamClassListView, self).get_context_data(**kwargs)				
+        teamwork = TeamWork.objects.get(id=self.kwargs['team_id'])
+        context['teamwork'] = teamwork
+        context['team_id'] = self.kwargs['team_id']
+        return context	
+	
+# Ajax 開放班取、關閉班級
+def team_switch(request):
+    team_id = request.POST.get('teamid')
+    classroom_id = request.POST.get('classroomid')		
+    status = request.POST.get('status')
+    try:
+        teamwork = TeamClass.objects.get(team_id=team_id, classroom_id=classroom_id)
+        if status == 'false' :
+    				teamwork.delete()
+    except ObjectDoesNotExist:
+        if status == 'true':
+            teamwork = TeamClass(team_id=team_id, classroom_id=classroom_id)
+            teamwork.save()
+    return JsonResponse({'status':status}, safe=False)        
+	
+# 列出某作業所有同學名單
+def team_class(request, classroom_id, work_id):
+    enrolls = Enroll.objects.filter(classroom_id=classroom_id)
+    classroom_name = Classroom.objects.get(id=classroom_id).name
+    classmate_work = []
+    scorer_name = ""
+    for enroll in enrolls:
+        try:    
+            work = SWork.objects.get(student_id=enroll.student_id, index=work_id)
+            if work.scorer > 0 :
+                scorer = User.objects.get(id=work.scorer)
+                scorer_name = scorer.first_name
+            else :
+                scorer_name = "1"
+        except ObjectDoesNotExist:
+            work = SWork(index=work_id, student_id=1)
+        try:
+            group_name = EnrollGroup.objects.get(id=enroll.group).name
+        except ObjectDoesNotExist:
+            group_name = "沒有組別"
+        assistant = Assistant.objects.filter(classroom_id=classroom_id, student_id=enroll.student_id, lesson=work_id)
+        if assistant.exists():
+            classmate_work.append([enroll,work,1, scorer_name, group_name])
+        else :
+            classmate_work.append([enroll,work,0, scorer_name, group_name])   
+    def getKey(custom):
+        return custom[0].seat
+	
+    classmate_work = sorted(classmate_work, key=getKey)
+   
+    return render_to_response('teacher/twork_class.html',{'classmate_work': classmate_work, 'classroom_id':classroom_id, 'index': work_id}, context_instance=RequestContext(request))
+			
+def team_deadline(request, classroom_id, team_id):
+    team = TeamWork.objects.get(id=team_id)
+    classroom = Classroom.objects.get(id=classroom_id)
+    if request.method == 'POST':
+        form = CategroyForm(request.POST)
+        if form.is_valid():
+            team.domains = request.POST.getlist('domains')
+            team.levels = request.POST.getlist('levels')	
+            team.save()
+            return redirect('/teacher/team/'+classroom_id)
+    else:
+        teamclass = TeamClass.objects.get(classroom_id=classroom_id, team_id=team_id)
+        form = TeamDeadlineForm(instance=teamclass)
+        teamclasses = TeamClass.objects.filter(team_id=team_id).order_by("-id")
+    return render_to_response('teacher/team_deadline_form.html',{'teamclasses':teamclasses, 'teamclass':teamclass, 'team':team, 'classroom':classroom}, context_instance=RequestContext(request))
+
+# Ajax 設定期限、取消期限
+def team_deadline_set(request):
+    team_id = request.POST.get('teamid')
+    classroom_id = request.POST.get('classroomid')		
+    status = request.POST.get('status')
+    try:
+        teamclass = TeamClass.objects.get(team_id=team_id, classroom_id=classroom_id)
+    except ObjectDoesNotExist:
+        teamclass = Teamclass(team_id=team_id, classroom_id=classroom_id)
+    if status == 'True':
+        teamclass.deadline = True
+    else :
+        teamclass.deadline = False
+    teamclass.save()
+    return JsonResponse({'status':status}, safe=False)        
+
+# Ajax 設定期限日期
+def team_deadline_date(request):
+    team_id = request.POST.get('teamid')
+    classroom_id = request.POST.get('classroomid')		
+    deadline_date = request.POST.get('deadlinedate')
+    try:
+        teamclass = TeamClass.objects.get(team_id=team_id, classroom_id=classroom_id)
+    except ObjectDoesNotExist:
+        teamclass = TeamClass(team_id=team_id, classroom_id=classroom_id)
+    #fclass.deadline_date = deadline_date.strftime('%d/%m/%Y')
+    teamclass.deadline_date = datetime.strptime(deadline_date, '%Y %B %d - %H:%M')
+    teamclass.save()
+    return JsonResponse({'status':deadline_date}, safe=False)            		
+	
+			
+class TeamEditUpdateView(UpdateView):
+    model = TeamWork
+    fields = ['title']
+    template_name = 'form.html'
+    #success_url = '/teacher/forum/domain/'
+    def get_success_url(self):
+        succ_url =  '/teacher/team/'+self.kwargs['classroom_id']
+        return succ_url
+			
+def team_group(request, classroom_id, team_id):
+    enrolls = Enroll.objects.filter(classroom_id=classroom_id)
+    enroll_dict = {}
+    for enroll in enrolls:
+        enroll_dict[enroll.id] = enroll
+    groups = ClassroomGroup.objects.filter(classroom_id=classroom_id)
+    group_ids = []
+    for group in groups:
+        group_ids.append(group.id)
+    classroom = Classroom.objects.get(id=classroom_id)
+    studentgroups = StudentGroup.objects.filter(group_id__in=group_ids)
+    group_list = []
+    for group in groups:        
+        groupclass_list = []  
+        groupclass_dict = {}
+        students = filter(lambda student: student.group_id == group.id , studentgroups)
+        for student in students:
+            if student.enroll_id in enroll_dict:
+                if student.group in groupclass_dict:
+                    groupclass_dict[student.group].append(enroll_dict[student.enroll_id])
+                else :
+                    groupclass_dict[student.group] = [enroll_dict[student.enroll_id]]
+        for key in groupclass_dict:
+            groupclass_list.append([key, groupclass_dict[key]])
+        group_list.append([group.id, groupclass_list])
+    return render_to_response('teacher/team_group.html',{'groups':groups, 'classroom':classroom, 'group_list':group_list}, context_instance=RequestContext(request))
+			

@@ -3,13 +3,14 @@ from django.conf.urls import url
 from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
-from teacher.views import ClassroomListView, ClassroomCreateView, WorkListView, WorkCreateView
+from teacher.views import ClassroomListView, ClassroomCreateView
 from teacher.views import GroupListView, GroupCreateView, GroupUpdateView
 from teacher.views import ForumListView, ForumCreateView, ForumContentListView, ForumContentCreateView, ForumClassListView
 from teacher.views import AssistantListView, ForumAllListView, ForumEditUpdateView, AnnounceCreateView
 from teacher.views import SpeculationListView, SpeculationCreateView, SpeculationContentListView, SpeculationContentCreateView, SpeculationClassListView
 from teacher.views import SpeculationAllListView, SpeculationEditUpdateView, SpeculationAnnotationListView, SpeculationAnnotationCreateView
 from teacher.views import ExamListView, ExamCreateView, ExamEditUpdateView, ExamClassListView, ExamQuestionListView, ExamQuestionCreateView, ExamAllListView
+from teacher.views import TeamListView, TeamCreateView, TeamEditUpdateView, TeamClassListView
 
 urlpatterns = [
     url(r'^member/$', login_required(views.TeacherListView.as_view())),
@@ -29,13 +30,8 @@ urlpatterns = [
     #設定助教
     url(r'^assistant/$', login_required(views.AssistantClassroomListView.as_view())),  
     url(r'^assistant/make/$', login_required(views.assistant_make), name='make'),     
-  # 退選
+    # 退選
     url(r'^unenroll/(?P<enroll_id>\d+)/(?P<classroom_id>\d+)/$', login_required(views.unenroll)),  	
-    # 搜查線
-    url(r'^work/(?P<classroom_id>\d+)/$', login_required(WorkListView.as_view()), name='work-list'),
-    url(r'^work/add/(?P<classroom_id>\d+)/$', login_required(WorkCreateView.as_view()), name='work-add'),
-    url(r'^work/edit/(?P<classroom_id>\d+)/$', login_required(views.work_edit), name='work-edit'),  
-    url(r'^work/class/(?P<classroom_id>\d+)/(?P<work_id>\d+)/$', login_required(views.work_class), name='work-class'),  
     # 討論區
     url(r'^forum/(?P<categroy>\d+)/(?P<categroy_id>\d+)/$', login_required(ForumAllListView.as_view()), name='forum-all'),  
     url(r'^forum/show/(?P<forum_id>\d+)/$', login_required(views.forum_show), name='forum-show'),    
@@ -111,4 +107,23 @@ urlpatterns = [
 	  #大量匯入選擇題
     url(r'^exam/import2/upload/(?P<exam_id>\d+)/$', login_required(views.exam_import_sheet)),   	
     url(r'^exam/import2/question/(?P<exam_id>\d+)/$', login_required(views.exam_import_question)),   
+    # 合作區
+    #url(r'^team/(?P<categroy>\d+)/(?P<categroy_id>\d+)/$', login_required(TeamAllListView.as_view())),  
+    #url(r'^forum/show/(?P<forum_id>\d+)/$', login_required(views.forum_show), name='forum-show'),    
+    url(r'^team/edit/(?P<classroom_id>\d+)/(?P<pk>\d+)/$', login_required(TeamEditUpdateView.as_view())),   
+    url(r'^team/(?P<classroom_id>\d+)/$', login_required(TeamListView.as_view())),
+    url(r'^team/add/(?P<classroom_id>\d+)/$', login_required(TeamCreateView.as_view())),
+    url(r'^team/category/(?P<classroom_id>\d+)/(?P<team_id>\d+)/$', login_required(views.team_categroy)),  
+    url(r'^team/deadline/(?P<classroom_id>\d+)/(?P<team_id>\d+)/$', login_required(views.team_deadline)),  
+    url(r'^team/deadline/set/$', login_required(views.team_deadline_set)), 
+    url(r'^team/deadline/date/$', login_required(views.team_deadline_date)),   
+    url(r'^team/deadline/(?P<classroom_id>\d+)/(?P<team_id>\d+)/$', login_required(views.team_deadline)),   
+    #url(r'^forum/download/(?P<content_id>\d+)/$', views.forum_download, name='forum-download'),  
+    #url(r'^forum/content/(?P<forum_id>\d+)/$', login_required(ForumContentListView.as_view()), name='forum-content'), 
+    #url(r'^forum/content/add/(?P<forum_id>\d+)/$', login_required(ForumContentCreateView.as_view()), name='forum-content-add'),
+    #url(r'^forum/content/delete/(?P<forum_id>\d+)/(?P<content_id>\d+)/$', login_required(views.forum_delete), name='forum-content-delete'),   
+    #url(r'^forum/content/edit/(?P<forum_id>\d+)/(?P<content_id>\d+)/$', login_required(views.forum_edit), name='forum-content-edit'),    
+    url(r'^team/class/(?P<classroom_id>\d+)/(?P<team_id>\d+)/$', views.team_class),  
+    url(r'^team/class/switch/$', login_required(views.team_switch)),      	
+    url(r'^team/group/(?P<classroom_id>\d+)/(?P<team_id>\d+)/$', login_required(views.team_group)),   	
 ]

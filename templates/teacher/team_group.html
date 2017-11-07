@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load tag %}
+{% block content %}
+	<div class="row">
+		<div class="span12">    
+            <p class="lead">分組情形:</p>
+            <div id="tab" class="btn-group" data-toggle="buttons-radio">
+              <a href="#group0" class="btn btn-large btn-info active" data-toggle="tab">不分組</a>              
+{% for group in groups %}              
+              <a href="#group{{group.id}}" class="btn btn-large btn-info" data-toggle="tab">{{group.title}}</a>
+{% endfor %}                       
+            </div>
+            <div class="tab-content">
+              <div class="tab-pane" id="group0">
+                all
+              </div>
+     
+              {% for group_id, groups in group_list %}
+              <div class="tab-pane" id="group{{group_id}}">
+                <table class="table">                  
+                {% for group, members in groups %}
+                <tr>
+                  <td>第{{forloop.counter}}組：</td><td>{% for member in members %}<button class="btn btn-default">({{member.seat}}){{member.student_id|realname}}</button>{% endfor %}</td>                  
+                  </tr>
+                {% endfor %}
+                </table>                  
+              </div>
+              {% endfor %}
+            </div>                            
+	</div>
+</div>
+{% endblock %}
+{% block domready %}
+	    $('body').css('background-image','url(/static/images/back1.gif)');
+	{% endblock %}

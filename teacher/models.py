@@ -29,13 +29,6 @@ class Assistant(models.Model):
     classroom_id = models.IntegerField(default=0)
     user_id = models.IntegerField(default=0)
       
-#課程
-class TWork(models.Model):
-    title = models.CharField(max_length=250)
-    teacher_id = models.IntegerField(default=0)		
-    classroom_id = models.IntegerField(default=0)
-    time = models.DateTimeField(default=timezone.now) 
-    
 #討論區
 class FWork(models.Model):
     title = models.CharField(max_length=250,verbose_name= '討論主題')
@@ -166,3 +159,35 @@ class ExamImportQuestion2(models.Model):
     option4 = models.CharField(max_length=250,null=True,blank=True)		
     answer = models.IntegerField(default=0)		
     score = models.IntegerField(default=0)				
+
+#合作區
+class TeamWork(models.Model):
+    title = models.CharField(max_length=250,verbose_name= '任務主題')
+    teacher_id = models.IntegerField(default=0)		
+    classroom_id = models.IntegerField(default=0)
+    time = models.DateTimeField(default=timezone.now) 
+    domains = models.TextField(default='')    
+    levels = models.TextField(default='')    
+
+def get_deadline():
+    return datetime.today() + timedelta(days=14)		
+		
+class TeamClass(models.Model):
+    team_id = models.IntegerField(default=0)
+    classroom_id =  models.IntegerField(default=0)
+    publication_date = models.DateTimeField(default=timezone.now)
+    deadline = models.BooleanField(default=False)
+    deadline_date = models.DateTimeField(default=get_deadline)
+	
+    def __unicode__(self):
+        return str(self.forum_id)	
+
+class TeamContent(models.Model):
+    team_id =  models.IntegerField(default=0)
+    types = models.IntegerField(default=0)
+    title = models.CharField(max_length=250,null=True,blank=True)
+    memo = models.TextField(default='')    
+    link = models.CharField(max_length=250,null=True,blank=True) 
+    youtube = models.CharField(max_length=250,null=True,blank=True) 
+    file = models.FileField(blank=True,null=True)
+    filename = models.CharField(max_length=60,null=True,blank=True)     		
