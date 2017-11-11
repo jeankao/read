@@ -2349,11 +2349,6 @@ def video_length(request):
     fcontent.save()
     return JsonResponse({'status':'ok'}, safe=False)	
 	
-# 點擊影片觀看記錄
-def video_all_length(request):
-    contents = FContent.objects.filter(types=2)
-    return render_to_response('teacher/video_temp.html',{'contents':contents}, context_instance=RequestContext(request))
-	
 # 影片
 class VideoListView(ListView):
     context_object_name = 'videos'
