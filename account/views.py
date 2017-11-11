@@ -1263,3 +1263,23 @@ def import_user(request):
             messagepoll = MessagePoll.create(message_id = message.id,reader_id=new_user.id)
             messagepoll.save()               
     return redirect('/account/userlist')	
+
+# 記錄系統事件
+class EventAdminListView(ListView):
+    context_object_name = 'events'
+    paginate_by = 50
+    template_name = 'account/event_admin_list.html'
+
+    def get_queryset(self):    
+        queryset = Log.objects.all().order_by('-id')
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super(EventAdminListView, self).get_context_data(**kwargs)
+        return context	
+        
+    # 限管理員
+    def render_to_response(self, context):
+        if not self.request.user.id == 1 :
+            return redirect('/')
+        return super(EventAdminListView, self).render_to_response(context)      

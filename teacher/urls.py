@@ -126,4 +126,6 @@ urlpatterns = [
     url(r'^team/class/(?P<classroom_id>\d+)/(?P<team_id>\d+)/$', views.team_class),  
     url(r'^team/class/switch/$', login_required(views.team_switch)),      	
     url(r'^team/group/(?P<classroom_id>\d+)/(?P<team_id>\d+)/$', login_required(views.team_group)),   	
+	  # 影片觀看記錄
+    url(r'^event/video/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/(?P<work_id>\d+)/$', views.EventVideoView.as_view()),
 ]

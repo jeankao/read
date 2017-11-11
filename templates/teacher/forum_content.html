@@ -20,7 +20,11 @@
   <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.revcounter}}</button> Youtube影片
     <A href="/teacher/forum/content/delete/{{forum_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
     <a href="/teacher/forum/content/edit/{{forum_id}}/{{work.id}}"><img src="/static/images/edit.gif"> 編輯</a>
-</div>
+		<img src="/static/images/video.gif">記錄:
+		{% for class in fclasses %}
+     <a href="/teacher/event/video/{{class.classroom_id}}/{{forum_id}}/{{work.id}}">{{class.classroom_id|classname}}</a>|		
+    {% endfor %}
+	</div>
   <div class="panel-body">
     <div class="embed-responsive embed-responsive-16by9">
                <iframe width="560" height="315" class="embed-responsive-item" src="https://www.youtube.com/embed/{{work.youtube|number}}?enablejsapi=1" frameborder="0" allowfullscreen></iframe>

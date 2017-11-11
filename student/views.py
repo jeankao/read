@@ -1085,4 +1085,10 @@ def exam_score(request, classroom_id, exam_id, examwork_id, question_id):
 
     return render_to_response('student/exam_score.html', {'examwork': examwork, 'score_total': score_total, 'score':score, 'question':question, 'answer':answer, 'exam':exam, 'qas':qas}, context_instance=RequestContext(request))
 			
-		
+# 點擊影片觀看記錄
+def video_log(request):
+    # 記錄系統事件
+    message = request.POST.get('log')
+    log = Log(user_id=request.user.id, event=message)
+    log.save()
+    return JsonResponse({'status':'ok'}, safe=False)

@@ -115,7 +115,7 @@ Licence URI: http://www.os-templates.com/template-terms
 			<li><a href="/teacher/classroom"><img src="/static/images/icon_teacher.png"> 教師</a></li>
 					 {% endif %}
 				{% endif %}
-				</ul>
+ 			</ul>
           <ul class="nav navbar-nav navbar-right">
   		{% if request.user.is_authenticated %}		  
           <li class="hidden-sm"><a href="/account/avatar/" style="padding:0px; padding-right:10px"><img src="/static/images/avatar/s{{request.user.profile.avatar}}.png" style="width:60px;margin:0px;">{{ request.user.first_name }}</a></li>

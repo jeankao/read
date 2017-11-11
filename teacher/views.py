@@ -40,6 +40,7 @@ import os.path
 from django.utils.dateparse import parse_date
 from random import shuffle
 from operator import attrgetter
+from helper import VideoLogHelper
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
     return user.groups.filter(name='teacher').exists() and Classroom.objects.filter(teacher_id=user.id, id=classroom_id).exists()
@@ -426,8 +427,10 @@ class ForumContentListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(ForumContentListView, self).get_context_data(**kwargs)
         fwork = FWork.objects.get(id=self.kwargs['forum_id'])
+        fclasses = FClass.objects.filter(forum_id=self.kwargs['forum_id'])				
         context['fwork']= fwork
         context['forum_id'] = self.kwargs['forum_id']
+        context['fclasses'] = fclasses
         return context	
 			
 #新增一個課程
@@ -2310,4 +2313,29 @@ def team_group(request, classroom_id, team_id):
             groupclass_list.append([key, groupclass_dict[key]])
         group_list.append([group.id, groupclass_list])
     return render_to_response('teacher/team_group.html',{'groups':groups, 'classroom':classroom, 'group_list':group_list}, context_instance=RequestContext(request))
+
+# 記錄系統事件
+class EventVideoView(ListView):
+    context_object_name = 'events'
+    #paginate_by = 50
+    template_name = 'teacher/event_video.html'
+
+    def get_queryset(self):    
+				enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("seat")
+				events = []
+				for enroll in enrolls: 
+						videos = VideoLogHelper().getLogByUserid(enroll.student_id)
+						length = 0
+						for video in videos: 
+								for log in videos[video]:
+										length += log['length']
+						events.append([enroll, length/60])
+				return events
 			
+    def get_context_data(self, **kwargs):
+        context = super(EventVideoView, self).get_context_data(**kwargs)
+        classroom = Classroom.objects.get(id=self.kwargs['classroom_id'])
+        context['classroom'] = classroom
+        enrolls = Enroll.objects.filter(classroom_id=classroom.id)
+        context['height'] = 100 + enrolls.count() * 40
+        return context
