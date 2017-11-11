@@ -54,9 +54,7 @@
   </div>
         {% elif work.types == 2 %}
 <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button> Youtube影片 
-	{% if request.user.id|teacher or request.user.id|assistant %}
 	<a href="/teacher/event/video/{{classroom_id}}/{{forum.id}}/{{work.id}}/">記錄</a>
-	{% endif %}
 </div>
   <div class="panel-body">
     <div class="embed-responsive embed-responsive-16by9">

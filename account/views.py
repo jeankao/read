@@ -155,7 +155,7 @@ def user_login(request):
                             # 記錄系統事件
                             if is_event_open(request) :                            
                                 log = Log(user_id=0, event='登入失敗')
-                                log.save()                                
+                                #log.save()                                
                             message = "無效的帳號或密碼!"
         else:
                 form = LoginForm()
@@ -375,8 +375,9 @@ class LogListView(ListView):
             log = Log(user_id=self.kwargs['user_id'], event='查看積分--思辨區')
         else :
             log = Log(user_id=self.kwargs['user_id'], event='查看全部積分')                        
-        if is_event_open(self.request) :               
-            log.save()                
+        if is_event_open(self.request) :
+            pass
+            #log.save()                
         if not self.kwargs['kind'] == "0" :
             queryset = PointHistory.objects.filter(user_id=self.kwargs['user_id'],kind=self.kwargs['kind']).order_by('-id')
         else :

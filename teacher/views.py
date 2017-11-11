@@ -2321,14 +2321,14 @@ class EventVideoView(ListView):
     template_name = 'teacher/event_video.html'
 
     def get_queryset(self):    
-				enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("seat")
+				enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id'], seat__gt=0).order_by("seat")
 				events = []
 				for enroll in enrolls: 
 						videos = VideoLogHelper().getLogByUserid(enroll.student_id,self.kwargs['work_id'])
 						length = 0
 						for video in videos: 
 										length += video['length']
-						events.append([enroll, length/60])
+						events.append([enroll, length/60.0])
 				return events
 			
     def get_context_data(self, **kwargs):
