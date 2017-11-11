@@ -10,7 +10,7 @@ from teacher.views import AssistantListView, ForumAllListView, ForumEditUpdateVi
 from teacher.views import SpeculationListView, SpeculationCreateView, SpeculationContentListView, SpeculationContentCreateView, SpeculationClassListView
 from teacher.views import SpeculationAllListView, SpeculationEditUpdateView, SpeculationAnnotationListView, SpeculationAnnotationCreateView
 from teacher.views import ExamListView, ExamCreateView, ExamEditUpdateView, ExamClassListView, ExamQuestionListView, ExamQuestionCreateView, ExamAllListView
-from teacher.views import TeamListView, TeamCreateView, TeamEditUpdateView, TeamClassListView
+from teacher.views import TeamListView, TeamCreateView, TeamEditUpdateView, TeamClassListView, VideoListView
 
 urlpatterns = [
     url(r'^member/$', login_required(views.TeacherListView.as_view())),
@@ -128,4 +128,7 @@ urlpatterns = [
     url(r'^team/group/(?P<classroom_id>\d+)/(?P<team_id>\d+)/$', login_required(views.team_group)),   	
 	  # 影片觀看記錄
     url(r'^event/video/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/(?P<work_id>\d+)/$', views.EventVideoView.as_view()),
+    url(r'^event/video/length/$', views.video_length),	
+	  url(r'^event/video/getlength', views.video_all_length),
+		url(r'^event/video/(?P<content_id>\d+)/(?P<user_id>\d+)/$', VideoListView.as_view()), 	
 ]

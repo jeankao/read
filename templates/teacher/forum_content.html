@@ -27,8 +27,8 @@
 	</div>
   <div class="panel-body">
     <div class="embed-responsive embed-responsive-16by9">
-               <iframe width="560" height="315" class="embed-responsive-item" src="https://www.youtube.com/embed/{{work.youtube|number}}?enablejsapi=1" frameborder="0" allowfullscreen></iframe>
-
+    <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+    <div id="player{{work.id}}"></div>
     </div>
 </div>          
               {% elif work.types == 3 %}
@@ -75,8 +75,16 @@ var vidMap = {
 };
 var vidPlayer = null;
 function onPlayerReady(event) {
-  event.target.playVideo();
+  activePlayer = event.target;
+	//alert(activePlayer.content_id + ":" + activePlayer.getDuration())
+  $.post('/teacher/video/length/',
+        {'content_id': activePlayer.content_id,
+				 'length': activePlayer.getDuration(),
+				},
+        function(data){}
+   );
 }
+ 
 function timeToSec(timestr) {
   var hh = parseInt(timestr.substr(0, 2)), 
       mm = parseInt(timestr.substr(3, 2)), 
@@ -84,15 +92,32 @@ function timeToSec(timestr) {
     return (hh*3600)+(mm*60)+ss;
 }
 function onYouTubeIframeAPIReady() {
+	 {% for work in contents %}
+  {% if work.types == 2 %}	
+var player{{work.id}};
+
+	        player{{work.id}} = new YT.Player('player{{work.id}}', {
+          height: '390',
+          width: '640',
+          videoId: '{{work.youtube|number}}',
+          events: {
+         
+           'onReady': onPlayerReady,
+          }
+			    });
+	        player{{work.id}}.content_id = {{work.id}}
+
+ 	{% endif %}
+  {% endfor %}
   $('.btn-marker').click(function(event) {
     var vid = vidMap['m_'+$(event.target).data('mid')];
     var tsec = timeToSec($(event.target).data('time'));
     if (!vidPlayer) {
-      vidPlayer = new YT.Player('vplayer', {
+			vidPlayer = new YT.Player('vplayer', {
+        height: '315', 
+        width: '560', 
         videoId: vid,
         playerVars: {
-          width: '560', 
-          height: '315',
           start: tsec,
         },
         events: {
@@ -100,8 +125,9 @@ function onYouTubeIframeAPIReady() {
         }
       });
     } else {
+      vidPlayer.stopVideo();
       vidPlayer.loadVideoById(vid, tsec, 'large');
-      vidPlayer.playVideo();
+      vidPlayer.seekTo(tsec);	
     }
     $('#vidModal').modal('show');
   });

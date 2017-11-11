@@ -58,6 +58,7 @@ class FContent(models.Model):
     memo = models.TextField(default='')    
     link = models.CharField(max_length=250,null=True,blank=True) 
     youtube = models.CharField(max_length=250,null=True,blank=True) 
+    youtube_length = models.IntegerField(default=0)
     file = models.FileField(blank=True,null=True)
     filename = models.CharField(max_length=60,null=True,blank=True)     
 		

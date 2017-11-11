@@ -53,4 +53,5 @@ urlpatterns = [
 	  url(r'^exam/submit/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/$', login_required(views.exam_submit)), 
 	  url(r'^exam/score/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/(?P<question_id>\d+)$', login_required(views.exam_score)), 
     url(r'^video/log/$', views.video_log),
+
 ]

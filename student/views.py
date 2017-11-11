@@ -1093,3 +1093,4 @@ def video_log(request):
     log = Log(user_id=request.user.id, youtube_id=youtube_id, event=message)
     log.save()
     return JsonResponse({'status':'ok'}, safe=False)
+	

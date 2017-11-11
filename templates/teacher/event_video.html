@@ -37,7 +37,7 @@
         var chart = new google.charts.Bar(document.getElementById('top_x_div'));
         chart.draw(view, options);
        var selectHandler = function(e) {
-          window.location = "/student/video/"+data.getValue(chart.getSelection()[0]['row'], 2 );
+          window.location = "/teacher/event/video/"+{{content_id}}+"/"+data.getValue(chart.getSelection()[0]['row'], 2 );
        }
        google.visualization.events.addListener(chart, 'select', selectHandler);
       

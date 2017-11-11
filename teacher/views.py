@@ -2321,7 +2321,7 @@ class EventVideoView(ListView):
     template_name = 'teacher/event_video.html'
 
     def get_queryset(self):    
-				enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id'], seat__gt=0).order_by("seat")
+				enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("seat")
 				events = []
 				for enroll in enrolls: 
 						videos = VideoLogHelper().getLogByUserid(enroll.student_id,self.kwargs['work_id'])
@@ -2334,7 +2334,39 @@ class EventVideoView(ListView):
     def get_context_data(self, **kwargs):
         context = super(EventVideoView, self).get_context_data(**kwargs)
         classroom = Classroom.objects.get(id=self.kwargs['classroom_id'])
+        context['content_id'] = self.kwargs['work_id']
         context['classroom'] = classroom
         enrolls = Enroll.objects.filter(classroom_id=classroom.id)
         context['height'] = 100 + enrolls.count() * 40
         return context
+			
+# 點擊影片觀看記錄
+def video_length(request):
+    content_id = request.POST.get('content_id')
+    length = request.POST.get('length')
+    fcontent = FContent.objects.get(id=content_id)
+    fcontent.youtube_length = length
+    fcontent.save()
+    return JsonResponse({'status':'ok'}, safe=False)	
+	
+# 點擊影片觀看記錄
+def video_all_length(request):
+    contents = FContent.objects.filter(types=2)
+    return render_to_response('teacher/video_temp.html',{'contents':contents}, context_instance=RequestContext(request))
+	
+# 影片
+class VideoListView(ListView):
+    context_object_name = 'videos'
+    template_name = 'teacher/event_video_user.html'
+    
+    def get_queryset(self):
+				videos = VideoLogHelper().getLogByUserid(self.kwargs['user_id'],self.kwargs['content_id'])        
+				return videos
+        
+    def get_context_data(self, **kwargs):
+        context = super(VideoListView, self).get_context_data(**kwargs)
+        content = FContent.objects.get(id=self.kwargs['content_id'])
+        context['user_id'] = self.kwargs['user_id']
+        context['content'] = content
+        context['length'] = content.youtube_length
+        return context  
