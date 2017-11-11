@@ -51,8 +51,8 @@ class PointHistory(models.Model):
 class Log(models.Model):
     # 使用者序號
     user_id = models.IntegerField(default=0)
-		# 班級
-    classroom_id = models.IntegerField(default=0)
+		# 影片編號
+    youtube_id = models.IntegerField(default=0)
     # 事件內容
     event = models.CharField(max_length=100)
 	  # 發生時間 

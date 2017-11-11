@@ -97,6 +97,8 @@
 function secToTime(sec) {
     return (new Date(sec*1000)).toUTCString().split(' ')[4];
 }
+var activePlayer=null;
+
 //------------------------------------------------------------
 var vidMap = {
   {% for work in contents %}
@@ -106,7 +108,14 @@ var vidMap = {
   {% endfor %}  
 };
 
-
+$(window).on('beforeunload', function(){
+	        if (activePlayer) {
+            if (activePlayer.getPlayerState()==1) {
+            var currTime = secToTime(activePlayer.getCurrentTime().toFixed());
+            video_log(activePlayer.content_id,"PAUSE["+currTime+"]");
+            }
+        }
+});	
 var vidPlayer = null;
 function onPlayerReady(event) {
   event.target.playVideo();
@@ -174,10 +183,11 @@ var player{{work.id}};
       });
   });
 }
-	 
-function video_log(log) {
+function video_log(youtube_id, log) {
     $.post('/student/video/log/',
-        {'log': log},
+        {'log': log,
+				 'youtube_id': youtube_id
+				},
         function(data){}
     );
 }
@@ -187,11 +197,11 @@ function onPlayerStateChange(event) {
     currTime = secToTime(activePlayer.getCurrentTime().toFixed());
     switch(event.data) {
         case YT.PlayerState.ENDED:
-            video_log("youtube|" + activePlayer.content_id+"|STOP["+currTime+"]"); break;
+            video_log(activePlayer.content_id, "STOP["+currTime+"]"); break;
         case YT.PlayerState.PLAYING:
-            video_log("youtube|" + activePlayer.content_id+"|PLAY["+currTime+"]"); break;
+            video_log(activePlayer.content_id, "PLAY["+currTime+"]"); break;
         case YT.PlayerState.PAUSED:
-            video_log("youtube|" + activePlayer.content_id+"|PAUSE["+currTime+"]"); break;
+            video_log(activePlayer.content_id, "PAUSE["+currTime+"]"); break;
     }
 }
 	  	 	 	 

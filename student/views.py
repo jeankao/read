@@ -1089,6 +1089,7 @@ def exam_score(request, classroom_id, exam_id, examwork_id, question_id):
 def video_log(request):
     # 記錄系統事件
     message = request.POST.get('log')
-    log = Log(user_id=request.user.id, event=message)
+    youtube_id = request.POST.get('youtube_id')
+    log = Log(user_id=request.user.id, youtube_id=youtube_id, event=message)
     log.save()
     return JsonResponse({'status':'ok'}, safe=False)

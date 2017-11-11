@@ -2324,11 +2324,10 @@ class EventVideoView(ListView):
 				enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("seat")
 				events = []
 				for enroll in enrolls: 
-						videos = VideoLogHelper().getLogByUserid(enroll.student_id)
+						videos = VideoLogHelper().getLogByUserid(enroll.student_id,4)
 						length = 0
 						for video in videos: 
-								for log in videos[video]:
-										length += log['length']
+										length += video['length']
 						events.append([enroll, length/60])
 				return events
 			
