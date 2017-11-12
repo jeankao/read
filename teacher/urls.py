@@ -124,8 +124,10 @@ urlpatterns = [
     #url(r'^forum/content/delete/(?P<forum_id>\d+)/(?P<content_id>\d+)/$', login_required(views.forum_delete), name='forum-content-delete'),   
     #url(r'^forum/content/edit/(?P<forum_id>\d+)/(?P<content_id>\d+)/$', login_required(views.forum_edit), name='forum-content-edit'),    
     url(r'^team/class/(?P<classroom_id>\d+)/(?P<team_id>\d+)/$', views.team_class),  
+    url(r'^team/class/(?P<team_id>\d+)/$',login_required(TeamClassListView.as_view())),  	
     url(r'^team/class/switch/$', login_required(views.team_switch)),      	
-    url(r'^team/group/(?P<classroom_id>\d+)/(?P<team_id>\d+)/$', login_required(views.team_group)),   	
+    url(r'^team/group/(?P<classroom_id>\d+)/(?P<team_id>\d+)/$', login_required(views.team_group)),
+    url(r'^team/group/set/$', login_required(views.team_group_set)),	
 	  # 影片觀看記錄
     url(r'^event/video/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/(?P<work_id>\d+)/$', views.EventVideoView.as_view()),
     url(r'^event/video/length/$', views.video_length),	

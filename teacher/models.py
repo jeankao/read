@@ -176,12 +176,16 @@ def get_deadline():
 class TeamClass(models.Model):
     team_id = models.IntegerField(default=0)
     classroom_id =  models.IntegerField(default=0)
+    group =  models.IntegerField(default=0)
     publication_date = models.DateTimeField(default=timezone.now)
     deadline = models.BooleanField(default=False)
     deadline_date = models.DateTimeField(default=get_deadline)
 	
     def __unicode__(self):
-        return str(self.forum_id)	
+        return str(self.team_id)	
+
+    class Meta:
+        unique_together = ('team_id', 'classroom_id',)		
 
 class TeamContent(models.Model):
     team_id =  models.IntegerField(default=0)

@@ -2199,7 +2199,7 @@ def team_switch(request):
             teamwork.save()
     return JsonResponse({'status':status}, safe=False)        
 	
-# 列出某作業所有同學名單
+# 列出某任務所有同學名單
 def team_class(request, classroom_id, work_id):
     enrolls = Enroll.objects.filter(classroom_id=classroom_id)
     classroom_name = Classroom.objects.get(id=classroom_id).name
@@ -2312,7 +2312,12 @@ def team_group(request, classroom_id, team_id):
         for key in groupclass_dict:
             groupclass_list.append([key, groupclass_dict[key]])
         group_list.append([group.id, groupclass_list])
-    return render_to_response('teacher/team_group.html',{'groups':groups, 'classroom':classroom, 'group_list':group_list}, context_instance=RequestContext(request))
+    teamclass = TeamClass.objects.get(team_id=team_id, classroom_id=classroom_id)
+    try:
+        group = ClassroomGroup.objects.get(id=teamclass.group)
+    except ObjectDoesNotExist:
+        group = ClassroomGroup(title="不分組", id=0)
+    return render_to_response('teacher/team_group.html',{'team_id': team_id, 'teamgroup': group, 'groups':groups, 'classroom':classroom, 'group_list':group_list}, context_instance=RequestContext(request))
 
 # 影片觀看時間統計
 class EventVideoView(ListView):
@@ -2373,3 +2378,16 @@ class VideoListView(ListView):
             if not is_assistant(self.request.user, self.kwargs['classroom_id'] ):
                   return redirect('/')
         return super(VideoListView, self).render_to_response(context)   
+			
+# Ajax 設定合作區組叨
+def team_group_set(request):
+    team_id = request.POST.get('teamid')
+    classroom_id = request.POST.get('classroomid')		
+    group = request.POST.get('groupid')
+    try:
+        teamclass = TeamClass.objects.get(team_id=int(team_id), classroom_id=int(classroom_id))
+    except ObjectDoesNotExist:
+        pass
+    teamclass.group = int(group)
+    teamclass.save()
+    return JsonResponse({'status':team_id}, safe=False)  
