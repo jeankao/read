@@ -129,5 +129,5 @@ urlpatterns = [
 	  # 影片觀看記錄
     url(r'^event/video/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/(?P<work_id>\d+)/$', views.EventVideoView.as_view()),
     url(r'^event/video/length/$', views.video_length),	
-		url(r'^event/video/(?P<content_id>\d+)/(?P<user_id>\d+)/$', VideoListView.as_view()), 	
+		url(r'^event/video/user/(?P<classroom_id>\d+)/(?P<content_id>\d+)/(?P<user_id>\d+)/$', VideoListView.as_view()), 	
 ]

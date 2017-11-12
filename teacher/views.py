@@ -2314,7 +2314,7 @@ def team_group(request, classroom_id, team_id):
         group_list.append([group.id, groupclass_list])
     return render_to_response('teacher/team_group.html',{'groups':groups, 'classroom':classroom, 'group_list':group_list}, context_instance=RequestContext(request))
 
-# 記錄系統事件
+# 影片觀看時間統計
 class EventVideoView(ListView):
     context_object_name = 'events'
     #paginate_by = 50
@@ -2349,7 +2349,7 @@ def video_length(request):
     fcontent.save()
     return JsonResponse({'status':'ok'}, safe=False)	
 	
-# 影片
+# 影片記錄條
 class VideoListView(ListView):
     context_object_name = 'videos'
     template_name = 'teacher/event_video_user.html'
@@ -2365,3 +2365,11 @@ class VideoListView(ListView):
         context['content'] = content
         context['length'] = content.youtube_length
         return context  
+
+    # 限本班任課教師或助教或本人        
+    def render_to_response(self, context):
+        if not is_teacher(self.request.user ,self.kwargs['classroom_id']):
+            if not is_assistant(self.request.user, self.kwargs['classroom_id'] ):
+              if not self.kwargs['user_id'] == str(self.request.user.id):
+                  return redirect('/')
+        return super(VideoListView, self).render_to_response(context)   

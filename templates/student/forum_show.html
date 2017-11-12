@@ -54,7 +54,8 @@
   </div>
         {% elif work.types == 2 %}
 <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button> Youtube影片 
-	<a href="/teacher/event/video/{{classroom_id}}/{{forum.id}}/{{work.id}}/">記錄</a>
+	<img src="/static/images/video.gif"><a href="/teacher/event/video/user/{{classroom_id}}/{{work.id}}/{{request.user.id}}/">我的記錄</a>
+	<img src="/static/images/video.gif"><a href="/teacher/event/video/{{classroom_id}}/{{forum.id}}/{{work.id}}/">全班統計</a>
 </div>
   <div class="panel-body">
     <div class="embed-responsive embed-responsive-16by9">
