@@ -2321,7 +2321,7 @@ class EventVideoView(ListView):
     template_name = 'teacher/event_video.html'
 
     def get_queryset(self):    
-				enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("seat")
+				enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id'], seat__gt=0).order_by("seat")
 				events = []
 				for enroll in enrolls: 
 						videos = VideoLogHelper().getLogByUserid(enroll.student_id,self.kwargs['work_id'])
@@ -2334,13 +2334,14 @@ class EventVideoView(ListView):
     def get_context_data(self, **kwargs):
         context = super(EventVideoView, self).get_context_data(**kwargs)
         classroom = Classroom.objects.get(id=self.kwargs['classroom_id'])
+        context['length'] = FContent.objects.get(id=self.kwargs['work_id']).youtube_length / 60.0
         context['content_id'] = self.kwargs['work_id']
         context['classroom'] = classroom
         enrolls = Enroll.objects.filter(classroom_id=classroom.id)
         context['height'] = 100 + enrolls.count() * 40
         return context
 			
-# 點擊影片觀看記錄
+# 記錄影片長度
 def video_length(request):
     content_id = request.POST.get('content_id')
     length = request.POST.get('length')
@@ -2366,10 +2367,9 @@ class VideoListView(ListView):
         context['length'] = content.youtube_length
         return context  
 
-    # 限本班任課教師或助教或本人        
+    # 限本班任課教師或助教     
     def render_to_response(self, context):
         if not is_teacher(self.request.user ,self.kwargs['classroom_id']):
             if not is_assistant(self.request.user, self.kwargs['classroom_id'] ):
-              if not self.kwargs['user_id'] == str(self.request.user.id):
                   return redirect('/')
         return super(VideoListView, self).render_to_response(context)   
