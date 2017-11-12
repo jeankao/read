@@ -8,7 +8,6 @@ from django.utils import timezone
 from itertools import groupby
 import re
 
-
 class VideoLogHelper:
 
     def _calculate(self, events):
