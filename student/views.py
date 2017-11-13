@@ -4,7 +4,8 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, CreateView
 from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, SSpeculationWork, SSpeculationContent, StudentGroup, ExamWork, ExamAnswer
-from teacher.models import Classroom, FWork, FContent, FClass, Assistant, SpeculationClass, SpeculationWork, SpeculationContent, SpeculationAnnotation, ClassroomGroup, Exam, ExamClass, ExamQuestion
+from teacher.models import Classroom, FWork, FContent, FClass, Assistant, SpeculationClass, SpeculationWork, SpeculationContent, SpeculationAnnotation
+from teacher.models import ClassroomGroup, Exam, ExamClass, ExamQuestion, TeamWork
 from account.models import VisitorLog,  Profile, Parent, Log, Message, PointHistory, MessagePoll
 from student.forms import EnrollForm, SeatForm, ForumSubmitForm, SpeculationSubmitForm
 from django.core.exceptions import ObjectDoesNotExist
@@ -1093,4 +1094,18 @@ def video_log(request):
     log = Log(user_id=request.user.id, youtube_id=youtube_id, event=message)
     log.save()
     return JsonResponse({'status':'ok'}, safe=False)
-	
+
+# 列出所有合作任務
+class TeamListView(ListView):
+    model = TeamWork
+    context_object_name = 'teams'
+    template_name = 'student/team_list.html'    
+    
+    def get_queryset(self):
+        queryset = TeamWork.objects.filter(classroom_id=self.kwargs['classroom_id'])
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super(TeamListView, self).get_context_data(**kwargs)
+        context['classroom_id'] = self.kwargs['classroom_id']
+        return context	    

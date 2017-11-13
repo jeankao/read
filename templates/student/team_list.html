@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load tag %}
+{% block content %}
+<button class="btn btn-success">{{classroom_id|classname}}</button>
+{% for team in teams %}
+<h2 id="{{work.id}}"></h2>
+<div class="panel panel-default">
+	<div class="panel-heading">{{team.title}}</div>
+  <div class="panel-body">
+<a href="/student/exam/score/{{classroom_id}}/" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> 分組</a>	
+<a href="/student/exam/score/{{classroom_id}}/" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> 舞台</a>	
+<a href="/student/exam/score/{{classroom_id}}/" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span> 資料</a>	
+<a href="/student/exam/score/{{classroom_id}}/" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> 發表</a>	
+<a href="/student/exam/score/{{classroom_id}}/" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span> 評量</a>	
+	</div>
+</div>
+{% endfor %}
+{% endblock %}
+
+	{% block domready %}
+	    $('body').css('background-image','url(/static/images/back1.gif)');
+	{% endblock %}

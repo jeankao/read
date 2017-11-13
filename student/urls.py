@@ -3,7 +3,8 @@ from django.conf.urls import url
 from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
-from student.views import ForumListView, AnnounceListView, SpeculationListView, SpeculationAnnotateView, SpeculationAnnotateClassView, GroupListView, ExamListView
+from student.views import ForumListView, AnnounceListView, SpeculationListView, SpeculationAnnotateView, SpeculationAnnotateClassView
+from student.views import GroupListView, ExamListView, TeamListView
 
 urlpatterns = [
     # 選課
@@ -53,5 +54,7 @@ urlpatterns = [
 	  url(r'^exam/submit/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/$', login_required(views.exam_submit)), 
 	  url(r'^exam/score/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/(?P<question_id>\d+)$', login_required(views.exam_score)), 
     url(r'^video/log/$', views.video_log),
+	  #合作
+	  url(r'^team/(?P<classroom_id>\d+)/$', login_required(TeamListView.as_view())), 	
 
 ]
