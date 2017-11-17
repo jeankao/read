@@ -20,7 +20,8 @@ class VideoLogHelper:
             if action == 'PLAY':
                 start_log_time = event.publish
                 start_time = time
-            if start_time and (action in ['PAUSE', 'STOP']):                                
+                searching = True
+            if searching and (action in ['PAUSE', 'STOP']):                                
                     tmp = start_time.split(":")
                     tfrom = int(tmp[0]) * 3600 + int(tmp[1]) * 60 + int(tmp[2])
                     #length = int(
