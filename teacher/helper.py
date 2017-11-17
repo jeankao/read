@@ -24,12 +24,12 @@ class VideoLogHelper:
             if searching and (action in ['PAUSE', 'STOP']):                                
                     tmp = start_time.split(":")
                     tfrom = int(tmp[0]) * 3600 + int(tmp[1]) * 60 + int(tmp[2])
-                    #length = int(
-                    #    (event.publish - start_log_time).total_seconds())
-                    #tto = tfrom + length                     
-                    tmp = time.split(":")
-                    tto = int(tmp[0]) * 3600 + int(tmp[1]) * 60 + int(tmp[2])
-                    length = tto - tfrom
+                    length = int(
+                        (event.publish - start_log_time).total_seconds())
+                    tto = tfrom + length                     
+                    #tmp = time.split(":")
+                    #tto = int(tmp[0]) * 3600 + int(tmp[1]) * 60 + int(tmp[2])
+                    #length = tto - tfrom
                     videos.append({'stamp': str(localtime(start_log_time).strftime(
                         "%Y-%m-%d %H:%M:%S")), 'from': tfrom, 'to': tto, 'length': length, 'duration': 300})
                     searching = False
