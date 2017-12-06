@@ -13,7 +13,8 @@ Annotator.Plugin.Image = function(element, types) {
             var imgHeight = $('img', element).height();
             var type_count = 0;
             var highlights = [];
-
+            var isTouchSupported = 'ontouchstart' in window;
+            var prevTouch = null;
             for (let xi in types)
                 type_count++;
 
@@ -83,41 +84,62 @@ Annotator.Plugin.Image = function(element, types) {
                 return div;
             }
 
-            $('img', element).mousedown(function(e) {
+            function markStart(point) {
+                annotator.editor.hide();
+                self.traceMouse = true;
+                startPoint = {
+                    x: point.x,
+                    y: point.y
+                };
+                activeRect = createHighlight(point.x, point.y, 0, 0, null);
+            }
+
+            function markEnd(point) {
+                self.traceMouse = false;
+                startPoint = null;
+                annotator.viewer.hide();
+                annotator.showEditor({
+                    text: ''
+                }, {
+                    left: point.x,
+                    top: point.y
+                });
+            }
+
+            function markMove(point) {
+                $(activeRect).css({
+                    left: Math.min(point.x, startPoint.x),
+                    top: Math.min(point.y, startPoint.y),
+                    width: Math.abs(point.x - startPoint.x) + 'px',
+                    height: Math.abs(point.y - startPoint.y) + 'px'
+                });
+            }
+
+            $('img', element).on('mousedown', function(e) {
                 if (!annotator.options.readOnly && e.which === 1) {
-                    annotator.editor.hide();
-                    self.traceMouse = true;
-                    startPoint = {
+                    markStart({
                         x: e.offsetX,
                         y: e.offsetY
-                    };
-                    activeRect = createHighlight(e.offsetX, e.offsetY, 0, 0, null);
-                }
-                return false;
-            });
-
-            $('img', element).mouseup(function(e) {
-                if (!annotator.options.readOnly) {
-                    self.traceMouse = false;
-                    startPoint = null;
-                    annotator.viewer.hide();
-                    annotator.showEditor({
-                        text: ''
-                    }, {
-                        left: e.offsetX,
-                        top: e.offsetY
                     });
                 }
                 return false;
             });
 
-            $('img', element).mousemove(function(e) {
+            $('img', element).on('mouseup', function(e) {
+                if (!annotator.options.readOnly) {
+                    markEnd({
+                        x: e.offsetX,
+                        y: e.offsetY
+                    });
+                }
+                return false;
+            });
+
+            $('img', element).on('mousemove', function(e) {
                 if (self.traceMouse) {
-                    $(activeRect).css({
-                        left: Math.min(e.offsetX, startPoint.x),
-                        top: Math.min(e.offsetY, startPoint.y),
-                        width: Math.abs(e.offsetX - startPoint.x) + 'px',
-                        height: Math.abs(e.offsetY - startPoint.y) + 'px'
+                    markMove({
+                        x: e.offsetX,
+                        y: e.offsetY
                     });
                     if (e.originalEvent.buttons === 0) {
                         e.type = 'mouseup';
@@ -126,6 +148,34 @@ Annotator.Plugin.Image = function(element, types) {
                 }
                 return false;
             });
+
+            if (isTouchSupported) {
+                $('img', element).on('touchstart', function(e) {
+                    if (!annotator.options.readOnly) {
+                        e.preventDefault();
+                        markStart({
+                            x: e.touches[0].pageX - e.target.x,
+                            y: e.touches[0].pageY - e.target.y
+                        });
+                    }
+                });
+                $('img', element).on('touchend', function(e) {
+                    if (!annotator.options.readOnly) {
+                        e.preventDefault();
+                        markEnd(prevTouch);
+                    }
+                });
+                $('img', element).on('touchmove', function(e) {
+                    if (self.traceMouse) {
+                        e.preventDefault();
+                        prevTouch = {
+                            x: e.touches[0].pageX - e.target.x,
+                            y: e.touches[0].pageY - e.target.y
+                        };
+                        markMove(prevTouch);
+                    }
+                });
+            }
 
             this.annotator.subscribe("annotationsLoaded", function(annotations) {
                 for (let i in annotations) {
