@@ -104,7 +104,16 @@ class SpeculationContentForm(forms.ModelForm):
             self.fields['file'].required = False
             self.fields['memo'].required = False						
             self.fields['link'].required = False
-            self.fields['title'].required = False										
+            self.fields['title'].required = False					
+						
+# 新增一個繳交期限表單
+class SpeculationDeadlineForm(forms.ModelForm):
+        class Meta:
+           model = SpeculationClass
+           fields = ['deadline', 'deadline_date']
+        
+        def __init__(self, *args, **kwargs):
+            super(SpeculationDeadlineForm, self).__init__(*args, **kwargs)									
 
 # 新增一個註記類別
 class SpeculationAnnotationForm(forms.ModelForm):

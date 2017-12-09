@@ -7,7 +7,7 @@ from teacher.models import Classroom, FWork, FClass, FContent, Assistant, Specul
 from teacher.models import ClassroomGroup, Exam, ExamClass, ExamQuestion, ExamImportQuestion2, TeamWork, TeamClass
 from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, StudentGroup, ExamWork, StudentGroup
 from account.models import Domain, Level, Parent, Log, Message, MessagePoll, MessageContent
-from .forms import ClassroomForm, ForumForm, ForumContentForm, ForumCategroyForm, ForumDeadlineForm, AnnounceForm, SpeculationForm, SpeculationContentForm, SpeculationAnnotationForm, GroupForm, GroupForm2
+from .forms import ClassroomForm, ForumForm, ForumContentForm, ForumCategroyForm, ForumDeadlineForm, AnnounceForm, SpeculationForm, SpeculationContentForm, SpeculationAnnotationForm, SpeculationDeadlineForm, GroupForm, GroupForm2
 from .forms import ExamForm, ExamCategroyForm, ExamDeadlineForm, ExamQuestionForm, UploadFileForm, TeamForm, TeamCategroyForm, TeamDeadlineForm
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
@@ -1349,7 +1349,7 @@ def speculation_deadline(request, classroom_id, forum_id):
             return redirect('/teacher/forum/'+classroom_id)
     else:
         fclass = SpeculationClass.objects.get(classroom_id=classroom_id, forum_id=forum_id)
-        form = DeadlineForm(instance=fclass)
+        form = SpeculationDeadlineForm(instance=fclass)
     return render_to_response('teacher/speculation_deadline_form.html',{'fclass':fclass}, context_instance=RequestContext(request))
 
 	
