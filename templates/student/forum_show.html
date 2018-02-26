@@ -182,7 +182,17 @@
 
 {% block footer_script %}
 <script>
-var activePlayer = null;
+function onPlayerReady(event) {
+  event.target.playVideo();
+}	
+function timeToSec(timestr) {
+  var hh = parseInt(timestr.substr(0, 2)), 
+      mm = parseInt(timestr.substr(3, 2)), 
+      ss = parseInt(timestr.substr(6, 2));
+    return (hh*3600)+(mm*60)+ss;
+}	
+var activePlayer = null;	
+var vidPlayer = null;	
 var vidMap = {
   {% for work in contents %}
   {% if work.types == 2 %}
