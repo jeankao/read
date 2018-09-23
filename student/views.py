@@ -142,7 +142,7 @@ def classroom_add(request):
                 classroom_teachers.append([classroom,classroom.teacher.first_name,1])
             else:
                 classroom_teachers.append([classroom,classroom.teacher.first_name,0])   
-        return render_to_response('student/classroom_add.html', {'classroom_teachers':classroom_teachers}, context_instance=RequestContext(request))
+        return render(request,'student/classroom_add.html', {'classroom_teachers':classroom_teachers})
     
 # 加入班級
 def classroom_enroll(request, classroom_id):
@@ -164,7 +164,7 @@ def classroom_enroll(request, classroom_id):
                                     messagepoll = MessagePoll(message_type=1, message_id=message.id, reader_id=request.user.id, classroom_id=classroom_id)
                                     messagepoll.save()	
                         else:
-                                return render_to_response('message.html', {'message':"選課密碼錯誤"}, context_instance=RequestContext(request))
+                                return render(request,'message.html', {'message':"選課密碼錯誤"})
                       
                     except Classroom.DoesNotExist:
                         pass
@@ -173,7 +173,7 @@ def classroom_enroll(request, classroom_id):
                     return redirect("/student/classroom/0")
         else:
             form = EnrollForm()
-        return render_to_response('student/classroom_enroll.html', {'form':form}, context_instance=RequestContext(request))
+        return render(request,'student/classroom_enroll.html', {'form':form})
         
 # 修改座號
 def seat_edit(request, enroll_id, classroom_id):
@@ -188,7 +188,7 @@ def seat_edit(request, enroll_id, classroom_id):
     else:
         form = SeatForm(instance=enroll)
 
-    return render_to_response('form.html',{'form': form}, context_instance=RequestContext(request))  
+    return render(request,'form.html',{'form': form})  
 
 
 
@@ -205,7 +205,7 @@ def classmate(request, classroom_id):
             login_times = len(VisitorLog.objects.filter(user_id=enroll.student_id))
             parents = filter(lambda w: w.student_id==enroll.student_id, parent_pool)
             enroll_group.append([enroll, login_times, parents])	
-        return render_to_response('student/classmate.html', {'classroom':classroom, 'enrolls':enroll_group}, context_instance=RequestContext(request))
+        return render(request,'student/classmate.html', {'classroom':classroom, 'enrolls':enroll_group})
 
 # 登入記錄
 class LoginLogListView(ListView):
@@ -255,12 +255,12 @@ class ForumListView(ListView):
         return context	    
 
     # 限本班同學
-    def render_to_response(self, context):
+    def render(request,self, context):
         try:
             enroll = Enroll.objects.get(student_id=self.request.user.id, classroom_id=self.kwargs['classroom_id'])
         except ObjectDoesNotExist :
             return redirect('/')
-        return super(ForumListView, self).render_to_response(context)    
+        return super(ForumListView, self).render(request,context)    
 
 # 發表心得
 def forum_publish(request, classroom_id, index, action):
@@ -281,7 +281,7 @@ def forum_publish(request, classroom_id, index, action):
     elif action == "0":
         return redirect("/student/forum/memo/"+classroom_id+"/"+index+"/0")
     else :
-        return render_to_response('student/forum_publish.html', {'classroom_id': classroom_id, 'index': index}, context_instance=RequestContext(request))
+        return render(request,'student/forum_publish.html', {'classroom_id': classroom_id, 'index': index})
 	
 
 def forum_submit(request, classroom_id, index):
@@ -316,7 +316,7 @@ def forum_submit(request, classroom_id, index):
                     return redirect("/student/forum/publish/"+classroom_id+"/"+index+"/2")
                 return redirect("/student/forum/memo/"+classroom_id+"/"+index+"/0")
             else:
-                return render_to_response('student/forum_form.html', {'error':form.errors}, context_instance=RequestContext(request))
+                return render(request,'student/forum_form.html', {'error':form.errors})
         else:
             if not works.exists():
                 work = SFWork(index=0, publish=False)
@@ -326,7 +326,7 @@ def forum_submit(request, classroom_id, index):
                 form = ForumSubmitForm()
             files = SFContent.objects.filter(index=index, student_id=request.user.id,visible=True).order_by("-id")
             subject = FWork.objects.get(id=index).title
-        return render_to_response('student/forum_form.html', {'classroom_id':classroom_id, 'subject':subject, 'files':files, 'index': index, 'fwork':fwork, 'works':works, 'work':work, 'form':form, 'scores':scores, 'index':index, 'contents':contents}, context_instance=RequestContext(request))
+        return render(request,'student/forum_form.html', {'classroom_id':classroom_id, 'subject':subject, 'files':files, 'index': index, 'fwork':fwork, 'works':works, 'work':work, 'form':form, 'scores':scores, 'index':index, 'contents':contents})
 
 def forum_show(request, index, user_id, classroom_id):
 		if not (is_classmate(int(user_id), request.user.id) or is_teacher(classroom_id, request.user.id) or is_parent(user_id,request.user.id)) :
@@ -348,7 +348,7 @@ def forum_show(request, index, user_id, classroom_id):
 		else :
 			work_new = SFWork(index=index, student_id=user_id)
 			work_first = SFWork(index=index, student_id=user_id)			
-		return render_to_response('student/forum_show.html', {'work_new': work_new, 'work_first':work_first, 'publish':publish, 'classroom_id':classroom_id, 'contents':contents, 'replys':replys, 'files':files, 'forum':forum, 'user_id':user_id, 'teacher_id':teacher_id, 'works': works, 'is_teacher':is_teacher(classroom_id, request.user.id)}, context_instance=RequestContext(request))
+		return render(request,'student/forum_show.html', {'work_new': work_new, 'work_first':work_first, 'publish':publish, 'classroom_id':classroom_id, 'contents':contents, 'replys':replys, 'files':files, 'forum':forum, 'user_id':user_id, 'teacher_id':teacher_id, 'works': works, 'is_teacher':is_teacher(classroom_id, request.user.id)})
 		
  # 查詢某作業所有同學心得
 def forum_memo(request, classroom_id, index, action):
@@ -397,7 +397,7 @@ def forum_memo(request, classroom_id, index, action):
 			return -custom[0].seat
 	datas = sorted(datas, key=getKey, reverse=True)	
 
-	return render_to_response('student/forum_memo.html', {'action':action, 'replys':replys, 'datas': datas, 'contents':contents, 'teacher_id':teacher_id, 'subject':subject, 'classroom_id':classroom_id, 'index':index, 'is_teacher':is_teacher(classroom_id, request.user.id)}, context_instance=RequestContext(request))
+	return render(request,'student/forum_memo.html', {'action':action, 'replys':replys, 'datas': datas, 'contents':contents, 'teacher_id':teacher_id, 'subject':subject, 'classroom_id':classroom_id, 'index':index, 'is_teacher':is_teacher(classroom_id, request.user.id)})
 	
 def forum_history(request, user_id, index, classroom_id):
 		work = []
@@ -407,7 +407,7 @@ def forum_history(request, user_id, index, classroom_id):
 		forum = FWork.objects.get(id=index)
 		if len(works)> 0 :
 			if works[0].publish or user_id==str(request.user.id) or is_teacher(classroom_id, request.user.id):
-				return render_to_response('student/forum_history.html', {'forum': forum, 'classroom_id':classroom_id, 'works':works, 'contents':contents, 'files':files, 'index':index}, context_instance=RequestContext(request))
+				return render(request,'student/forum_history.html', {'forum': forum, 'classroom_id':classroom_id, 'works':works, 'contents':contents, 'files':files, 'index':index})
 		return redirect("/")
 			
 def forum_like(request):
@@ -571,7 +571,7 @@ def forum_jieba(request, classroom_id, index):
             words.append([key, value])
             if count == 100:
                 break       
-    return render_to_response('student/forum_jieba.html', {'index': index, 'words':words, 'enrolls':enrolls, 'classroom':classroom, 'subject':subject}, context_instance=RequestContext(request))
+    return render(request,'student/forum_jieba.html', {'index': index, 'words':words, 'enrolls':enrolls, 'classroom':classroom, 'subject':subject})
 
 # 查詢某班某詞句心得
 def forum_word(request, classroom_id, index, word):
@@ -591,7 +591,7 @@ def forum_word(request, classroom_id, index, word):
         classroom = Classroom.objects.get(id=classroom_id)
         for work, seat in datas:
             work.memo = work.memo.replace(word, '<font color=red>'+word+'</font>')          
-        return render_to_response('student/forum_word.html', {'word':word, 'datas':datas, 'classroom':classroom}, context_instance=RequestContext(request))
+        return render(request,'student/forum_word.html', {'word':word, 'datas':datas, 'classroom':classroom})
 		
 # 下載檔案
 def forum_download(request, file_id):
@@ -610,7 +610,7 @@ def forum_download(request, file_id):
 # 顯示圖片
 def forum_showpic(request, file_id):
         content = SFContent.objects.get(id=file_id)
-        return render_to_response('student/forum_showpic.html', {'content':content}, context_instance=RequestContext(request))
+        return render(request,'student/forum_showpic.html', {'content':content})
 
 # ajax刪除檔案
 def forum_file_delete(request):
@@ -643,12 +643,12 @@ class AnnounceListView(ListView):
         return context	    
 
     # 限本班任課教師        
-    def render_to_response(self, context):
+    def render(request,self, context):
         if not is_teacher(self.kwargs['classroom_id'], self.request.user.id ):
             if not is_assistant(self.kwargs['classroom_id'], self.request.user.id ):
               if not is_classmate(self.kwargs['classroom_id'], self.request.user.id ):
                   return redirect('/')
-        return super(AnnounceListView, self).render_to_response(context)   
+        return super(AnnounceListView, self).render(request,context)   
 			
 
 '''
@@ -685,12 +685,12 @@ class SpeculationListView(ListView):
         return context	    
 
     # 限本班同學
-    def render_to_response(self, context):
+    def render(request,self, context):
         try:
             enroll = Enroll.objects.get(student_id=self.request.user.id, classroom_id=self.kwargs['classroom_id'])
         except ObjectDoesNotExist :
             return redirect('/')
-        return super(SpeculationListView, self).render_to_response(context)    
+        return super(SpeculationListView, self).render(request,context)    
 
 
 def speculation_submit(request, classroom_id, index):
@@ -725,7 +725,7 @@ def speculation_submit(request, classroom_id, index):
                     return redirect("/student/speculation/publish/"+classroom_id+"/"+index+"/2")
                 return redirect("/student/speculation/annotate/"+classroom_id+"/"+index+"/"+str(request.user.id))
             else:
-                return render_to_response('student/speculation_form.html', {'error':form.errors}, context_instance=RequestContext(request))
+                return render(request,'student/speculation_form.html', {'error':form.errors})
         else:
             if not works.exists():
                 work = SSpeculationWork(index=0, publish=False)
@@ -735,7 +735,7 @@ def speculation_submit(request, classroom_id, index):
                 form = SpeculationSubmitForm()
             files = SSpeculationContent.objects.filter(index=index, student_id=request.user.id,visible=True).order_by("-id")
             subject = SpeculationWork.objects.get(id=index).title
-        return render_to_response('student/speculation_form.html', {'classroom_id':classroom_id, 'subject':subject, 'files':files, 'index': index, 'fwork':fwork, 'works':works, 'work':work, 'form':form, 'scores':scores, 'index':index, 'contents':contents, 'types': types}, context_instance=RequestContext(request))
+        return render(request,'student/speculation_form.html', {'classroom_id':classroom_id, 'subject':subject, 'files':files, 'index': index, 'fwork':fwork, 'works':works, 'work':work, 'form':form, 'scores':scores, 'index':index, 'contents':contents, 'types': types})
 
 # 發表心得
 def speculation_publish(request, classroom_id, index, action):
@@ -756,7 +756,7 @@ def speculation_publish(request, classroom_id, index, action):
     elif action == "0":
         return redirect("/student/speculation/annotate/"+classroom_id+"/"+index+"/"+str(request.user.id))
     else :
-        return render_to_response('student/speculation_publish.html', {'classroom_id': classroom_id, 'index': index}, context_instance=RequestContext(request))
+        return render(request,'student/speculation_publish.html', {'classroom_id': classroom_id, 'index': index})
 	
 			
 # 列出班級思辨
@@ -795,12 +795,12 @@ class SpeculationAnnotateView(ListView):
         return context	    
 
     # 限本班同學
-    def render_to_response(self, context):
+    def render(request,self, context):
         try:
             enroll = Enroll.objects.get(student_id=self.request.user.id, classroom_id=self.kwargs['classroom_id'])
         except ObjectDoesNotExist :
             return redirect('/')
-        return super(SpeculationAnnotateView, self).render_to_response(context)    
+        return super(SpeculationAnnotateView, self).render(request,context)    
 
 # 列出班級思辨
 class SpeculationAnnotateClassView(ListView):
@@ -824,7 +824,7 @@ class SpeculationAnnotateClassView(ListView):
         return context	    
 
     # 限本班同學
-    def render_to_response(self, context):
+    def render(request,self, context):
         try:
             enroll = Enroll.objects.get(student_id=self.request.user.id, classroom_id=self.kwargs['classroom_id'])
         except ObjectDoesNotExist :
@@ -833,7 +833,7 @@ class SpeculationAnnotateClassView(ListView):
             annotations = SpeculationAnnotation.objects.filter(forum_id=self.kwargs['index'])
             if len(annotations)>0:
                 return redirect("/student/speculation/annotateclass/"+self.kwargs['classroom_id']+"/"+self.kwargs['index']+"/"+str(annotations[0].id))
-        return super(SpeculationAnnotateClassView, self).render_to_response(context)    
+        return super(SpeculationAnnotateClassView, self).render(request,context)    
 
 			
 # 下載檔案
@@ -853,7 +853,7 @@ def speculation_download(request, file_id):
 # 顯示圖片
 def speculation_showpic(request, file_id):
         content = SSpeculationContent.objects.get(id=file_id)
-        return render_to_response('student/forum_showpic.html', {'content':content}, context_instance=RequestContext(request))
+        return render(request,'student/forum_showpic.html', {'content':content})
 
 # 列出組別
 class GroupListView(ListView):
@@ -905,7 +905,7 @@ def group_list(request, group_id):
                 no_group.append([enroll.seat, enroll.student])
     
   	    enroll_user = Enroll.objects.get(student_id=request.user.id, classroom_id=group.classroom_id)
-        return render_to_response('student/group_join.html', {'group':group, 'groups':groups, 'enroll_id':enroll_user.id, 'student_groups':student_groups, 'no_group':no_group, 'classroom_id':group.classroom_id, 'group_id':group_id}, context_instance=RequestContext(request))
+        return render(request,'student/group_join.html', {'group':group, 'groups':groups, 'enroll_id':enroll_user.id, 'student_groups':student_groups, 'no_group':no_group, 'classroom_id':group.classroom_id, 'group_id':group_id})
 
 			
 # 顯示所有組別
@@ -955,12 +955,12 @@ class ExamListView(ListView):
         return context	    
 
     # 限本班同學
-    def render_to_response(self, context):
+    def render(request,self, context):
         try:
             enroll = Enroll.objects.get(student_id=self.request.user.id, classroom_id=self.kwargs['classroom_id'])
         except ObjectDoesNotExist :
             return redirect('/')
-        return super(ExamListView, self).render_to_response(context)    	
+        return super(ExamListView, self).render(request,context)    	
 			
 def exam_question(request, classroom_id, exam_id, examwork_id, question_id):	
     exam = Exam.objects.get(id=exam_id)
@@ -1005,7 +1005,7 @@ def exam_question(request, classroom_id, exam_id, examwork_id, question_id):
         answer = ExamAnswer.objects.get(examwork_id=examwork.id, question_id=question_id, student_id=request.user.id).answer
     except ObjectDoesNotExist:
         answer = 0
-    return render_to_response('student/exam_question.html', {'examwork': examwork, 'answer':answer, 'exam':exam, 'qas':qas, 'question':question, 'question_id':question_id, 'classroom_id': classroom_id}, context_instance=RequestContext(request))
+    return render(request,'student/exam_question.html', {'examwork': examwork, 'answer':answer, 'exam':exam, 'qas':qas, 'question':question, 'question_id':question_id, 'classroom_id': classroom_id})
 			
 # Ajax 設定測驗答案
 def exam_answer(request):
@@ -1084,7 +1084,7 @@ def exam_score(request, classroom_id, exam_id, examwork_id, question_id):
     except ObjectDoesNotExist:
         answer = 0
 
-    return render_to_response('student/exam_score.html', {'examwork': examwork, 'score_total': score_total, 'score':score, 'question':question, 'answer':answer, 'exam':exam, 'qas':qas}, context_instance=RequestContext(request))
+    return render(request,'student/exam_score.html', {'examwork': examwork, 'score_total': score_total, 'score':score, 'question':question, 'answer':answer, 'exam':exam, 'qas':qas})
 			
 # 點擊影片觀看記錄
 def video_log(request):

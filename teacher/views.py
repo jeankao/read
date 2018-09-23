@@ -105,7 +105,7 @@ def classroom_edit(request, classroom_id):
         form = ClassroomForm(instance=classroom)
         domains = Domain.objects.all()
         levels = Level.objects.all()
-    return render_to_response('teacher/classroom_form.html',{'form': form, 'classroom': classroom, 'domains':domains, 'levels':levels}, context_instance=RequestContext(request))        
+    return render(request,'teacher/classroom_form.html',{'form': form, 'classroom': classroom, 'domains':domains, 'levels':levels})        
     
 # 設定班級助教
 def classroom_assistant(request, classroom_id):
@@ -115,7 +115,7 @@ def classroom_assistant(request, classroom_id):
     assistants = Assistant.objects.filter(classroom_id=classroom_id).order_by("-id")
     classroom = Classroom.objects.get(id=classroom_id)
 
-    return render_to_response('teacher/assistant.html',{'assistants': assistants, 'classroom':classroom}, context_instance=RequestContext(request))        
+    return render(request,'teacher/assistant.html',{'assistants': assistants, 'classroom':classroom})        
 
 # 教師可以查看所有帳號
 class AssistantListView(ListView):
@@ -266,7 +266,7 @@ def forum_categroy(request, classroom_id, forum_id):
     else:
         form = CategroyForm(instance=forum)
         
-    return render_to_response('teacher/forum_categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'forum':forum}, context_instance=RequestContext(request))
+    return render(request,'teacher/forum_categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'forum':forum})
 
 	
 # 列出所有討論主題
@@ -330,7 +330,7 @@ def forum_show(request, forum_id):
         for level in forum_levels:
             key = int(level)			
             levels.append(level_dict[key])
-    return render_to_response('teacher/forum_show.html',{'domains':domains, 'levels':levels, 'contents':contents, 'forum':forum}, context_instance=RequestContext(request))
+    return render(request,'teacher/forum_show.html',{'domains':domains, 'levels':levels, 'contents':contents, 'forum':forum})
 
 		
 # 列出某討論主題的班級
@@ -413,7 +413,7 @@ def forum_class(request, classroom_id, work_id):
 	
     classmate_work = sorted(classmate_work, key=getKey)
    
-    return render_to_response('teacher/twork_class.html',{'classmate_work': classmate_work, 'classroom_id':classroom_id, 'index': work_id}, context_instance=RequestContext(request))
+    return render(request,'teacher/twork_class.html',{'classmate_work': classmate_work, 'classroom_id':classroom_id, 'index': work_id})
 
 # 列出所有討論主題素材
 class ForumContentListView(ListView):
@@ -500,7 +500,7 @@ def forum_edit(request, forum_id, content_id):
             content.memo = request.POST.get("memo", "")
             content.save()
             return redirect('/teacher/forum/content/'+forum_id)   
-    return render_to_response('teacher/forum_edit.html',{'content': instance, 'forum_id':forum_id, 'content_id':content_id}, context_instance=RequestContext(request))		
+    return render(request,'teacher/forum_edit.html',{'content': instance, 'forum_id':forum_id, 'content_id':content_id})		
 	
 def forum_download(request, content_id):
     content = FContent.objects.get(id=content_id)
@@ -514,7 +514,7 @@ def forum_download(request, content_id):
     # It's usually a good idea to set the 'Content-Length' header too.
     # You can also set any other required headers: Cache-Control, etc.
     return response
-    #return render_to_response('student/download.html', {'download':download})
+    #return render(request,'student/download.html', {'download':download})
 		
 class ForumEditUpdateView(UpdateView):
     model = FWork
@@ -724,7 +724,7 @@ def forum_grade(request, classroom_id, action):
 		response.write(xlsx_data)
 		return response
 	else :
-		return render_to_response('teacher/forum_grade.html',{'results':results, 'forums':forums, 'classroom_id':classroom_id, 'fclasses':fclasses}, context_instance=RequestContext(request))
+		return render(request,'teacher/forum_grade.html',{'results':results, 'forums':forums, 'classroom_id':classroom_id, 'fclasses':fclasses})
 
 def forum_deadline(request, classroom_id, forum_id):
     forum = FWork.objects.get(id=forum_id)
@@ -740,7 +740,7 @@ def forum_deadline(request, classroom_id, forum_id):
         fclass = FClass.objects.get(classroom_id=classroom_id, forum_id=forum_id)
         form = ForumDeadlineForm(instance=fclass)
         fclasses = FClass.objects.filter(forum_id=forum_id).order_by("-id")
-    return render_to_response('teacher/forum_deadline_form.html',{'fclasses':fclasses, 'fclass':fclass, 'forum':forum, 'classroom':classroom}, context_instance=RequestContext(request))
+    return render(request,'teacher/forum_deadline_form.html',{'fclasses':fclasses, 'fclass':fclass, 'forum':forum, 'classroom':classroom})
 
 	
 # Ajax 設定期限、取消期限
@@ -829,11 +829,11 @@ class AnnounceCreateView(CreateView):
         return context	   
         
     # 限本班任課教師        
-    def render_to_response(self, context):
+    def render_to_response(request,self, context):
         if not is_teacher(self.request.user, self.kwargs['classroom_id']):
             if not is_assistant(self.request.user, self.kwargs['classroom_id']) :
                 return redirect('/')
-        return super(AnnounceCreateView, self).render_to_response(context)        
+        return super(AnnounceCreateView, self).render(request,context)        
 			
 '''    
 ----------------------- 思辨區
@@ -911,7 +911,7 @@ def speculation_categroy(request, classroom_id, forum_id):
     else:
         form = CategroyForm(instance=forum)
         
-    return render_to_response('teacher/categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'forum':forum}, context_instance=RequestContext(request))
+    return render(request,'teacher/categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'forum':forum})
 
 	
 # 列出所有思辨主題
@@ -975,7 +975,7 @@ def speculation_show(request, forum_id):
         for level in forum_levels:
             key = int(level)			
             levels.append(level_dict[key])
-    return render_to_response('teacher/speculation_show.html',{'domains':domains, 'levels':levels, 'contents':contents, 'forum':forum}, context_instance=RequestContext(request))
+    return render(request,'teacher/speculation_show.html',{'domains':domains, 'levels':levels, 'contents':contents, 'forum':forum})
 
 		
 # 列出某思辨主題的班級
@@ -1058,7 +1058,7 @@ def speculation_class(request, classroom_id, work_id):
 	
     classmate_work = sorted(classmate_work, key=getKey)
    
-    return render_to_response('teacher/speculation_class.html',{'classmate_work': classmate_work, 'classroom_id':classroom_id, 'index': work_id}, context_instance=RequestContext(request))
+    return render(request,'teacher/speculation_class.html',{'classmate_work': classmate_work, 'classroom_id':classroom_id, 'index': work_id})
 
 # 列出所有思辨主題素材
 class SpeculationContentListView(ListView):
@@ -1148,7 +1148,7 @@ def speculation_edit(request, forum_id, content_id):
             content.memo = request.POST.get("memo", "")
             content.save()
             return redirect('/teacher/speculation/content/'+forum_id)   
-    return render_to_response('teacher/speculation_edit.html',{'content': instance, 'forum_id':forum_id, 'content_id':content_id}, context_instance=RequestContext(request))		
+    return render(request,'teacher/speculation_edit.html',{'content': instance, 'forum_id':forum_id, 'content_id':content_id})		
 	
 def speculation_download(request, content_id):
     content = FContent.objects.get(id=content_id)
@@ -1162,7 +1162,7 @@ def speculation_download(request, content_id):
     # It's usually a good idea to set the 'Content-Length' header too.
     # You can also set any other required headers: Cache-Control, etc.
     return response
-    #return render_to_response('student/download.html', {'download':download})
+    #return render(request,'student/download.html', {'download':download})
 		
 class SpeculationEditUpdateView(UpdateView):
     model = SpeculationWork
@@ -1336,7 +1336,7 @@ def speculation_grade(request, classroom_id, action):
 		response.write(xlsx_data)
 		return response
 	else :
-		return render_to_response('teacher/speculation_grade.html',{'results':results, 'forums':forums, 'classroom_id':classroom_id, 'fclasses':fclasses}, context_instance=RequestContext(request))
+		return render(request,'teacher/speculation_grade.html',{'results':results, 'forums':forums, 'classroom_id':classroom_id, 'fclasses':fclasses})
 
 def speculation_deadline(request, classroom_id, forum_id):
     forum = SpeculationWork.objects.get(id=forum_id)
@@ -1350,7 +1350,7 @@ def speculation_deadline(request, classroom_id, forum_id):
     else:
         fclass = SpeculationClass.objects.get(classroom_id=classroom_id, forum_id=forum_id)
         form = SpeculationDeadlineForm(instance=fclass)
-    return render_to_response('teacher/speculation_deadline_form.html',{'fclass':fclass}, context_instance=RequestContext(request))
+    return render(request,'teacher/speculation_deadline_form.html',{'fclass':fclass})
 
 	
 # Ajax 設定期限、取消期限
@@ -1439,13 +1439,13 @@ def speculation_annotation_edit(request, forum_id, content_id):
             content.color = request.POST.get("color", "")								
             content.save()
             return redirect('/teacher/speculation/annotation/'+forum_id)   
-    return render_to_response('teacher/speculation_annotation_form.html',{'content': instance, 'forum_id':forum_id, 'content_id':content_id}, context_instance=RequestContext(request))
+    return render(request,'teacher/speculation_annotation_form.html',{'content': instance, 'forum_id':forum_id, 'content_id':content_id})
 
 def speculation_group(request, classroom_id, forum_id):
     title = SpeculationWork.objects.get(id=forum_id).title
     speculation = SpeculationClass.objects.get(forum_id=forum_id, classroom_id=classroom_id)
     groups = ClassroomGroup.objects.filter(classroom_id=speculation.classroom_id).order_by("-id")
-    return render_to_response('teacher/speculation_group.html',{'speculation': speculation, 'groups':groups, 'title':title}, context_instance=RequestContext(request))
+    return render(request,'teacher/speculation_group.html',{'speculation': speculation, 'groups':groups, 'title':title})
 
 def speculation_group_set(request):
     group_id = request.POST.get('groupid')
@@ -1660,7 +1660,7 @@ def exam_categroy(request, classroom_id, exam_id):
     else:
         form = ExamCategroyForm(instance=exam)
         
-    return render_to_response('teacher/exam_categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'exam':exam}, context_instance=RequestContext(request))
+    return render(request,'teacher/exam_categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'exam':exam})
 
 	
 # 列出所有討論主題
@@ -1769,7 +1769,7 @@ def exam_deadline(request, classroom_id, exam_id):
     else:
         examclass = ExamClass.objects.get(classroom_id=classroom_id, exam_id=exam_id)
         form = ExamDeadlineForm(instance=examclass)
-    return render_to_response('teacher/exam_deadline_form.html',{'examclass':examclass}, context_instance=RequestContext(request))
+    return render(request,'teacher/exam_deadline_form.html',{'examclass':examclass})
 
 	
 # Ajax 設定期限、取消期限
@@ -1882,7 +1882,7 @@ def exam_question_edit(request, exam_id, question_id):
             question.title = request.POST.get("title", "")
             question.save()
             return redirect('/teacher/exam/question/'+exam_id+"#"+str(question.id))   
-    return render_to_response('teacher/exam_question_edit.html',{'question': instance, 'exam':exam, 'quesiton_id':question_id}, context_instance=RequestContext(request))		
+    return render(request,'teacher/exam_question_edit.html',{'question': instance, 'exam':exam, 'quesiton_id':question_id})		
 			
 # Create your views here.
 def exam_import_sheet(request, exam_id):
@@ -1930,7 +1930,7 @@ def exam_round(request, classroom_id, exam_id):
     if not is_teacher(request.user, classroom_id):
         return redirect("/")
     examclass = ExamClass.objects.get(classroom_id=classroom_id, exam_id=exam_id)
-    return render_to_response('teacher/exam_round.html',{'examclass':examclass}, context_instance=RequestContext(request))		
+    return render(request,'teacher/exam_round.html',{'examclass':examclass})		
 	
 def exam_round_set(request):
     exam_id = request.POST.get('examid')
@@ -1965,7 +1965,7 @@ def exam_score(request, classroom_id, exam_id):
             score_max = 0
             score_avg = 0
         scores.append([enroll, works, score_avg, score_max])
-    return render_to_response('teacher/exam_score.html',{'classroom': classroom, 'exam':exam, 'scores':scores}, context_instance=RequestContext(request))		
+    return render(request,'teacher/exam_score.html',{'classroom': classroom, 'exam':exam, 'scores':scores})		
 	
 # 列出所有討論測驗
 class ExamAllListView(ListView):
@@ -2110,7 +2110,7 @@ def team_categroy(request, classroom_id, team_id):
     else:
         form = TeamCategroyForm(instance=team)
         
-    return render_to_response('teacher/team_categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'team':team}, context_instance=RequestContext(request))
+    return render(request,'teacher/team_categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'team':team})
 
 	
 # 列出所有討論主題
@@ -2229,7 +2229,7 @@ def team_class(request, classroom_id, work_id):
 	
     classmate_work = sorted(classmate_work, key=getKey)
    
-    return render_to_response('teacher/twork_class.html',{'classmate_work': classmate_work, 'classroom_id':classroom_id, 'index': work_id}, context_instance=RequestContext(request))
+    return render(request,'teacher/twork_class.html',{'classmate_work': classmate_work, 'classroom_id':classroom_id, 'index': work_id})
 			
 def team_deadline(request, classroom_id, team_id):
     team = TeamWork.objects.get(id=team_id)
@@ -2245,7 +2245,7 @@ def team_deadline(request, classroom_id, team_id):
         teamclass = TeamClass.objects.get(classroom_id=classroom_id, team_id=team_id)
         form = TeamDeadlineForm(instance=teamclass)
         teamclasses = TeamClass.objects.filter(team_id=team_id).order_by("-id")
-    return render_to_response('teacher/team_deadline_form.html',{'teamclasses':teamclasses, 'teamclass':teamclass, 'team':team, 'classroom':classroom}, context_instance=RequestContext(request))
+    return render(request,'teacher/team_deadline_form.html',{'teamclasses':teamclasses, 'teamclass':teamclass, 'team':team, 'classroom':classroom})
 
 # Ajax 設定期限、取消期限
 def team_deadline_set(request):
@@ -2317,7 +2317,7 @@ def team_group(request, classroom_id, team_id):
         group = ClassroomGroup.objects.get(id=teamclass.group)
     except ObjectDoesNotExist:
         group = ClassroomGroup(title="不分組", id=0)
-    return render_to_response('teacher/team_group.html',{'team_id': team_id, 'teamgroup': group, 'groups':groups, 'classroom':classroom, 'group_list':group_list}, context_instance=RequestContext(request))
+    return render(request,'teacher/team_group.html',{'team_id': team_id, 'teamgroup': group, 'groups':groups, 'classroom':classroom, 'group_list':group_list})
 
 # 影片觀看時間統計
 class EventVideoView(ListView):
@@ -2373,11 +2373,11 @@ class VideoListView(ListView):
         return context  
 
     # 限本班任課教師或助教     
-    def render_to_response(self, context):
+    def render_to_response(request,self, context):
         if not is_teacher(self.request.user ,self.kwargs['classroom_id']):
             if not is_assistant(self.request.user, self.kwargs['classroom_id'] ):
                   return redirect('/')
-        return super(VideoListView, self).render_to_response(context)   
+        return super(VideoListView, self).render(request,context)   
 			
 # Ajax 設定合作區組叨
 def team_group_set(request):
