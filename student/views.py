@@ -780,7 +780,7 @@ class SpeculationAnnotateView(ListView):
         for enroll in enrolls:
             works = filter(lambda w: w.student_id==enroll.student_id, work_pool)
             if len(works)> 0:
-                queryset.append([enroll, works[0].publish, works[0]])
+                queryset.append([enroll, works[0].publish])
             else:
                 queryset.append([enroll, False])
         context['queryset'] = queryset
@@ -792,7 +792,7 @@ class SpeculationAnnotateView(ListView):
         context['files'] = SSpeculationContent.objects.filter(index=self.kwargs['index'], student_id=self.kwargs['id'])
         context['types'] = SpeculationAnnotation.objects.filter(forum_id=self.kwargs['index'])
         context['index'] = self.kwargs['index']
-        return context	    
+        return context
 
     # 限本班同學
     def render(request,self, context):
