@@ -178,6 +178,10 @@ Annotator.Plugin.Image = function(element, types) {
             }
 
             this.annotator.subscribe("annotationsLoaded", function(annotations) {
+                // To ensure the image has been loaded
+                imgWidth = $('img', element).width();
+                imgHeight = $('img', element).height();
+
                 for (let i in annotations) {
                     let item = annotations[i];
                     var rect = item.shapes[0].geometry;
