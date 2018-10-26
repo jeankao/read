@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from teacher.models import Classroom, FWork, FClass, FContent, Assistant, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation
 from teacher.models import ClassroomGroup, Exam, ExamClass, ExamQuestion, ExamImportQuestion2, TeamWork, TeamClass
-from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, StudentGroup, ExamWork, StudentGroup
+from student.models import *
 from account.models import Domain, Level, Parent, Log, Message, MessagePoll, MessageContent
 from .forms import ClassroomForm, ForumForm, ForumContentForm, ForumCategroyForm, ForumDeadlineForm, AnnounceForm, SpeculationForm, SpeculationContentForm, SpeculationAnnotationForm, SpeculationDeadlineForm, GroupForm, GroupForm2
 from .forms import ExamForm, ExamCategroyForm, ExamDeadlineForm, ExamQuestionForm, UploadFileForm, TeamForm, TeamCategroyForm, TeamDeadlineForm
@@ -1264,15 +1264,15 @@ def speculation_grade(request, classroom_id, action):
 	classroom = Classroom.objects.get(id=classroom_id)
 	forum_ids = []
 	forums = []
-	fclasses = FClass.objects.filter(classroom_id=classroom_id).order_by("publication_date", "forum_id")
+	fclasses = SpeculationClass.objects.filter(classroom_id=classroom_id).order_by("publication_date", "forum_id")
 	for fclass in fclasses:
 		forum_ids.append(fclass.forum_id)
-		forum = FWork.objects.get(id=fclass.forum_id)
+		forum = SpeculationWork.objects.get(id=fclass.forum_id)
 		forums.append(forum.title)
 	enrolls = Enroll.objects.filter(classroom_id=classroom_id).order_by("seat")
 	datas = {}
 	for enroll in enrolls:
-			sfworks = SFWork.objects.filter(index__in=forum_ids, student_id=enroll.student_id).order_by("id")
+			sfworks = SSpeculationWork.objects.filter(index__in=forum_ids, student_id=enroll.student_id).order_by("id")
 			if len(sfworks) > 0:
 				for fclass in fclasses:
 						works = filter(lambda w: w.index==fclass.forum_id, sfworks)
@@ -1280,14 +1280,14 @@ def speculation_grade(request, classroom_id, action):
 							if len(works) > 0 :
 								datas[enroll.student_id].append(works[0])
 							else :
-								datas[enroll.student_id].append(SFWork())
+								datas[enroll.student_id].append(SSpeculationWork())
 						else:
 							if len(works) > 0:
 								datas[enroll.student_id] = [works[0]]
 							else :
-								datas[enroll.student_id] = [SFWork()]
+								datas[enroll.student_id] = [SSpeculationWork()]
 			else :
-				datas[enroll.student_id] = [SFWork()]
+				datas[enroll.student_id] = [SSpeculationWork()]
 	results = []
 	for enroll in enrolls:
 		student_name = User.objects.get(id=enroll.student_id).first_name
@@ -1305,22 +1305,24 @@ def speculation_grade(request, classroom_id, action):
 		worksheet.write(row, 1, u'座號')
 		worksheet.write(row, 2, u'姓名')
 		index = 3
+	
 		for forum in forums:
 			worksheet.write(row, index, forum)
 			index += 1
 		
 		row += 1
 		index = 3
+
 		for fclass in fclasses:
 			worksheet.write(row, index, datetime.strptime(str(fclass.publication_date)[:19],'%Y-%m-%d %H:%M:%S'), date_format)
 			index += 1			
 
-		for enroll, student_name, works in results:
+		for enroll, student_name, sworks in results:
 			row += 1
 			worksheet.write(row, 1, enroll.seat)
 			worksheet.write(row, 2, student_name)
 			index = 3
-			for work in works:
+			for work in sworks:
 				if work.id:
 					worksheet.write(row, index, work.score)
 				else:

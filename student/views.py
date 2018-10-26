@@ -767,6 +767,7 @@ class SpeculationAnnotateView(ListView):
     
     def get_queryset(self):
         works = SSpeculationWork.objects.filter(index=self.kwargs['index'], student_id=self.kwargs['id']).order_by("-id")          	
+        works = list(works)
         return works
         
     def get_context_data(self, **kwargs):
@@ -870,7 +871,25 @@ class GroupListView(ListView):
         context = super(GroupListView, self).get_context_data(**kwargs)        
         context['classroom_id'] = self.kwargs['classroom_id']
         return context	    			
-			
+
+def speculation_score(request):
+    work_id = request.POST.get('workid')  
+    classroom_id = request.POST.get('classroomid')  
+    user_id = request.POST.get('userid')  		
+    score = request.POST.get('score')
+    comment = request.POST.get('comment')		
+    if work_id and is_teacher(classroom_id, request.user.id):
+        sfwork = SSpeculationWork.objects.get(id=work_id)
+        sfwork.score = score
+        sfwork.comment = comment
+        sfwork.scorer = request.user.id
+        sfwork.comment_publication_date = timezone.now()
+        sfwork.save()
+        return JsonResponse({'status':'ok'}, safe=False)
+    else:
+        return JsonResponse({'status':1}, safe=False)        
+
+		
 # 顯示所有組別
 def group_list(request, group_id):
         groups = []

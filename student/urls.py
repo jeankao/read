@@ -42,19 +42,19 @@ urlpatterns = [
     #思辨
     url(r'^speculation/(?P<classroom_id>\d+)/(?P<bookmark>\d+)/$', login_required(SpeculationListView.as_view()), name='work-list'),  
     url(r'^speculation/submit/(?P<classroom_id>\d+)/(?P<index>\d+)/$', login_required(views.speculation_submit)),    
-	  url(r'^speculation/publish/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<action>\d+)/$', login_required(views.speculation_publish), name='speculation-publish'), 	
-	  url(r'^speculation/annotate/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<id>\d+)/$', login_required(SpeculationAnnotateView.as_view()), name='speculation-annotate'), 	
-	  url(r'^speculation/annotateclass/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<id>\d+)/$', login_required(SpeculationAnnotateClassView.as_view()), name='speculation-annotate-class'), 		
-	  url(r'^speculation/download/(?P<file_id>\d+)/$', views.speculation_download, name='forum-download'), 
-	  url(r'^speculation/showpic/(?P<file_id>\d+)/$', login_required(views.speculation_showpic), name='forum-showpic'), 		
-	  #測驗
-	  url(r'^exam/(?P<classroom_id>\d+)/$', login_required(ExamListView.as_view())), 
-	  url(r'^exam/question/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/(?P<question_id>\d+)$', login_required(views.exam_question)), 	
-	  url(r'^exam/answer/$', login_required(views.exam_answer)), 	
-	  url(r'^exam/submit/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/$', login_required(views.exam_submit)), 
-	  url(r'^exam/score/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/(?P<question_id>\d+)$', login_required(views.exam_score)), 
+	url(r'^speculation/publish/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<action>\d+)/$', login_required(views.speculation_publish), name='speculation-publish'), 	
+	url(r'^speculation/annotate/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<id>\d+)/$', login_required(SpeculationAnnotateView.as_view()), name='speculation-annotate'), 	
+	url(r'^speculation/annotateclass/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<id>\d+)/$', login_required(SpeculationAnnotateClassView.as_view()), name='speculation-annotate-class'), 		
+	url(r'^speculation/download/(?P<file_id>\d+)/$', views.speculation_download, name='forum-download'), 
+	url(r'^speculation/showpic/(?P<file_id>\d+)/$', login_required(views.speculation_showpic), name='forum-showpic'), 		
+    url(r'^speculation/score/$', login_required(views.speculation_score)), 
+	#測驗
+	url(r'^exam/(?P<classroom_id>\d+)/$', login_required(ExamListView.as_view())), 
+	url(r'^exam/question/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/(?P<question_id>\d+)$', login_required(views.exam_question)), 	
+	url(r'^exam/answer/$', login_required(views.exam_answer)), 	
+	url(r'^exam/submit/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/$', login_required(views.exam_submit)), 
+	url(r'^exam/score/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/(?P<question_id>\d+)$', login_required(views.exam_score)), 
     url(r'^video/log/$', views.video_log),
-	  #合作
-	  url(r'^team/(?P<classroom_id>\d+)/$', login_required(TeamListView.as_view())), 	
-
+	#合作
+	url(r'^team/(?P<classroom_id>\d+)/$', login_required(TeamListView.as_view())), 	
 ]

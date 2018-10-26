@@ -75,7 +75,7 @@ urlpatterns = [
     #url(r'^forum/class/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/$', views.forum_class, name='forum-class'),  
     url(r'^speculation/class/(?P<forum_id>\d+)/$',  login_required(SpeculationClassListView.as_view()), name='forum-class'),    
     url(r'^speculation/export/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/$', login_required(views.speculation_export), name='forum-export'),   
-    url(r'^speculation/grade/(?P<classroom_id>\d+)/(?P<action>\d+)/$', login_required(views.speculation_grade), name='forum-grade'),   
+    url(r'^speculation/grade/(?P<classroom_id>\d+)/(?P<action>\d+)/$', login_required(views.speculation_grade)),   
     #設定班級
     url(r'^speculation/class/switch/$', login_required(views.speculation_switch), name='make'),
     #設定分組
