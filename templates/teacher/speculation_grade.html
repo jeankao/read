@@ -22,7 +22,7 @@
 <td>{{enroll.seat}}</td>
 <td>{{student_name}}</td>
 {% for work in works %}
-<td>{% if work.index %}<a href="/student/speculation/annotate/{{classroom_id}}/{{work.index}}/{{work.id}}/" target="_blank">{{work.score}}</a>{% endif %}</td>
+<td>{% if work.index %}<a href="/student/speculation/annotate/{{classroom_id}}/{{work.index}}/{{enroll.student_id}}/" target="_blank">{{work.score}}</a>{% endif %}</td>
 {% endfor %}
 </tr>
 {% endfor %}
