@@ -1176,16 +1176,13 @@ def team_stage(request, classroom_id, grouping, team_id):
             counter +=1
     else:
         try:
-            group = TeamClass.objects.get(team_id=team_id, classroom_id=classroom_id).group
-            numbers = ClassroomGroup.objects.get(id=group).numbers
+            numbers = ClassroomGroup.objects.get(id=team_id).numbers
             for i in range(numbers):
                 groupclass_dict[i] = []
                 students = StudentGroup.objects.filter(group_id=team_id, group=i)
                 for student in students:
-                    if student.enroll_id in enroll_dict:
-                        groupclass_dict[i].append(enroll_dict[student.enroll_id])            
+                    groupclass_dict[i].append(enroll_dict[student.enroll_id])            
         except ObjectDoesNotExist:
-            enrolls = Enroll.objects.filter(classroom_id=classroom_id)
             counter = 0
             for enroll in enrolls:
                 groupclass_dict[counter]= [enroll]  
@@ -1213,7 +1210,7 @@ def team_stage(request, classroom_id, grouping, team_id):
         group = ClassroomGroup.objects.get(id=teamclass.group)
     except ObjectDoesNotExist:
         group = ClassroomGroup(title="不分組", id=0)
-    return render(request,'student/team_stage.html',{'grouping': grouping, 'groups': groupclass_dict[0], 'team_id': team_id, 'classroom_id':classroom_id})
+    return render(request,'student/team_stage.html',{'grouping': grouping, 'class': groupclass_dict, 'groups': groupclass_list, 'team_id': team_id, 'classroom_id':classroom_id})
 
 # 列出所有合作任務素材
 class TeamContentListView(ListView):
