@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from teacher.models import Classroom
-from student.models import Enroll, EnrollGroup, SFWork
+from teacher.models import *
+from student.models import *
 
 class EnrollForm(forms.Form):
         password =  forms.CharField()
@@ -39,3 +39,18 @@ class SpeculationSubmitForm(forms.Form):
             super(SpeculationSubmitForm, self).__init__(*args, **kwargs)
             self.fields['memo'].label = "心得感想"
             self.fields['file'].label = "檔案"
+
+# 新增一個作業
+class TeamContentForm(forms.ModelForm):
+        class Meta:
+           model = TeamContent
+           fields = ['team_id', 'types', 'title', 'link', 'youtube', 'file', 'memo']
+        
+        def __init__(self, *args, **kwargs):
+            super(TeamContentForm, self).__init__(*args, **kwargs)
+            self.fields['team_id'].required = False		
+            self.fields['title'].required = False						
+            self.fields['link'].required = False
+            self.fields['youtube'].required = False
+            self.fields['file'].required = False
+            self.fields['memo'].required = False	

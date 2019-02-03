@@ -3,12 +3,11 @@ from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, CreateView
-from student.models import Enroll, EnrollGroup, SFWork, SFReply, SFContent, SSpeculationWork, SSpeculationContent, StudentGroup, ExamWork, ExamAnswer
-from teacher.models import Classroom, FWork, FContent, FClass, Assistant, SpeculationClass, SpeculationWork, SpeculationContent, SpeculationAnnotation
-from teacher.models import ClassroomGroup, Exam, ExamClass, ExamQuestion, TeamWork
-from account.models import VisitorLog,  Profile, Parent, Log, Message, PointHistory, MessagePoll
-from student.forms import EnrollForm, SeatForm, ForumSubmitForm, SpeculationSubmitForm
-from django.core.exceptions import ObjectDoesNotExist
+from student.models import *
+from teacher.models import *
+from account.models import *
+from student.forms import *
+from django.core.exceptions import ObjectDoesNotExist,  MultipleObjectsReturned
 from django.utils import timezone
 import datetime
 import re
@@ -912,10 +911,16 @@ def group_list(request, group_id):
             else:
                 student_groups[enroll_group.group]=[enroll]	            
         for i in range(numbers):
+            try: 
+                leader_id = StudentGroupLeader.objects.get(group_id=group_id, group=i).enroll_id
+                leader = Enroll.objects.get(id=leader_id)
+            except ObjectDoesNotExist:
+                leader_id = 0
+                leader = None
             if i in student_groups:
-                groups.append([i, student_groups[i]])
+                groups.append([i, student_groups[i], leader])
             else:
-                groups.append([i, []])
+                groups.append([i, [], leader])
 					
         #找出尚未分組的學生
         no_group = []
@@ -924,7 +929,11 @@ def group_list(request, group_id):
                 no_group.append([enroll.seat, enroll.student])
     
   	    enroll_user = Enroll.objects.get(student_id=request.user.id, classroom_id=group.classroom_id)
-        return render(request,'student/group_join.html', {'group':group, 'groups':groups, 'enroll_id':enroll_user.id, 'student_groups':student_groups, 'no_group':no_group, 'classroom_id':group.classroom_id, 'group_id':group_id})
+        try:
+            user_group = StudentGroup.objects.get(group_id=group_id, enroll_id=enroll_user.id).group
+        except ObjectDoesNotExist:
+            user_group = -1
+        return render(request,'student/group_join.html', {'user_group':user_group, 'group':group, 'groups':groups, 'enroll_id':enroll_user.id, 'student_groups':student_groups, 'no_group':no_group, 'classroom_id':group.classroom_id, 'group_id':group_id})
 
 			
 # 顯示所有組別
@@ -935,10 +944,24 @@ def group_join(request, group_id, number, enroll_id):
     except ObjectDoesNotExist:
         group = StudentGroup(group_id=group_id, enroll_id=enroll_id, group=number)
     if ClassroomGroup.objects.get(id=group_id).opening:
+        group.save()
+    StudentGroupLeader.objects.filter(group_id=group_id, enroll_id=enroll_id).delete()
+			
+    return redirect("/student/group/list/"+group_id)
+
+# 設為組長
+def group_leader(request, group_id, number, enroll_id):
+    try:
+        group = StudentGroupLeader.objects.get(group_id=group_id, group=number)
+        group.enroll_id = enroll_id
+    except ObjectDoesNotExist:
+        group = StudentGroupLeader(group_id=group_id, enroll_id=enroll_id, group=number)
+    if ClassroomGroup.objects.get(id=group_id).opening:
         group.save()			
 			
     return redirect("/student/group/list/"+group_id)
-	
+
+
 # 列出所有討論測驗
 class ExamListView(ListView):
     model = Exam
@@ -1121,10 +1144,229 @@ class TeamListView(ListView):
     template_name = 'student/team_list.html'    
     
     def get_queryset(self):
-        queryset = TeamWork.objects.filter(classroom_id=self.kwargs['classroom_id'])
+        queryset = []
+        classroom_id = self.kwargs['classroom_id']
+        works = TeamWork.objects.filter(classroom_id=classroom_id).order_by("-id")
+        for work in works:
+            try:
+                enroll = Enroll.objects.get(classroom_id=self.kwargs['classroom_id'], student_id=self.request.user.id)
+                group = StudentGroup.objects.get(group_id=work.id, enroll_id=enroll.id).group
+            except ObjectDoesNotExist:
+                group = 0
+            queryset.append([work, group])
         return queryset
         
     def get_context_data(self, **kwargs):
         context = super(TeamListView, self).get_context_data(**kwargs)
         context['classroom_id'] = self.kwargs['classroom_id']
         return context	    
+
+def team_stage(request, classroom_id, grouping, team_id):
+    enrolls = Enroll.objects.filter(classroom_id=classroom_id)
+    enroll_dict = {}
+    for enroll in enrolls:
+        enroll_dict[enroll.id] = enroll
+    groupclass_list = []  
+    groupclass_dict = {}       
+    student_ids = {}
+    if grouping == "0":
+        counter = 0
+        for enroll in enrolls:
+            groupclass_dict[counter] = [enroll_dict[enroll.id]]  
+            counter +=1
+    else:
+        try:
+            numbers = ClassroomGroup.objects.get(id=team_id, classroom_id=classroom_id).numbers
+            for i in range(numbers):
+                groupclass_dict[i] = []
+                students = StudentGroup.objects.filter(group_id=team_id, group=i)
+                for student in students:
+                    if student.enroll_id in enroll_dict:
+                        if student.group in groupclass_dict:
+                            groupclass_dict[student.group].append(enroll_dict[student.enroll_id])            
+        except ObjectDoesNotExist:
+            enrolls = Enroll.objects.filter(classroom_id=classroom_id)
+            counter = 0
+            for enroll in enrolls:
+                groupclass_dict[counter]= [enroll]  
+                counter += 1          
+    group_list = []
+    for key in groupclass_dict:
+        try: 
+            leader_id = StudentGroupLeader.objects.get(group_id=grouping, group=key).enroll_id
+            leader = Enroll.objects.get(id=leader_id)
+        except ObjectDoesNotExist:
+            leader_id = 0
+            leader = None        
+        if grouping == "0":
+            teamworks = TeamContent.objects.filter(team_id=team_id, user_id=groupclass_dict[key][0].student_id, publish=True)
+        else:
+            members = groupclass_dict[key]
+            student_ids = []
+            for member in members:
+                student_ids.append(member.student_id)
+            teamworks = TeamContent.objects.filter(team_id=team_id, user_id__in=student_ids, publish=True)
+        groupclass_list.append([key, leader, groupclass_dict[key], len(teamworks)])    
+
+    teamclass = TeamClass.objects.get(team_id=team_id, classroom_id=classroom_id)
+    try:
+        group = ClassroomGroup.objects.get(id=teamclass.group)
+    except ObjectDoesNotExist:
+        group = ClassroomGroup(title="不分組", id=0)
+    return render(request,'student/team_stage.html',{'grouping': grouping, 'groups': groupclass_list, 'team_id': team_id, 'classroom_id':classroom_id})
+
+# 列出所有合作任務素材
+class TeamContentListView(ListView):
+    model = TeamContent
+    context_object_name = 'contents'
+    template_name = "student/team_content.html"		
+    def get_queryset(self):
+        if self.kwargs['grouping'] == "0":
+            group_id = 0
+        else:
+            group_id = self.kwargs['stage']
+        publish = self.kwargs['publish']
+        user_ids = []        
+        try:
+            enrolls = StudentGroup.objects.get(group_id=self.kwargs['team_id'], group=group_id)           
+            for enroll in enrolls:
+                student_id = Enroll.objects.get(id=enroll.enroll_id).student_id
+                user_ids.append(student_id)
+        except ObjectDoesNotExist:
+            group = 0
+            if self.kwargs['stage'] != "0":
+                try:
+                    enroll = Enroll.objects.get(id=self.kwargs['stage'])
+                    user_ids.append(enroll.student_id)
+                except ObjectDoesNotExist:
+                    pass
+            else:
+                user_ids.append(self.request.user.id)
+        if publish == "0":
+            queryset = TeamContent.objects.filter(team_id=self.kwargs['team_id'], user_id__in=user_ids).order_by("-id")
+        else :
+            queryset = TeamContent.objects.filter(team_id=self.kwargs['team_id'], user_id__in=user_ids, publish=True).order_by("-id")           
+        return queryset
+			
+    def get_context_data(self, **kwargs):
+        context = super(TeamContentListView, self).get_context_data(**kwargs)
+        teamwork = TeamWork.objects.get(id=self.kwargs['team_id'])
+        context['teamwork']= teamwork
+        context['team_id'] = self.kwargs['team_id']
+        context['grouping'] = self.kwargs['grouping']
+        context['classroom_id'] = self.kwargs['classroom_id']
+        if self.kwargs['grouping'] == "0":
+            group_id = 0
+        else :
+            group_id = TeamClass.objects.get(team_id=self.kwargs['team_id'], classroom_id=self.kwargs['classroom_id']).group
+        try:  
+            enroll = Enroll.objects.get(student_id=self.request.user.id, classroom_id=self.kwargs['classroom_id'])
+            leader = StudentGroupLeader.objects.get(group_id=group_id, enroll_id=enroll.id)
+            mygroup = StudentGroup.objects.get(group_id=group_id, enroll_id=enroll.id)
+            if leader.group == mygroup.group:
+                context['leader'] = True
+            else:
+                context['leader'] = False
+        except ObjectDoesNotExist:
+            context['leader'] = False
+        enroll_id = Enroll.objects.get(classroom_id=self.kwargs['classroom_id'], student_id=self.request.user.id).id
+        try:
+            group = StudentGroup.objects.get(enroll_id=enroll_id, group_id=group_id).group
+        except ObjectDoesNotExist:
+            context['leader'] = True
+        return context	
+            
+#新增一個素材
+class TeamContentCreateView(CreateView):
+    model = TeamContent
+    form_class = TeamContentForm
+    template_name = "student/team_content_form.html"
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        work = TeamContent(team_id=self.object.team_id)
+        if self.object.types == 1:
+            work.types = 1
+            work.title = self.object.title
+            work.link = self.object.link
+        if self.object.types  == 2:
+            work.types = 2					
+            work.youtube = self.object.youtube
+        if self.object.types  == 3:
+            work.types = 3
+            myfile = self.request.FILES['content_file']
+            fs = FileSystemStorage()
+            filename = uuid4().hex
+            work.title = myfile.name
+            work.filename = str(self.request.user.id)+"/"+filename
+            fs.save("static/upload/"+str(self.request.user.id)+"/"+filename, myfile)
+        if self.object.types  == 4:
+            work.types = 4
+        work.memo = self.object.memo
+        work.user_id = self.request.user.id
+        work.save()         
+  
+        return redirect("/student/team/content/"+self.kwargs['classroom_id']+"/"+self.kwargs['grouping']+"/"+self.kwargs['team_id']+"/0/0")  
+
+    def get_context_data(self, **kwargs):
+        ctx = super(TeamContentCreateView, self).get_context_data(**kwargs)
+        ctx['team'] = TeamWork.objects.get(id=self.kwargs['team_id'])
+        return ctx
+
+def team_delete(request, classroom_id, grouping,  team_id, content_id):
+    instance = TeamContent.objects.get(id=content_id)
+    instance.delete()
+
+    return redirect("/student/team/content/"+classroom_id+"/"+{{gropuing}}+"/"+team_id+"/0/0")  
+	
+def team_edit(request, classroom_id, grouping, team_id, content_id):
+    try:
+        instance = TeamContent.objects.get(id=content_id)
+    except:
+        pass
+    if request.method == 'POST':
+            content_id = request.POST.get("id", "")
+            try:
+                content = TeamContent.objects.get(id=content_id)
+            except ObjectDoesNotExist:
+	              content = TeamContent(forum_id= request.POST.get("forum_id", ""), types=form.cleaned_data['types'])
+            if content.types == 1:
+                content.title = request.POST.get("title", "")
+                content.link = request.POST.get("link", "")
+            elif content.types == 2:
+                content.youtube = request.POST.get("youtube", "")
+            elif content.types == 3:
+                myfile =  request.FILES.get("content_file", "")
+                fs = FileSystemStorage()
+                filename = uuid4().hex
+                content.title = myfile.name
+                content.filename = str(request.user.id)+"/"+filename
+                fs.save("static/upload/"+str(request.user.id)+"/"+filename, myfile)
+            content.memo = request.POST.get("memo", "")
+            content.save()
+            return redirect('/student/team/content/'+classroom_id+'/'+grouping+"/"+team_id+"/0/0")   
+    return render(request,'student/team_edit.html',{'content': instance, 'team_id':team_id, 'content_id':content_id})		
+	
+# Ajax 設為發表、取消發表
+def team_make_publish(request):
+    work_id = request.POST.get('workid')
+    action = request.POST.get('action')
+    if work_id and action :
+        if action == 'set':            
+            try :
+                work = TeamContent.objects.get(id=work_id) 	
+                work.publish = True
+                work.save()
+            except ObjectDoesNotExist :
+                pass
+        else : 
+            try :
+                work = TeamContent.objects.get(id=work_id) 				
+                work.publish = False
+                work.save()
+            except ObjectDoesNotExist :
+                pass             
+        return JsonResponse({'status':'ok'}, safe=False)
+    else:
+        return JsonResponse({'status':'fail'}, safe=False)
+
+

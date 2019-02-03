@@ -114,9 +114,16 @@ class StudentGroup(models.Model):
     group = models.IntegerField(default=0)		
 
     class Meta:
-        unique_together = ('enroll_id', 'group_id',)				
+        unique_together = ('enroll_id', 'group_id',)		
 
-    
+class StudentGroupLeader(models.Model):
+    group_id = models.IntegerField(default=0)
+    group = models.IntegerField(default=0)	
+    enroll_id = models.IntegerField(default=0)	
+
+    class Meta:
+        unique_together = ('group_id', 'group')		        		
+
 #測驗
 class ExamWork(models.Model):
     student_id = models.IntegerField(default=0)
@@ -142,3 +149,17 @@ class ExamAnswer(models.Model):
     class Meta:
         unique_together = ('student_id', 'examwork_id', 'question_id')		
 		
+class TeamContent(models.Model):
+    team_id =  models.IntegerField(default=0)
+    user_id = models.IntegerField(default=0)  
+    types = models.IntegerField(default=0)
+    title = models.CharField(max_length=250,null=True,blank=True)
+    memo = models.TextField(default='')
+    link = models.CharField(max_length=250,null=True,blank=True)
+    youtube = models.CharField(max_length=250,null=True,blank=True)
+    youtube_length = models.IntegerField(default=0)
+    file = models.FileField(blank=True,null=True)
+    filename = models.CharField(max_length=60,null=True,blank=True)
+    publication_date = models.DateTimeField(default=timezone.now)    
+    publish = models.BooleanField(default=False)
+      

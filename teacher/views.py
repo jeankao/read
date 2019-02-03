@@ -10,7 +10,7 @@ from account.models import Domain, Level, Parent, Log, Message, MessagePoll, Mes
 from .forms import ClassroomForm, ForumForm, ForumContentForm, ForumCategroyForm, ForumDeadlineForm, AnnounceForm, SpeculationForm, SpeculationContentForm, SpeculationAnnotationForm, SpeculationDeadlineForm, GroupForm, GroupForm2
 from .forms import ExamForm, ExamCategroyForm, ExamDeadlineForm, ExamQuestionForm, UploadFileForm, TeamForm, TeamCategroyForm, TeamDeadlineForm
 from django.contrib.auth.models import Group
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist,  MultipleObjectsReturned
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponseRedirect
 import os
@@ -1500,7 +1500,7 @@ class StudentListView(ListView):
             queryset.append([classroom, enrolls])
         return queryset			
 			
-# 列出所有課程
+# 列出所有組別
 class GroupListView(ListView):
     model = Group
     context_object_name = 'groups'
@@ -2063,40 +2063,6 @@ class TeamCreateView(CreateView):
         context['levels'] = Level.objects.all()
         return context	
 	
-# 列出所有討論主題
-class TeamAllListView(ListView):
-    model = FWork
-    context_object_name = 'forums'
-    template_name = "teacher/forum_all.html"		
-    paginate_by = 20
-		
-    def get_queryset(self):
-      # 年級
-      if self.kwargs['categroy'] == "1":
-        queryset = FWork.objects.filter(levels__contains=self.kwargs['categroy_id']).order_by("-id")
-      # 學習領域
-      elif self.kwargs['categroy'] == "2":
-        queryset = FWork.objects.filter(domains__contains=self.kwargs['categroy_id']).order_by("-id")   
-      else:
-        queryset = FWork.objects.all().order_by("-id")
-      if self.request.GET.get('account') != None:
-        keyword = self.request.GET.get('account')
-        users = User.objects.filter(Q(username__icontains=keyword) | Q(first_name__icontains=keyword)).order_by('-id')
-        user_list = []
-        for user in users:
-            user_list.append(user.id)
-        forums = queryset.filter(teacher_id__in=user_list)
-        return forums
-      else:				
-        return queryset
-			
-    def get_context_data(self, **kwargs):
-        context = super(TeamAllListView, self).get_context_data(**kwargs)
-        context['categroy'] = self.kwargs['categroy']							
-        context['categroy_id'] = self.kwargs['categroy_id']							
-        context['levels'] = Level.objects.all()				
-        context['domains'] = Domain.objects.all()
-        return context	
 			
 def team_categroy(request, classroom_id, team_id):
     team = TeamWork.objects.get(id=team_id)
@@ -2113,42 +2079,6 @@ def team_categroy(request, classroom_id, team_id):
         form = TeamCategroyForm(instance=team)
         
     return render(request,'teacher/team_categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'team':team})
-
-	
-# 列出所有討論主題
-class TeamAllListView(ListView):
-    model = FWork
-    context_object_name = 'forums'
-    template_name = "teacher/forum_all.html"		
-    paginate_by = 20
-		
-    def get_queryset(self):
-      # 年級
-      if self.kwargs['categroy'] == "1":
-        queryset = FWork.objects.filter(levels__contains=self.kwargs['categroy_id']).order_by("-id")
-      # 學習領域
-      elif self.kwargs['categroy'] == "2":
-        queryset = FWork.objects.filter(domains__contains=self.kwargs['categroy_id']).order_by("-id")   
-      else:
-        queryset = FWork.objects.all().order_by("-id")
-      if self.request.GET.get('account') != None:
-        keyword = self.request.GET.get('account')
-        users = User.objects.filter(Q(username__icontains=keyword) | Q(first_name__icontains=keyword)).order_by('-id')
-        user_list = []
-        for user in users:
-            user_list.append(user.id)
-        forums = queryset.filter(teacher_id__in=user_list)
-        return forums
-      else:				
-        return queryset
-			
-    def get_context_data(self, **kwargs):
-        context = super(ForumAllListView, self).get_context_data(**kwargs)
-        context['categroy'] = self.kwargs['categroy']							
-        context['categroy_id'] = self.kwargs['categroy_id']							
-        context['levels'] = Level.objects.all()				
-        context['domains'] = Domain.objects.all()
-        return context	
 
 
 # 列出某任務主題的班級
@@ -2352,9 +2282,15 @@ class EventVideoView(ListView):
 def video_length(request):
     content_id = request.POST.get('content_id')
     length = request.POST.get('length')
-    fcontent = FContent.objects.get(id=content_id)
-    fcontent.youtube_length = length
-    fcontent.save()
+    page = request.POST.get('page')
+    if page == "team":
+        teamcontent = TeamContent.objects.get(id=content_id)
+        teamcontent.youtube_length = length
+        teamcontent.save()
+    else:
+        fcontent = FContent.objects.get(id=content_id)
+        fcontent.youtube_length = length
+        fcontent.save()
     return JsonResponse({'status':'ok'}, safe=False)	
 	
 # 影片記錄條

@@ -10,20 +10,40 @@
           <table class="table">
 <tr>
 <TD>組別</td>
+<td>組長</td>
+{% if group.opening %}
+<td>功能</td>
+  {% endif %}
 <td>組員</td>
   {% if group.opening %}
 <td>功能</td>
   {% endif %}
 </tr>            
-         {% for number, members in groups %}
+         {% for number, members, leader in groups %}
 <tr>
 <td>第{{number|add:1}}組</td>   
-<td>{% for member in members%}<img src="/static/images/avatar/s{{ member.student.profile.avatar}}.png">({{member.seat}}){{member.student.first_name}}{% endfor %}</td>
-  {% if group.opening %}
+<td>{% if leader %}<img src="/static/images/avatar/s{{ leader.student.profile.avatar}}.png">{{leader.seat}}){{leader.student.first_name}}{% endif %}</td>
+{% if group.opening %}
+<td>
+{% for member in members %}
+{% if member.student_id == request.user.id %}
+
+<a href="/student/group/leader/{{group_id}}/{{number}}/{{enroll_id}}">設為組長</a>
+{% endif %}
+{% endfor %}
+</td>
+{% endif %}
+<td>{% for member in members %}<img src="/static/images/avatar/s{{ member.student.profile.avatar}}.png">({{member.seat}}){{member.student.first_name}}{% endfor %}</td>
+{% if group.opening %}
+  {% if user_group == number %}
+  <td>已加入</td>
+  {% else %}
   <td><a href="/student/group/add/{{group_id}}/{{number}}/{{enroll_id}}">加入此組</a></td>
+  {% endif %}
 {% endif %}
 </tr>
   {% endfor %}
+
             
           </table>  
 尚未分組：          

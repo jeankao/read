@@ -80,6 +80,7 @@ function onPlayerReady(event) {
   $.post('/teacher/video/length/',
         {'content_id': activePlayer.content_id,
 				 'length': activePlayer.getDuration(),
+         'page' : 'forum',
 				},
         function(data){}
    );

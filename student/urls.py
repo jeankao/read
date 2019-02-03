@@ -3,7 +3,7 @@ from django.conf.urls import url
 from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
-from student.views import ForumListView, AnnounceListView, SpeculationListView, SpeculationAnnotateView, SpeculationAnnotateClassView
+from student.views import *
 from student.views import GroupListView, ExamListView, TeamListView
 
 urlpatterns = [
@@ -39,6 +39,7 @@ urlpatterns = [
     url(r'^group/(?P<classroom_id>\d+)/$', login_required(GroupListView.as_view()), name='group-list'),
     url(r'^group/list/(?P<group_id>\d+)/$', login_required(views.group_list), name='group-list'),
     url(r'^group/add/(?P<group_id>\d+)/(?P<number>\d+)/(?P<enroll_id>\d+)/$', login_required(views.group_join), name='group-join'),	
+    url(r'^group/leader/(?P<group_id>\d+)/(?P<number>\d+)/(?P<enroll_id>\d+)/$', login_required(views.group_leader)),	
     #思辨
     url(r'^speculation/(?P<classroom_id>\d+)/(?P<bookmark>\d+)/$', login_required(SpeculationListView.as_view()), name='work-list'),  
     url(r'^speculation/submit/(?P<classroom_id>\d+)/(?P<index>\d+)/$', login_required(views.speculation_submit)),    
@@ -56,5 +57,11 @@ urlpatterns = [
 	url(r'^exam/score/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/(?P<question_id>\d+)$', login_required(views.exam_score)), 
     url(r'^video/log/$', views.video_log),
 	#合作
-	url(r'^team/(?P<classroom_id>\d+)/$', login_required(TeamListView.as_view())), 	
+	url(r'^team/(?P<classroom_id>\d+)/$', login_required(TeamListView.as_view())), 
+	url(r'^team/stage/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/$', login_required(views.team_stage)),                 
+    url(r'^team/content/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<publish>\d+)/(?P<stage>\d+)$', login_required(TeamContentListView.as_view())), 
+    url(r'^team/content/add/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/$', login_required(TeamContentCreateView.as_view())),
+    url(r'^team/content/delete/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<content_id>\d+)/$', login_required(views.team_delete)),   
+    url(r'^team/content/edit/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<content_id>\d+)/$', login_required(views.team_edit)),    
+    url(r'^team/publish/$', login_required(views.team_make_publish)),             	
 ]
