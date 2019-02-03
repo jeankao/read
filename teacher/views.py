@@ -2317,7 +2317,7 @@ class VideoListView(ListView):
                   return redirect('/')
         return super(VideoListView, self).render(request,context)   
 			
-# Ajax 設定合作區組叨
+# Ajax 設定合作區組別
 def team_group_set(request):
     team_id = request.POST.get('teamid')
     classroom_id = request.POST.get('classroomid')		

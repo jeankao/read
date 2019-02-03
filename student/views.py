@@ -1150,7 +1150,7 @@ class TeamListView(ListView):
         for work in works:
             try:
                 enroll = Enroll.objects.get(classroom_id=self.kwargs['classroom_id'], student_id=self.request.user.id)
-                group = StudentGroup.objects.get(group_id=work.id, enroll_id=enroll.id).group
+                group = TeamClass.objects.get(team_id=work.id, classroom_id=self.kwargs['classroom_id']).group
             except ObjectDoesNotExist:
                 group = 0
             queryset.append([work, group])
@@ -1176,7 +1176,8 @@ def team_stage(request, classroom_id, grouping, team_id):
             counter +=1
     else:
         try:
-            numbers = ClassroomGroup.objects.get(id=team_id, classroom_id=classroom_id).numbers
+            group = TeamClass.objects.get(team_id=team_id, classroom_id=classroom_id).group
+            numbers = ClassroomGroup.objects.get(id=group, classroom_id=classroom_id).numbers
             for i in range(numbers):
                 groupclass_dict[i] = []
                 students = StudentGroup.objects.filter(group_id=team_id, group=i)
