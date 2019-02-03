@@ -1180,8 +1180,9 @@ def team_stage(request, classroom_id, grouping, team_id):
             for i in range(numbers):
                 groupclass_dict[i] = []
                 students = StudentGroup.objects.filter(group_id=team_id, group=i)
-                for student in students:
-                    groupclass_dict[i].append(enroll_dict[student.enroll_id])            
+                for student in students:                    
+                    if student.enroll_id in enroll_dict:
+                        groupclass_dict[i].append(enroll_dict[student.enroll_id])            
         except ObjectDoesNotExist:
             counter = 0
             for enroll in enrolls:
