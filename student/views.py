@@ -1183,8 +1183,7 @@ def team_stage(request, classroom_id, grouping, team_id):
                 students = StudentGroup.objects.filter(group_id=team_id, group=i)
                 for student in students:
                     if student.enroll_id in enroll_dict:
-                        if student.group in groupclass_dict:
-                            groupclass_dict[student.group].append(enroll_dict[student.enroll_id])            
+                        groupclass_dict[i].append(enroll_dict[student.enroll_id])            
         except ObjectDoesNotExist:
             enrolls = Enroll.objects.filter(classroom_id=classroom_id)
             counter = 0

@@ -2327,5 +2327,5 @@ def team_group_set(request):
     except ObjectDoesNotExist:
         pass
     teamclass.group = int(group)
-    teamclass.save()
+    teamclass.save()    
     return JsonResponse({'status':team_id}, safe=False)  
