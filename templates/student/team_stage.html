@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load tag %}
 {% block content %}
-{{class}}
                 <table class="table">                  
                 <tr><td>組別</td><td>組長</td><td>組員</td><td>發表</td></tr>
                 {% for group, leader, members, count in groups %}
