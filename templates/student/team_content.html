@@ -2,10 +2,9 @@
 {% load tag %}
 {% block title %} Teachers {% endblock %}
 {% block content %}
-{{contents.0}}--{{contents.1}}
         <a href="/student/team/content/add/{{classroom_id}}/{{grouping}}/{{team_id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 新增資料</a>
 <button type="button" class="btn btn-success">{{teamwork.title}}</button>
-          {% for work in contents.1 %}
+          {% for work in contents %}
    <div class="panel panel-default"> 
               {% if work.types == 1 %}
    <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.revcounter}}</button>
