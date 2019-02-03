@@ -1179,7 +1179,7 @@ def team_stage(request, classroom_id, grouping, team_id):
             numbers = ClassroomGroup.objects.get(id=team_id).numbers
             for i in range(numbers):
                 groupclass_dict[i] = []
-                students = StudentGroup.objects.filter(group_id=team_id, group=i)
+                students = StudentGroup.objects.filter(group_id=grouping, group=i)
                 for student in students:                    
                     if student.enroll_id in enroll_dict:
                         groupclass_dict[i].append(enroll_dict[student.enroll_id])            
