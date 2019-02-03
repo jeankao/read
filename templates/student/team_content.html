@@ -2,7 +2,6 @@
 {% load tag %}
 {% block title %} Teachers {% endblock %}
 {% block content %}
-{{contents}}
         <a href="/student/team/content/add/{{classroom_id}}/{{grouping}}/{{team_id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 新增資料</a>
 <button type="button" class="btn btn-success">{{teamwork.title}}</button>
           {% for work in contents %}
