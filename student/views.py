@@ -1227,12 +1227,12 @@ class TeamContentListView(ListView):
             group_id = self.kwargs['stage']
         publish = self.kwargs['publish']
         user_ids = []        
-        try:
-            enrolls = StudentGroup.objects.get(group_id=self.kwargs['team_id'], group=group_id)           
+        enrolls = StudentGroup.objects.filter(group_id=self.kwargs['team_id'], group=group_id)
+        if len(enrolls) > 0:           
             for enroll in enrolls:
                 student_id = Enroll.objects.get(id=enroll.enroll_id).student_id
                 user_ids.append(student_id)
-        except ObjectDoesNotExist:
+        else:
             group = 0
             if self.kwargs['stage'] != "0":
                 try:
@@ -1241,7 +1241,7 @@ class TeamContentListView(ListView):
                 except ObjectDoesNotExist:
                     pass
             else:
-                user_ids.append(self.request.user.id)
+                user_ids.append(self.request.user.id)       
         if publish == "0":
             queryset = TeamContent.objects.filter(team_id=self.kwargs['team_id'], user_id__in=user_ids).order_by("-id")
         else :
