@@ -1177,7 +1177,7 @@ def team_stage(request, classroom_id, grouping, team_id):
     else:
         try:
             group = TeamClass.objects.get(team_id=team_id, classroom_id=classroom_id).group
-            numbers = ClassroomGroup.objects.get(id=group, classroom_id=classroom_id).numbers
+            numbers = ClassroomGroup.objects.get(id=group).numbers
             for i in range(numbers):
                 groupclass_dict[i] = []
                 students = StudentGroup.objects.filter(group_id=team_id, group=i)
