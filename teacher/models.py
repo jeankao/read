@@ -122,7 +122,6 @@ class Exam(models.Model):
     time = models.DateTimeField(default=timezone.now)
     domains = models.TextField(default='')
     levels = models.TextField(default='')
-    publication_date = models.DateTimeField(default=timezone.now)
 
 
 class ExamClass(models.Model):
