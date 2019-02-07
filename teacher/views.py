@@ -3,8 +3,7 @@ from django.shortcuts import render
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
-from teacher.models import Classroom, FWork, FClass, FContent, Assistant, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation
-from teacher.models import ClassroomGroup, Exam, ExamClass, ExamQuestion, ExamImportQuestion2, TeamWork, TeamClass
+from teacher.models import *
 from student.models import *
 from account.models import Domain, Level, Parent, Log, Message, MessagePoll, MessageContent
 from .forms import *
@@ -1829,27 +1828,8 @@ class ExamQuestionCreateView(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         question = ExamQuestion(exam_id=self.object.exam_id)
-    
-		#是非題
-        if self.object.types == 1:
-            question.types = 1
-            question.answer_tf = self.object.answer_tf
-		#選擇題
-        elif self.object.types  == 2:
-            question.types = 2					
-            question.option1 = self.object.option1
-            question.option2 = self.object.option2
-            question.option3 = self.object.option3
-            question.option4 = self.object.option4						
-            question.answer_select = self.object.answer_select
-		#填充題
-        elif self.object.types  == 3:
-            question.types = 3
-            question.answer_filling = self.object.answer_filling
-		#簡答題
-        elif self.object.types  == 4:
-            question.types = 4
-            question.answer_short = self.object.answer_short            
+        question.answer = self.object.answer
+           
         if 'title_pic' in self.request.FILES :
             myfile = self.request.FILES['title_pic']
             fs = FileSystemStorage()
@@ -1857,6 +1837,7 @@ class ExamQuestionCreateView(CreateView):
             question.title_filename = str(self.request.user.id)+"/"+filename
             fs.save("static/exam/"+str(self.request.user.id)+"/"+filename, myfile)                
         question.title = self.object.title
+        question.types = self.object.types
         question.score = self.object.score
         question.save()         
   
@@ -1885,19 +1866,13 @@ def exam_question_edit(request, exam_id, question_id):
                 question = ExamQuestion.objects.get(id=question_id)
             except ObjectDoesNotExist:
 	              question = ExamQuestion(exam_id= request.POST.get("exam_id", ""), types=form.cleaned_data['types'])
-            if question.types == 1:
-                question.answer_tf = request.POST.get("answer_tf", "")	
-            elif question.types == 2:
+            if question.types == 2:
                 question.option1 = request.POST.get("option1", "")	
                 question.option2 = request.POST.get("option2", "")	
                 question.option3 = request.POST.get("option3", "")	
                 question.option4 = request.POST.get("option4", "")	
-                question.score = request.POST.get("score", "")	
-                question.answer_select = request.POST.get("answer_select", "")	
-            elif question.types == 3:
-                question.answer_filling = request.POST.get("answer_filling", "")
-            elif question.types == 4:
-                question.answer_short = request.POST.get("answer_short", "")	                	                
+            question.score = request.POST.get("score", "")
+            question.answer = request.POST.get("answer", "")	
             question.title = request.POST.get("title", "")
             if 'title_pic' in request.FILES :
                 myfile = request.FILES['title_pic']
@@ -1917,29 +1892,23 @@ def exam_import_sheet(request, types, exam_id):
         form = UploadFileForm(request.POST,
                               request.FILES)
         if form.is_valid():
+            ExamImportQuestion.objects.all().delete()            
             if types == "1":
-                ExamImportQuestion1.objects.all().delete()
                 request.FILES['file'].save_to_database(
                     name_columns_by_row=0,
-                    model=ExamImportQuestion1,
-                    mapdict=['title', 'answer_tf', 'score'])
-                questions = ExamImportQuestion1.objects.all()
+                    model=ExamImportQuestion,
+                    mapdict=['title', 'answer', 'score'])
             elif types == "2":
-                ExamImportQuestion2.objects.all().delete()
                 request.FILES['file'].save_to_database(
                     name_columns_by_row=0,
-                    model=ExamImportQuestion2,
-                    mapdict=['title', 'option1', 'option2','option3','option4','answer', 'score'])
-                questions = ExamImportQuestion2.objects.all()                    
+                    model=ExamImportQuestion,
+                    mapdict=['title', 'option1', 'option2','option3','option4','answer', 'score'])                    
             elif types == "3":
-                ExamImportQuestion3.objects.all().delete()
                 request.FILES['file'].save_to_database(
                     name_columns_by_row=0,
-                    model=ExamImportQuestion3,
-                    mapdict=['title', 'answer_filling', 'score'])
-                questions = ExamImportQuestion3.objects.all()
-            else :
-                questions = []
+                    model=ExamImportQuestion,
+                    mapdict=['title', 'answer', 'score'])
+            questions = ExamImportQuestion.objects.all()
             return render(request, 'teacher/exam_import_question.html',{'types':types, 'questions':questions, 'exam_id': exam_id})
         else:
             return HttpResponseBadRequest()
@@ -1960,21 +1929,18 @@ def exam_import_sheet(request, types, exam_id):
 def exam_import_question(request, types, exam_id):
     #if request.user.id != 1:
     #    return redirect("/")
-           
+    questions = ExamImportQuestion.objects.all()           
     if types == "1":
-        questions = ExamImportQuestion1.objects.all()
         for question in questions:            
-            new_question = ExamQuestion(exam_id=exam_id, types=1, title=question.title, answer_tf=question.answer_tf, score=question.score)        
+            new_question = ExamQuestion(exam_id=exam_id, types=1, title=question.title, answer=question.answer, score=question.score)        
             new_question.save()
     elif types == "2":
-        questions = ExamImportQuestion2.objects.all()
         for question in questions:         
-            new_question = ExamQuestion(exam_id=exam_id, types=2, title=question.title, option1=question.option1, option2=question.option2, option3=question.option3, option4=question.option4, answer_select=question.answer_select, score=question.score)
+            new_question = ExamQuestion(exam_id=exam_id, types=2, title=question.title, option1=question.option1, option2=question.option2, option3=question.option3, option4=question.option4, answer=question.answer, score=question.score)
             new_question.save()
     elif types == "3":
-        questions = ExamImportQuestion3.objects.all()
         for question in questions:     
-            new_question = ExamQuestion(exam_id=exam_id, types=3, title=question.title, answer_filling=question.answer_filling, score=question.score)
+            new_question = ExamQuestion(exam_id=exam_id, types=3, title=question.title, answer=question.answer, score=question.score)
             new_question.save()
             
     return redirect('/teacher/exam/question/'+exam_id)			
@@ -2338,10 +2304,14 @@ def video_length(request):
         teamcontent = TeamContent.objects.get(id=content_id)
         teamcontent.youtube_length = length
         teamcontent.save()
-    else:
+    elif page == "forum":
         fcontent = FContent.objects.get(id=content_id)
         fcontent.youtube_length = length
         fcontent.save()
+    elif page == "couurse":
+        coursecontent = CourseContent.objects.get(id=content_id)
+        coursecontent.youtube_length = length
+        coursecontent.save()        
     return JsonResponse({'status':'ok'}, safe=False)	
 	
 # 影片記錄條
@@ -2383,7 +2353,7 @@ def team_group_set(request):
 
 # 列出所有討論主題
 class CourseListView(ListView):
-    model = FWork
+    model = CourseWork
     context_object_name = 'courses'
     template_name = "teacher/course_list.html"		
     paginate_by = 20

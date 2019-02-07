@@ -144,7 +144,7 @@ class ExamAnswer(models.Model):
     examwork_id = models.IntegerField(default=0)
     question_id = models.IntegerField(default=0)
     student_id = models.IntegerField(default=0)
-    answer = models.IntegerField(default=0)
+    answer = models.TextField(default='')
 		
     class Meta:
         unique_together = ('student_id', 'examwork_id', 'question_id')		

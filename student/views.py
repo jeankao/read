@@ -1046,7 +1046,7 @@ def exam_question(request, classroom_id, exam_id, examwork_id, question_id):
     try :
         answer = ExamAnswer.objects.get(examwork_id=examwork.id, question_id=question_id, student_id=request.user.id).answer
     except ObjectDoesNotExist:
-        answer = 0
+        answer = ""
     return render(request,'student/exam_question.html', {'examwork': examwork, 'answer':answer, 'exam':exam, 'qas':qas, 'question':question, 'question_id':question_id, 'classroom_id': classroom_id})
 			
 # Ajax 設定測驗答案
@@ -1055,6 +1055,7 @@ def exam_answer(request):
     question_id = request.POST.get('questionid')
     input_answer = request.POST.get('answer')
     if examwork_id :
+        question = ExamQuestion.objects.get(id=question_id)
         try:
             examwork = ExamWork.objects.get(id=examwork_id)
         except ObjectDoesNotExist:
@@ -1089,7 +1090,7 @@ def exam_submit(request, classroom_id, exam_id, examwork_id):
         for question in questions:
             if question.id in answer_dict:
                 if question.answer == answer_dict[question.id] :
-                    score += question.score		
+                    score += question.score		                 
         examwork.score = score
         examwork.scorer = 0
         examwork.save()
@@ -1366,5 +1367,79 @@ def team_make_publish(request):
         return JsonResponse({'status':'ok'}, safe=False)
     else:
         return JsonResponse({'status':'fail'}, safe=False)
+
+
+# 列出所有討論主題
+class CourseListView(ListView):
+    model = CourseWork
+    context_object_name = 'courses'
+    template_name = "student/course_list.html"		
+    paginate_by = 20
+    def get_queryset(self):        
+        courseclasses = CourseClass.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("-publication_date", "-course_id")
+        courses = []
+        for courseclass in courseclasses:
+            course = CourseWork.objects.get(id=courseclass.course_id)
+            courses.append([course, courseclass])
+        return courses
+			
+    def get_context_data(self, **kwargs):
+        context = super(CourseListView, self).get_context_data(**kwargs)
+        classroom = Classroom.objects.get(id=self.kwargs['classroom_id'])
+        context['classroom'] = classroom
+        return context	
+
+# 列出所有討論主題素材
+class CourseContentListView(ListView):
+    model = CourseContent
+    context_object_name = 'contents'
+    template_name = "student/course_content.html"		
+    def get_queryset(self):
+        contents = CourseContent.objects.filter(course_id=self.kwargs['course_id']).order_by("-id")
+        queryset = []
+        for content in contents :
+            exercises = CourseExercise.objects.filter(content_id=content.id)
+            pool = []
+            examclass_dict = dict(((examclass.exam_id, examclass) for examclass in ExamClass.objects.filter(classroom_id=self.kwargs['classroom_id'])))	
+            for exercise in exercises: 
+                #註記
+                if exercise.types == 0:
+                    work = SpeculationClass.objects.get(classroom_id=self.kwargs['classroom_id'], forum_id=exercise.exercise_id)
+                    sfworks = SSpeculationWork.objects.filter(student_id=self.request.user.id, index=exercise.exercise_id).order_by("-id")
+                    if len(sfworks)> 0 :
+                        works = [sfworks[0].publish, sfworks]
+                    else :
+                        works = [False, sfworks]
+                #測驗 
+                elif exercise.types == 1:
+                    questions = ExamQuestion.objects.filter(exam_id=exercise.exercise_id)
+                    examwork_pool = ExamWork.objects.filter(student_id=self.request.user.id).order_by("-id")                    
+                    work = ExamClass.objects.get(classroom_id=self.kwargs['classroom_id'], exam_id=exercise.exercise_id)                    				
+                    examworks = filter(lambda w: w.exam_id==exercise.exercise_id, examwork_pool)
+                    retest = False
+                    examclass = examclass_dict[exercise.exercise_id]
+                    if len(examworks) < examclass.round_limit or examclass.round_limit == 0 :
+                        retest = True
+                    if len(examworks)> 0:
+                        if not retest :
+                            works = [examworks[0].publish, examclass_dict[exercise.exercise_id], examworks, len(questions), retest]
+                        else :
+                            works = [True, examclass_dict[exercise.exercise_id], examworks, len(questions), retest]
+                    else :  
+                        works = [False, examclass_dict[exercise.exercise_id], 0, len(questions), retest]
+                pool.append([exercise, works])
+            queryset.append([content, pool])
+        return queryset
+			
+    def get_context_data(self, **kwargs):
+        context = super(CourseContentListView, self).get_context_data(**kwargs)
+        coursework = CourseWork.objects.get(id=self.kwargs['course_id'])
+        courseclasses = CourseClass.objects.filter(course_id=self.kwargs['course_id'])				
+        context['coursework']= coursework
+        context['course_id'] = self.kwargs['course_id']
+        context['courseclasses'] = courseclasses
+        context['classroom_id'] = self.kwargs['classroom_id']
+        return context	
+			
 
 

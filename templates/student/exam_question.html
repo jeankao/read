@@ -369,23 +369,31 @@ label .glyphicon {
 <div class="panel panel-default">
   <div class="panel-body" style="font-size:16px">{{question.title|linebreaksbr}}({{question.score}}分)</div>
 </div>
-
+{% if question.types == 1 %}
+<div class="quiz" id="quiz" data-toggle="buttons">
+    <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation1 btn btn-lg btn-default btn-block {% if answer == "1" %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="1">是</label>
+    <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation2 btn btn-lg btn-default btn-block {% if answer == "0" %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="0">否</label>
+</div>
+{% elif question.types == 2 %}
           <div class="quiz" id="quiz" data-toggle="buttons">
-           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation1 btn btn-lg btn-default btn-block {% if answer == 1 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="1">{{question.option1}}</label>
-           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation2 btn btn-lg btn-default btn-block {% if answer == 2 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="2">{{question.option2}}</label>
-           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation3 btn btn-lg btn-default btn-block {% if answer == 3 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="3">{{question.option3}}</label>
-           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation4 btn btn-lg btn-default btn-block {% if answer == 4 %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="4">{{question.option4}}</label>
+           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation1 btn btn-lg btn-default btn-block {% if answer == "1" %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="1">{{question.option1}}</label>
+           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation2 btn btn-lg btn-default btn-block {% if answer == "2" %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="2">{{question.option2}}</label>
+           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation3 btn btn-lg btn-default btn-block {% if answer == "3" %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="3">{{question.option3}}</label>
+           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation4 btn btn-lg btn-default btn-block {% if answer == "4" %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="4">{{question.option4}}</label>
        </div>
-
-                        <script type='text/javascript'>
-
-                        </script>
-
-                </div>
-
+{% elif question.types == 3 %}
+<div class="quiz" id="quiz" data-toggle="buttons">
+    <input data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" type="text" id="answer" name="answer" class="form-control" value="{{answer}}">
+</div>
+{% elif question.types == 4 %}
+<div class="quiz" id="quiz" data-toggle="buttons">
+    <textarea rows="10" data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" type="text" id="answer" name="answer" class="form-control">{{answer}}</textarea> 
+</div>
+{% endif %}
 {% endblock %}
-
-	{% block domready %}
+    {% block domready %}
+    
+    
 $(function() {
    var container22 = $("#quiz");
    var cbs = container22.children("label");
@@ -405,16 +413,37 @@ $(function(){
     	loading.hide();
     });
     
+    $("#answer").on('blur',function (e) {
+        var launcher = this;  
+            var answer =  $("#answer").val();
+        e.preventDefault();
+          
+        $.post('/student/exam/answer/',
+          {
+            examworkid: $(launcher).data('examworkid'),	     
+            questionid: $(launcher).data('questionid'),	
+            answer: answer,
+          },
+          function(data){
+            if (data['status'] == 'ok')
+            {
+             //alert(answer);
+                } else {
+              //         alert("hello!");
+                }
+          });
+
+        });
     $("label.btn").on('click',function (e) {
     var launcher = this;  
-		var score =  $(this).find('input:radio').val();
+		var answer =  $(this).find('input:radio').val();
     e.preventDefault();
 	  
     $.post('/student/exam/answer/',
       {
-        examworkid: $(launcher).data('examworkid'),	
+        examworkid: $(launcher).data('examworkid'),	     
         questionid: $(launcher).data('questionid'),	
-	      answer: score,
+	    answer: answer,
       },
       function(data){
         if (data['status'] == 'ok')
@@ -424,15 +453,6 @@ $(function(){
 			   	//alert("hello!");
 	    	}
       });
-     	//var choice = $(this).find('input:radio').val();
-    	//$('#loadbar').show();
-    	//$('#quiz').fadeOut();
-    	//setTimeout(function(){
-           //$( "#answer" ).html(  $(this).checking(choice) );      
-            //$('#quiz').show();
-            //$('#loadbar').fadeOut();
-           /* something else */
-    	//}, 1500);
     });
 
 });	

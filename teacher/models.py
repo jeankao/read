@@ -123,6 +123,7 @@ class Exam(models.Model):
     domains = models.TextField(default='')
     levels = models.TextField(default='')
 
+
 class ExamClass(models.Model):
     exam_id = models.IntegerField(default=0)
     classroom_id =  models.IntegerField(default=0)
@@ -148,36 +149,20 @@ class ExamQuestion(models.Model):
     option1 = models.CharField(max_length=250,null=True,blank=True)
     option2 = models.CharField(max_length=250,null=True,blank=True)
     option3 = models.CharField(max_length=250,null=True,blank=True)
-    option4 = models.CharField(max_length=250,null=True,blank=True)
-    #是非題
-    answer_tf = models.BooleanField(default=False)
-    #選擇題
-    answer_select = models.IntegerField(default=0)
-    #填充題
-    answer_filling = models.CharField(max_length=250,null=True,blank=True)    
+    option4 = models.CharField(max_length=250,null=True,blank=True) 
     #簡答題
-    answer_short = models.TextField(default='')
+    answer = models.TextField(default='')
     #配分 
     score = models.IntegerField(default=0)
 
-class ExamImportQuestion1(models.Model):
-    title = models.TextField(default='')
-    answer_tf = models.BooleanField(default=False)
-    score = models.IntegerField(default=0)
-
-class ExamImportQuestion2(models.Model):
+class ExamImportQuestion(models.Model):
     title = models.TextField(default='')
     option1 = models.CharField(max_length=250,null=True,blank=True)
     option2 = models.CharField(max_length=250,null=True,blank=True)
     option3 = models.CharField(max_length=250,null=True,blank=True)
     option4 = models.CharField(max_length=250,null=True,blank=True)
-    answer_select = models.IntegerField(default=0)
-    score = models.IntegerField(default=0)
-
-class ExamImportQuestion3(models.Model):
-    title = models.TextField(default='')
-    answer_filling = models.TextField(default='')
-    score = models.IntegerField(default=0)        
+    answer= models.TextField(default='')
+    score = models.IntegerField(default=0)    
 
 #合作區
 class TeamWork(models.Model):
