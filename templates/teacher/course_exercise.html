@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% load tag %}
+{% block title %} Teachers {% endblock %}
+{% block content %}
+        <a href="/teacher/course/exercise/add/{{classroom_id}}/{{content.id}}/0" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 新增註記</a>
+        <a href="/teacher/course/exercise/add/{{classroom_id}}/{{content.id}}/1" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 新增測驗</a>
+ <div class="panel panel-default"> 
+              {% if content.types == 1 %}        
+   <div class="panel-heading">
+    外部網址 
+  </div>
+  <div class="panel-body">
+    <a href="{{content.link}}" target="_blank">{% if content.title %}{{content.title}}{% else %}開啟連結{% endif %}</a>
+  </div>
+            
+              {% elif content.types == 2 %}
+   <div class="panel-heading">
+    Youtube影片
+	</div>
+  <div class="panel-body">
+    <div class="embed-responsive embed-responsive-16by9">
+    <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+    <div id="player{{content.id}}"></div>
+    </div>
+</div>          
+              {% elif content.types == 3 %}
+    <div class="panel-heading">
+    下載檔案
+</div>
+  <div class="panel-body"> <a href="/teacher/course/download/{{content.id}}" target="_blank">{{content.title}}</a> </div>                        
+              {% elif content.types == 4 %}
+      <div class="panel-heading">
+      自訂文字
+</div>               
+{% endif %}
+    <div class="panel-body">{{ content.memo|memo|safe }}</div>
+
+
+  <div class="modal fade" tabindex="-1" role="dialog" id="vidModal">   
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+            <div id="vplayer" class="embed-responsive-item"></div>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+</div>
+  
+<style>
+.modal-content iframe {
+  max-width: 100%;
+}
+</style>      
+
+{% for exercise in exercises %}
+{% if exercise.types == 0 %}
+<a href="/teacher/speculation/content/{{exercise.exercise_id}}" class="btn btn-success" role="btn">註記：{{exercise.exercise_id|exercise_title:0}}</a>
+{% else %}
+<a href="/teacher/exam/question/{{exercise.exercise_id}}" class="btn btn-success" role="btn">測驗：{{exercise.exercise_id|exercise_title:1}}</a>
+{% endif %}
+{% endfor %}
+
+{% endblock %}
+{% block footer_script %}
+<script>
+var vidMap = {
+  {% for content in contents %}
+{% if content.types == 2 %}
+  'm_{{ content.id }}': '{{ content.youtube|number }}',
+{% endif %}
+{% endfor %}  
+};
+var vidPlayer = null;
+function onPlayerReady(event) {
+  activePlayer = event.target;
+	//alert(activePlayer.content_id + ":" + activePlayer.getDuration())
+  $.post('/teacher/video/length/',
+        {'content_id': activePlayer.content_id,
+				 'length': activePlayer.getDuration(),
+         'page' : 'course',
+				},
+        function(data){}
+   );
+}
+ 
+function timeToSec(timestr) {
+  var hh = parseInt(timestr.substr(0, 2)), 
+      mm = parseInt(timestr.substr(3, 2)), 
+      ss = parseInt(timestr.substr(6, 2));
+    return (hh*3600)+(mm*60)+ss;
+}
+function onYouTubeIframeAPIReady() {
+	 {% for content in contents %}
+  {% if content.types == 2 %}	
+var player{{content.id}};
+
+	        player{{content.id}} = new YT.Player('player{{content.id}}', {
+          height: '390',
+          width: '640',
+          videoId: '{{content.youtube|number}}',
+          events: {
+         
+           'onReady': onPlayerReady,
+          }
+			    });
+	        player{{content.id}}.content_id = {{content.id}}
+
+ 	{% endif %}
+  {% endfor %}
+  $('.btn-marker').click(function(event) {
+    var vid = vidMap['m_'+$(event.target).data('mid')];
+    var tsec = timeToSec($(event.target).data('time'));
+    if (!vidPlayer) {
+			vidPlayer = new YT.Player('vplayer', {
+        height: '315', 
+        width: '560', 
+        videoId: vid,
+        playerVars: {
+          start: tsec,
+        },
+        events: {
+          'onReady': onPlayerReady,
+        }
+      });
+    } else {
+      vidPlayer.stopVideo();
+      vidPlayer.loadVideoById(vid, tsec, 'large');
+      vidPlayer.seekTo(tsec);	
+    }
+    $('#vidModal').modal('show');
+  });
+}
+$('#vidModal').on('hidden.bs.modal', function (e) {
+  vidPlayer.stopVideo();
+});
+$(document).ready(function () {
+  //------------------------------------------------------------------------
+  // Load YouTube API library
+  var tag = document.createElement('script');
+  tag.id = 'iframe-demo';
+  tag.src = 'https://www.youtube.com/iframe_api';
+  var firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);  
+});
+</script>
+{% endblock %}
+	{% block domready %}
+	    $('body').css('background-image','url(/static/images/back1.gif)');
+	{% endblock %}

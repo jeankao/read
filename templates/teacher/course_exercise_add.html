@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load tag %}
+{% block content %}
+
+{% if types == "0" %}
+<button class="btn btn-info">註記練習</button>
+{% else %}
+<button class="btn btn-info">測驗練習</button>
+{% endif %}
+<table class="table">
+{% for exercise, set in exercises %}
+<tr><td>{{forloop.revcounter}}</td>
+    <td><a href="/teacher/speculation/content/{{exercise.id}}">{{exercise.title}}</a></td>
+    <tD>{{exercise.time}}</tD>    
+    <td>{% if set %}<a href="#" data-exerciseid={{exercise.id}} data-contentid="{{ content.id }}" data-action="unset" class="exercise btn btn-success" role="btn">取消練習</a>
+        {% else %}<a href="#" data-exerciseid={{exercise.id}} data-contentid="{{content.id }}" data-action="set" class="exercise btn btn-default" role="btn">設為練習</a>{% endif %}</td>
+</tr>
+
+{% endfor %}
+</table>
+
+{% load pagination %}
+{% get_pagination %}
+{% endblock %}
+
+{% block domready %}
+  $('a.exercise').click(function(e){
+    var launcher = this;  
+    e.preventDefault();
+    $.post('/teacher/course/exercise/make/',
+      {
+        contentid: $(launcher).data('contentid'),
+        types: {{types}}, 
+        exerciseid : $(launcher).data('exerciseid'),
+        action: $(launcher).data('action')
+      },
+      function(data){
+        if (data['status'] == 'ok')
+        {
+          var previous_action = $(launcher).data('action');
+		      if (previous_action == 'set') {
+               $(launcher).removeClass("btn-default").addClass("btn-success");
+               $(launcher).html("取消練習");
+               $(launcher).data('action', 'unset');
+           } else {
+               $(launcher).removeClass("btn-success").addClass("btn-default");
+               $(launcher).html("設為練習");
+               $(launcher).data('action', 'set');               
+           }
+        } else {
+			   	alert("hello");
+	    	}
+      }
+    );
+  });
+	    $('body').css('background-image','url(/static/images/back1.gif)');
+	{% endblock %}

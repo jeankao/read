@@ -7,8 +7,7 @@ from teacher.models import Classroom, FWork, FClass, FContent, Assistant, Specul
 from teacher.models import ClassroomGroup, Exam, ExamClass, ExamQuestion, ExamImportQuestion2, TeamWork, TeamClass
 from student.models import *
 from account.models import Domain, Level, Parent, Log, Message, MessagePoll, MessageContent
-from .forms import ClassroomForm, ForumForm, ForumContentForm, ForumCategroyForm, ForumDeadlineForm, AnnounceForm, SpeculationForm, SpeculationContentForm, SpeculationAnnotationForm, SpeculationDeadlineForm, GroupForm, GroupForm2
-from .forms import ExamForm, ExamCategroyForm, ExamDeadlineForm, ExamQuestionForm, UploadFileForm, TeamForm, TeamCategroyForm, TeamDeadlineForm
+from .forms import *
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist,  MultipleObjectsReturned
 from django.core.files.storage import FileSystemStorage
@@ -902,16 +901,16 @@ def speculation_categroy(request, classroom_id, forum_id):
     domains = Domain.objects.all()
     levels = Level.objects.all()		
     if request.method == 'POST':
-        form = CategroyForm(request.POST)
+        form = SpeculationCategroyForm(request.POST)
         if form.is_valid():
             forum.domains = request.POST.getlist('domains')
             forum.levels = request.POST.getlist('levels')	
             forum.save()
             return redirect('/teacher/speculation/'+classroom_id+'/#'+str(forum.id))
     else:
-        form = CategroyForm(instance=forum)
+        form = SpeculationCategroyForm(instance=forum)
         
-    return render(request,'teacher/categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'forum':forum})
+    return render(request,'teacher/speculation_categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'speculation':forum})
 
 	
 # 列出所有思辨主題
@@ -1151,7 +1150,7 @@ def speculation_edit(request, forum_id, content_id):
     return render(request,'teacher/speculation_edit.html',{'content': instance, 'forum_id':forum_id, 'content_id':content_id})		
 	
 def speculation_download(request, content_id):
-    content = FContent.objects.get(id=content_id)
+    content = SpeculationContent.objects.get(id=content_id)
     filename = content.title
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     download =  BASE_DIR + "/static/upload/" + content.filename
@@ -1343,12 +1342,12 @@ def speculation_grade(request, classroom_id, action):
 def speculation_deadline(request, classroom_id, forum_id):
     forum = SpeculationWork.objects.get(id=forum_id)
     if request.method == 'POST':
-        form = CategroyForm(request.POST)
+        form = SpeculationCategroyForm(request.POST)
         if form.is_valid():
             forum.domains = request.POST.getlist('domains')
             forum.levels = request.POST.getlist('levels')	
             forum.save()
-            return redirect('/teacher/forum/'+classroom_id)
+            return redirect('/teacher/speculation/'+classroom_id)
     else:
         fclass = SpeculationClass.objects.get(classroom_id=classroom_id, forum_id=forum_id)
         form = SpeculationDeadlineForm(instance=fclass)
@@ -1830,21 +1829,35 @@ class ExamQuestionCreateView(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         question = ExamQuestion(exam_id=self.object.exam_id)
-				#是非題
+    
+		#是非題
         if self.object.types == 1:
             question.types = 1
-            question.title = self.object.title
-            question.answer = self.object.answer
-			  #選擇題
-        if self.object.types  == 2:
+            question.answer_tf = self.object.answer_tf
+		#選擇題
+        elif self.object.types  == 2:
             question.types = 2					
-            question.title = self.object.title
             question.option1 = self.object.option1
             question.option2 = self.object.option2
             question.option3 = self.object.option3
             question.option4 = self.object.option4						
-            question.answer = self.object.answer
-            question.score = self.object.score
+            question.answer_select = self.object.answer_select
+		#填充題
+        elif self.object.types  == 3:
+            question.types = 3
+            question.answer_filling = self.object.answer_filling
+		#簡答題
+        elif self.object.types  == 4:
+            question.types = 4
+            question.answer_short = self.object.answer_short            
+        if 'title_pic' in self.request.FILES :
+            myfile = self.request.FILES['title_pic']
+            fs = FileSystemStorage()
+            filename = uuid4().hex
+            question.title_filename = str(self.request.user.id)+"/"+filename
+            fs.save("static/exam/"+str(self.request.user.id)+"/"+filename, myfile)                
+        question.title = self.object.title
+        question.score = self.object.score
         question.save()         
   
         return redirect("/teacher/exam/question/"+self.kwargs['exam_id'])  
@@ -1873,34 +1886,61 @@ def exam_question_edit(request, exam_id, question_id):
             except ObjectDoesNotExist:
 	              question = ExamQuestion(exam_id= request.POST.get("exam_id", ""), types=form.cleaned_data['types'])
             if question.types == 1:
-                question.answer = request.POST.get("answer", "")	
+                question.answer_tf = request.POST.get("answer_tf", "")	
             elif question.types == 2:
                 question.option1 = request.POST.get("option1", "")	
                 question.option2 = request.POST.get("option2", "")	
                 question.option3 = request.POST.get("option3", "")	
                 question.option4 = request.POST.get("option4", "")	
                 question.score = request.POST.get("score", "")	
-                question.answer = request.POST.get("answer", "")	
+                question.answer_select = request.POST.get("answer_select", "")	
+            elif question.types == 3:
+                question.answer_filling = request.POST.get("answer_filling", "")
+            elif question.types == 4:
+                question.answer_short = request.POST.get("answer_short", "")	                	                
             question.title = request.POST.get("title", "")
+            if 'title_pic' in request.FILES :
+                myfile = request.FILES['title_pic']
+                fs = FileSystemStorage()
+                filename = uuid4().hex
+                question.title_filename = str(request.user.id)+"/"+filename
+                fs.save("static/exam/"+str(request.user.id)+"/"+filename, myfile)  
             question.save()
             return redirect('/teacher/exam/question/'+exam_id+"#"+str(question.id))   
-    return render(request,'teacher/exam_question_edit.html',{'question': instance, 'exam':exam, 'quesiton_id':question_id})		
-			
+    return render(request,'teacher/exam_question_edit.html',{'question': instance, 'exam':exam, 'quesiton_id':question_id})	
+
 # Create your views here.
-def exam_import_sheet(request, exam_id):
+def exam_import_sheet(request, types, exam_id):
     #if request.user.id != 1:
     #    return redirect("/")
     if request.method == "POST":
         form = UploadFileForm(request.POST,
                               request.FILES)
         if form.is_valid():
-            ExamImportQuestion2.objects.all().delete()
-            request.FILES['file'].save_to_database(
-                name_columns_by_row=0,
-                model=ExamImportQuestion2,
-                mapdict=['title', 'option1', 'option2','option3','option4','answer', 'score'])
-            questions = ExamImportQuestion2.objects.all()
-            return render(request, 'teacher/exam_import_question2.html',{'questions':questions, 'exam_id': exam_id})
+            if types == "1":
+                ExamImportQuestion1.objects.all().delete()
+                request.FILES['file'].save_to_database(
+                    name_columns_by_row=0,
+                    model=ExamImportQuestion1,
+                    mapdict=['title', 'answer_tf', 'score'])
+                questions = ExamImportQuestion1.objects.all()
+            elif types == "2":
+                ExamImportQuestion2.objects.all().delete()
+                request.FILES['file'].save_to_database(
+                    name_columns_by_row=0,
+                    model=ExamImportQuestion2,
+                    mapdict=['title', 'option1', 'option2','option3','option4','answer', 'score'])
+                questions = ExamImportQuestion2.objects.all()                    
+            elif types == "3":
+                ExamImportQuestion3.objects.all().delete()
+                request.FILES['file'].save_to_database(
+                    name_columns_by_row=0,
+                    model=ExamImportQuestion3,
+                    mapdict=['title', 'answer_filling', 'score'])
+                questions = ExamImportQuestion3.objects.all()
+            else :
+                questions = []
+            return render(request, 'teacher/exam_import_question.html',{'types':types, 'questions':questions, 'exam_id': exam_id})
         else:
             return HttpResponseBadRequest()
     else:	
@@ -1917,13 +1957,24 @@ def exam_import_sheet(request, exam_id):
         })
 	
 # Create your views here.
-def exam_import_question(request, exam_id):
+def exam_import_question(request, types, exam_id):
     #if request.user.id != 1:
     #    return redirect("/")
            
-    questions = ExamImportQuestion2.objects.all()
-    for question in questions:
-            new_question = ExamQuestion(exam_id=exam_id, types=2, title=question.title, option1=question.option1, option2=question.option2, option3=question.option3, option4=question.option4, answer=question.answer, score=question.score)
+    if types == "1":
+        questions = ExamImportQuestion1.objects.all()
+        for question in questions:            
+            new_question = ExamQuestion(exam_id=exam_id, types=1, title=question.title, answer_tf=question.answer_tf, score=question.score)        
+            new_question.save()
+    elif types == "2":
+        questions = ExamImportQuestion2.objects.all()
+        for question in questions:         
+            new_question = ExamQuestion(exam_id=exam_id, types=2, title=question.title, option1=question.option1, option2=question.option2, option3=question.option3, option4=question.option4, answer_select=question.answer_select, score=question.score)
+            new_question.save()
+    elif types == "3":
+        questions = ExamImportQuestion3.objects.all()
+        for question in questions:     
+            new_question = ExamQuestion(exam_id=exam_id, types=3, title=question.title, answer_filling=question.answer_filling, score=question.score)
             new_question.save()
             
     return redirect('/teacher/exam/question/'+exam_id)			
@@ -2329,3 +2380,505 @@ def team_group_set(request):
     teamclass.group = int(group)
     teamclass.save()    
     return JsonResponse({'status':team_id}, safe=False)  
+
+# 列出所有討論主題
+class CourseListView(ListView):
+    model = FWork
+    context_object_name = 'courses'
+    template_name = "teacher/course_list.html"		
+    paginate_by = 20
+    def get_queryset(self):        
+        courseclasses = CourseClass.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("-publication_date", "-course_id")
+        courses = []
+        for courseclass in courseclasses:
+            course = CourseWork.objects.get(id=courseclass.course_id)
+            courses.append([course, courseclass])
+        return courses
+			
+    def get_context_data(self, **kwargs):
+        context = super(CourseListView, self).get_context_data(**kwargs)
+        classroom = Classroom.objects.get(id=self.kwargs['classroom_id'])
+        context['classroom'] = classroom
+        return context	
+        
+#新增一個討論主題
+class CourseCreateView(CreateView):
+    model = CourseWork
+    form_class = CourseForm
+    template_name = "teacher/course_form.html"
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.teacher_id = self.request.user.id
+        self.object.classroom_id = self.kwargs['classroom_id']
+        self.object.domains = self.request.POST.getlist('domains')
+        self.object.levels = self.request.POST.getlist('levels')	        
+        self.object.save()  
+        classrooms = self.request.POST.getlist('classrooms')
+        for classroom in classrooms:
+          course_class = CourseClass(course_id=self.object.id, classroom_id=classroom)
+          course_class.save()
+        
+        return redirect("/teacher/course/"+self.kwargs['classroom_id'])           
+        
+    def get_context_data(self, **kwargs):
+        context = super(CourseCreateView, self).get_context_data(**kwargs)
+        classroom_list = []
+        classrooms = Classroom.objects.filter(teacher_id=self.request.user.id)
+        for classroom in classrooms:
+            classroom_list.append(classroom.id)
+        assistants = Assistant.objects.filter(user_id=self.request.user.id)
+        for assistant in assistants:
+            if not assistant.classroom_id in classroom_list:
+                classroom_list.append(assistant.classroom_id)
+        classrooms = Classroom.objects.filter(id__in=classroom_list).order_by("-id")
+        context['classrooms'] = classrooms
+        context['classroom_id'] = int(self.kwargs['classroom_id'])
+        context['classroom'] = Classroom.objects.get(id=self.kwargs['classroom_id'])
+        context['domains'] = Domain.objects.all()
+        context['levels'] = Level.objects.all()
+        return context	
+  
+        return redirect("/teacher/course/"+self.kwargs['classroom_id'])        
+	
+def course_categroy(request, classroom_id, course_id):
+    course = CourseWork.objects.get(id=course_id)
+    domains = Domain.objects.all()
+    levels = Level.objects.all()		
+    if request.method == 'POST':
+        form = CourseCategroyForm(request.POST)
+        if form.is_valid():
+            course.domains = request.POST.getlist('domains')
+            course.levels = request.POST.getlist('levels')	
+            course.save()
+            return redirect('/teacher/course/'+classroom_id+'/#'+str(course.id))
+    else:
+        form = CourseCategroyForm(instance=course)
+        
+    return render(request,'teacher/course_categroy_form.html',{'domains': domains, 'levels':levels, 'classroom_id': classroom_id, 'course':course})
+
+	
+# 列出所有討論主題
+class CourseAllListView(ListView):
+    model = CourseWork
+    context_object_name = 'courses'
+    template_name = "teacher/course_all.html"		
+    paginate_by = 20
+		
+    def get_queryset(self):
+      # 年級
+      if self.kwargs['categroy'] == "1":
+        queryset = FWork.objects.filter(levels__contains=self.kwargs['categroy_id']).order_by("-id")
+      # 學習領域
+      elif self.kwargs['categroy'] == "2":
+        queryset = FWork.objects.filter(domains__contains=self.kwargs['categroy_id']).order_by("-id")   
+      else:
+        queryset = FWork.objects.all().order_by("-id")
+      if self.request.GET.get('account') != None:
+        keyword = self.request.GET.get('account')
+        users = User.objects.filter(Q(username__icontains=keyword) | Q(first_name__icontains=keyword)).order_by('-id')
+        user_list = []
+        for user in users:
+            user_list.append(user.id)
+        courses = queryset.filter(teacher_id__in=user_list)
+        return courses
+      else:				
+        return queryset
+			
+    def get_context_data(self, **kwargs):
+        context = super(CourseAllListView, self).get_context_data(**kwargs)
+        context['categroy'] = self.kwargs['categroy']							
+        context['categroy_id'] = self.kwargs['categroy_id']							
+        context['levels'] = Level.objects.all()				
+        context['domains'] = Domain.objects.all()
+        return context	
+
+# 展示討論素材
+def course_show(request, course_id):
+    course = CourseWork.objects.get(id=course_id)
+    domains = Domain.objects.all()
+    domain_dict = {}
+    for domain in domains :
+        key = domain.id
+        domain_dict[key] = domain
+    levels = Level.objects.all()	
+    level_dict = {}
+    for level in levels :
+        key = level.id
+        level_dict[key] = level
+    contents = CourseContent.objects.filter(course_id=course_id)
+    domains = []		
+    if course.domains:
+        course_domains = ast.literal_eval(course.domains)
+        for domain in course_domains:
+            key = int(domain)
+            domains.append(domain_dict[key])
+    levels = []						
+    if course.levels:
+        course_levels = ast.literal_eval(course.levels)
+        for level in course_levels:
+            key = int(level)			
+            levels.append(level_dict[key])
+    return render(request,'teacher/course_show.html',{'domains':domains, 'levels':levels, 'contents':contents, 'course':course})
+
+		
+# 列出某討論主題的班級
+class CourseClassListView(ListView):
+    model = CourseWork
+    context_object_name = 'classrooms'
+    template_name = "teacher/course_class.html"		
+    paginate_by = 20
+	
+    def get_queryset(self):        		
+        courseclass_dict = dict(((courseclass.classroom_id, courseclass) for courseclass in CourseClass.objects.filter(course_id=self.kwargs['course_id'])))		
+        classroom_list = []
+        classroom_ids = []
+        classrooms = Classroom.objects.filter(teacher_id=self.request.user.id).order_by("-id")
+        for classroom in classrooms:
+            if classroom.id in courseclass_dict:
+                classroom_list.append([classroom, True, courseclass_dict[classroom.id].deadline, courseclass_dict[classroom.id].deadline_date])
+            else :
+                classroom_list.append([classroom, False, False, timezone.now()])
+            classroom_ids.append(classroom.id)
+        assistants = Assistant.objects.filter(user_id=self.request.user.id)
+        for assistant in assistants:
+            classroom = Classroom.objects.get(id=assistant.classroom_id)
+            if not classroom.id in classroom_ids:
+                if classroom.id in fclass_dict:
+                    classroom_list.append([classroom, True, courseclass_dict[classroom.id].deadline, courseclass_dict[classroom.id].deadline_date])
+                else :
+                    classroom_list.append([classroom, False, False, timezone.now()])
+        return classroom_list
+			
+    def get_context_data(self, **kwargs):
+        context = super(CourseClassListView, self).get_context_data(**kwargs)				
+        coursework = CourseWork.objects.get(id=self.kwargs['course_id'])
+        context['coursework'] = coursework
+        context['course_id'] = self.kwargs['course_id']
+        return context	
+	
+# Ajax 開放班取、關閉班級
+def course_switch(request):
+    course_id = request.POST.get('courseid')
+    classroom_id = request.POST.get('classroomid')		
+    status = request.POST.get('status')
+    try:
+        coursework = CourseClass.objects.get(course_id=course_id, classroom_id=classroom_id)
+        if status == 'false' :
+    		coursework.delete()
+    except ObjectDoesNotExist:
+        if status == 'true':
+            coursework = CourseClass(course_id=course_id, classroom_id=classroom_id)
+            coursework.save()
+    return JsonResponse({'status':status}, safe=False)        
+	
+# 列出某作業所有同學名單
+def course_class(request, classroom_id, work_id):
+    enrolls = Enroll.objects.filter(classroom_id=classroom_id)
+    classroom_name = Classroom.objects.get(id=classroom_id).name
+    classmate_work = []
+    scorer_name = ""
+    for enroll in enrolls:
+        try:    
+            work = SWork.objects.get(student_id=enroll.student_id, index=work_id)
+            if work.scorer > 0 :
+                scorer = User.objects.get(id=work.scorer)
+                scorer_name = scorer.first_name
+            else :
+                scorer_name = "1"
+        except ObjectDoesNotExist:
+            work = SWork(index=work_id, student_id=1)
+        try:
+            group_name = EnrollGroup.objects.get(id=enroll.group).name
+        except ObjectDoesNotExist:
+            group_name = "沒有組別"
+        assistant = Assistant.objects.filter(classroom_id=classroom_id, student_id=enroll.student_id, lesson=work_id)
+        if assistant.exists():
+            classmate_work.append([enroll,work,1, scorer_name, group_name])
+        else :
+            classmate_work.append([enroll,work,0, scorer_name, group_name])   
+    def getKey(custom):
+        return custom[0].seat
+	
+    classmate_work = sorted(classmate_work, key=getKey)
+   
+    return render(request,'teacher/twork_class.html',{'classmate_work': classmate_work, 'classroom_id':classroom_id, 'index': work_id})
+
+# 列出所有討論主題素材
+class CourseContentListView(ListView):
+    model = CourseContent
+    context_object_name = 'contents'
+    template_name = "teacher/course_content.html"		
+    def get_queryset(self):
+        contents = CourseContent.objects.filter(course_id=self.kwargs['course_id']).order_by("-id")
+        queryset = []
+        for content in contents :
+            exercises = CourseExercise.objects.filter(content_id=content.id)
+            queryset.append([content, exercises])
+        return queryset
+			
+    def get_context_data(self, **kwargs):
+        context = super(CourseContentListView, self).get_context_data(**kwargs)
+        coursework = CourseWork.objects.get(id=self.kwargs['course_id'])
+        courseclasses = CourseClass.objects.filter(course_id=self.kwargs['course_id'])				
+        context['coursework']= coursework
+        context['course_id'] = self.kwargs['course_id']
+        context['courseclasses'] = courseclasses
+        context['classroom_id'] = self.kwargs['classroom_id']
+        return context	
+			
+#新增一個課程
+class CourseContentCreateView(CreateView):
+    model = CourseContent
+    form_class = CourseContentForm
+    template_name = "teacher/course_content_form.html"
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        work = CourseContent(course_id=self.object.course_id)
+        if self.object.types == 1:
+            work.types = 1
+            work.title = self.object.title
+            work.link = self.object.link
+        if self.object.types  == 2:
+            work.types = 2					
+            work.youtube = self.object.youtube
+        if self.object.types  == 3:
+            work.types = 3
+            myfile = self.request.FILES['content_file']
+            fs = FileSystemStorage()
+            filename = uuid4().hex
+            work.title = myfile.name
+            work.filename = str(self.request.user.id)+"/"+filename
+            fs.save("static/upload/"+str(self.request.user.id)+"/"+filename, myfile)
+        if self.object.types  == 4:
+            work.types = 4
+        work.memo = self.object.memo
+        work.save()         
+  
+        return redirect("/teacher/course/content/"+self.kwargs['course_id'])  
+
+    def get_context_data(self, **kwargs):
+        ctx = super(CourseContentCreateView, self).get_context_data(**kwargs)
+        ctx['course'] = CourseWork.objects.get(id=self.kwargs['course_id'])
+        return ctx
+
+def course_delete(request, classsroom_id, course_id, content_id):
+    instance = CourseContent.objects.get(id=content_id)
+    instance.delete()
+
+    return redirect("/teacher/course/content/"+classroom_id+"/"+course_id)  
+	
+def course_edit(request, classroom_id, course_id, content_id):
+    try:
+        instance = CourseContent.objects.get(id=content_id)
+    except:
+        pass
+    if request.method == 'POST':
+            content_id = request.POST.get("id", "")
+            try:
+                content = FContent.objects.get(id=content_id)
+            except ObjectDoesNotExist:
+	              content = FContent(course_id= request.POST.get("course_id", ""), types=form.cleaned_data['types'])
+            if content.types == 1:
+                content.title = request.POST.get("title", "")
+                content.link = request.POST.get("link", "")
+            elif content.types == 2:
+                content.youtube = request.POST.get("youtube", "")
+            elif content.types == 3:
+                myfile =  request.FILES.get("content_file", "")
+                fs = FileSystemStorage()
+                filename = uuid4().hex
+                content.title = myfile.name
+                content.filename = str(request.user.id)+"/"+filename
+                fs.save("static/upload/"+str(request.user.id)+"/"+filename, myfile)
+            content.memo = request.POST.get("memo", "")
+            content.save()
+            return redirect('/teacher/course/content/'+classroom_id+"/"+course_id)   
+    return render(request,'teacher/course_edit.html',{'content': instance, 'course_id':course_id, 'content_id':content_id})		
+	
+def course_download(request, classroom_id, content_id):
+    content = CourseContent.objects.get(id=content_id)
+    filename = content.title
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))		
+    download =  BASE_DIR + "/static/upload/" + content.filename
+    wrapper = FileWrapper(file( download, "r" ))
+    response = HttpResponse(wrapper, content_type = 'application/force-download')
+    #response = HttpResponse(content_type='application/force-download')
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(filename.encode('utf8'))
+    # It's usually a good idea to set the 'Content-Length' header too.
+    # You can also set any other required headers: Cache-Control, etc.
+    return response
+    #return render(request,'student/download.html', {'download':download})
+		
+class CourseEditUpdateView(UpdateView):
+    model = CourseWork
+    fields = ['title']
+    template_name = 'form.html'
+    #success_url = '/teacher/course/domain/'
+    def get_success_url(self):
+        succ_url =  '/teacher/course/'+self.kwargs['classroom_id']
+        return succ_url
+	
+def course_deadline(request, classroom_id, course_id):
+    course = CourseWork.objects.get(id=course_id)
+    classroom = Classroom.objects.get(id=classroom_id)
+    if request.method == 'POST':
+        form = CategroyForm(request.POST)
+        if form.is_valid():
+            course.domains = request.POST.getlist('domains')
+            course.levels = request.POST.getlist('levels')	
+            course.save()
+            return redirect('/teacher/course/'+classroom_id+"/"+classroom_id)
+    else:
+        courseclass = CourseClass.objects.get(classroom_id=classroom_id, course_id=course_id)
+        form = CourseDeadlineForm(instance=courseclass)
+        courseclasses = CourseClass.objects.filter(course_id=course_id).order_by("-id")
+    return render(request,'teacher/course_deadline_form.html',{'courseclasses':courseclasses, 'courseclass':courseclass, 'course':course, 'classroom':classroom})
+
+	
+# Ajax 設定期限、取消期限
+def course_deadline_set(request):
+    course_id = request.POST.get('courseid')
+    classroom_id = request.POST.get('classroomid')		
+    status = request.POST.get('status')
+    try:
+        courseclass = CourseClass.objects.get(course_id=course_id, classroom_id=classroom_id)
+    except ObjectDoesNotExist:
+        courseclass = Courseclass(course_id=course_id, classroom_id=classroom_id)
+    if status == 'True':
+        courseclass.deadline = True
+    else :
+        courseclass.deadline = False
+    courseclass.save()
+    return JsonResponse({'status':status}, safe=False)        
+
+# Ajax 設定期限日期
+def course_deadline_date(request):
+    course_id = request.POST.get('courseid')
+    classroom_id = request.POST.get('classroomid')		
+    deadline_date = request.POST.get('deadlinedate')
+    try:
+        courseclass = CourseClass.objects.get(course_id=course_id, classroom_id=classroom_id)
+    except ObjectDoesNotExist:
+        courseclass = CourseClass(course_id=course_id, classroom_id=classroom_id)
+    #fclass.deadline_date = deadline_date.strftime('%d/%m/%Y')
+    courseclass.deadline_date = datetime.strptime(deadline_date, '%Y %B %d - %H:%M')
+    courseclass.save()
+    return JsonResponse({'status':deadline_date}, safe=False)             
+
+def course_group(request, classroom_id, course_id):
+    enrolls = Enroll.objects.filter(classroom_id=classroom_id)
+    enroll_dict = {}
+    for enroll in enrolls:
+        enroll_dict[enroll.id] = enroll
+    groups = ClassroomGroup.objects.filter(classroom_id=classroom_id)
+    group_ids = []
+    for group in groups:
+        group_ids.append(group.id)
+    classroom = Classroom.objects.get(id=classroom_id)
+    studentgroups = StudentGroup.objects.filter(group_id__in=group_ids)
+    group_list = []
+    for group in groups:        
+        groupclass_list = []  
+        groupclass_dict = {}
+        students = filter(lambda student: student.group_id == group.id , studentgroups)
+        for student in students:
+            if student.enroll_id in enroll_dict:
+                if student.group in groupclass_dict:
+                    groupclass_dict[student.group].append(enroll_dict[student.enroll_id])
+                else :
+                    groupclass_dict[student.group] = [enroll_dict[student.enroll_id]]
+        for key in groupclass_dict:
+            groupclass_list.append([key, groupclass_dict[key]])
+        group_list.append([group.id, groupclass_list])
+    courseclass = CourseClass.objects.get(course_id=course_id, classroom_id=classroom_id)
+    try:
+        group = ClassroomGroup.objects.get(id=courseclass.group)
+    except ObjectDoesNotExist:
+        group = ClassroomGroup(title="不分組", id=0)
+    return render(request,'teacher/course_group.html',{'course_id': course_id, 'coursegroup': group, 'groups':groups, 'classroom':classroom, 'group_list':group_list})
+
+# Ajax 設定合作區組別
+def course_group_set(request):
+    course_id = request.POST.get('courseid')
+    classroom_id = request.POST.get('classroomid')		
+    group = request.POST.get('groupid')
+    try:
+        courseclass = CourseClass.objects.get(course_id=int(course_id), classroom_id=int(classroom_id))
+    except ObjectDoesNotExist:
+        pass
+    courseclass.group = int(group)
+    courseclass.save()    
+    return JsonResponse({'status':course_id}, safe=False)  
+
+# 列出所有練習主題
+class CourseExerciseListView(ListView):
+    model = CourseExercise
+    context_object_name = 'exercises'
+    template_name = "teacher/course_exercise.html"		
+    paginate_by = 20
+    def get_queryset(self):        
+        queryset = CourseExercise.objects.filter(content_id=self.kwargs['content_id'])
+        return queryset
+			
+    def get_context_data(self, **kwargs):
+        context = super(CourseExerciseListView, self).get_context_data(**kwargs)
+        content = CourseContent.objects.get(id=self.kwargs['content_id'])
+        context['content'] = content
+        context['classroom_id'] = self.kwargs['classroom_id']
+        return context	
+
+# 列出所有練習主題
+class CourseExerciseAddListView(ListView):
+    model = CourseExercise
+    context_object_name = 'exercises'
+    template_name = "teacher/course_exercise_add.html"		
+    paginate_by = 20
+    def get_queryset(self):
+        #新增註記
+        if self.kwargs['types'] ==  "0":        
+            classes = SpeculationClass.objects.filter(classroom_id=self.kwargs['classroom_id'])
+            speculation_ids = [speculation.forum_id for speculation in classes]
+            works = SpeculationWork.objects.filter(id__in=speculation_ids).order_by("-id")            
+        else:
+            classes = ExamClass.objects.filter(classroom_id=self.kwargs['classroom_id'])
+            exam_ids = [exam.exam_id for exam in classes]
+            works = Exam.objects.filter(id__in=exam_ids).order_by("-id")
+        exercises = CourseExercise.objects.filter(types=self.kwargs['types'], content_id=self.kwargs['content_id'])
+        exercise_ids = [exercise.exercise_id for exercise in exercises]
+        queryset = []
+        for work in works:
+            if work.id in exercise_ids:
+                queryset.append([work, True])
+            else:
+                queryset.append([work, False])
+        return queryset
+			
+    def get_context_data(self, **kwargs):
+        context = super(CourseExerciseAddListView, self).get_context_data(**kwargs)
+        content = CourseContent.objects.get(id=self.kwargs['content_id'])
+        context['content'] = content
+        context['types'] = self.kwargs['types']
+        return context	
+
+# 分組
+def exercise_make(request):
+    exercise_id = request.POST.get('exerciseid')
+    content_id = request.POST.get('contentid')    
+    types = request.POST.get('types') 
+    action = request.POST.get('action')
+    if content_id and exercise_id and action :      
+        if action == 'set':
+            try:
+                exercise = CourseExercise.objects.get(types=types, content_id=content_id, exercise_id=exercise_id)  
+            except ObjectDoesNotExist:          
+                exercise = CourseExercise(types=types, content_id=content_id, exercise_id=exercise_id)  
+                exercise.save()   
+        else : 
+            try:
+                exercise = CourseExercise.objects.get(types=types, content_id=content_id, exercise_id=exercise_id)  
+                exercise.delete()
+            except ObjectDoesNotExist:          
+                pass         
+        return JsonResponse({'status':'ok'}, safe=False)
+    else:
+        return JsonResponse({'status':'fail'}, safe=False) 

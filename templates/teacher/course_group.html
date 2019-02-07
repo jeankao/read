@@ -4,7 +4,7 @@
 	<div class="row">
 		<div class="span12">    
             <p class="lead">分組使用:</p>
-			    <div class="btn-group"><a id="dropdown_group" class="btn btn-default dropdown-toggle" data-toggle="dropdown" data-group="{{teamgroup.id}}" href="#">{{teamgroup.title}} <span class="caret"></span></a>
+			    <div class="btn-group"><a id="dropdown_group" class="btn btn-default dropdown-toggle" data-toggle="dropdown" data-group="{{coursegroup.id}}" href="#">{{coursegroup.title}} <span class="caret"></span></a>
         <ul class="dropdown-menu">
             <li><a href="#" data-groupid=0>不分組</a></li>					
 					{% for group in groups %}
@@ -12,21 +12,21 @@
 					{% endfor %}
         </ul>
 			</div>
-  <a href="#" role="btn" class="btn btn-default" id="submit" data-teamid="{{team_id}}" data-classroomid="{{classroom.id}}">送出</a><BR><BR>
+  <a href="#" role="btn" class="btn btn-default" id="submit" data-courseid="{{course_id}}" data-classroomid="{{classroom.id}}">送出</a><BR><BR>
             <p class="lead">分組情形:</p>
             <div id="tab" class="btn-group" data-toggle="buttons-radio">
-              <a href="#group0" class="btn btn-large btn-info {% if not teamgroup.id %}active{% endif %}" data-toggle="tab">不分組</a>              
+              <a href="#group0" class="btn btn-large btn-info {% if not coursegroup.id %}active{% endif %}" data-toggle="tab">不分組</a>              
 {% for group in groups %}              
-              <a href="#group{{group.id}}" class="btn btn-large btn-info {% if group.id == teamgroup.id %}active{% endif %}" data-toggle="tab">{{group.title}}</a>
+              <a href="#group{{group.id}}" class="btn btn-large btn-info {% if group.id == coursegroup.id %}active{% endif %}" data-toggle="tab">{{group.title}}</a>
 {% endfor %}                       
             </div>
             <div class="tab-content">
-              <div class="tab-pane {% if not teamgroup.id %}active{% endif %}" id="group0">
+              <div class="tab-pane {% if not coursegroup.id %}active{% endif %}" id="group0">
               
               </div>
      
               {% for group_id, groups in group_list %}
-              <div class="tab-pane {% if group_id == teamgroup.id %}active{% endif %}" id="group{{group_id}}">
+              <div class="tab-pane {% if group_id == coursegroup.id %}active{% endif %}" id="group{{group_id}}">
                 <table class="table">                  
                 {% for group, members in groups %}
                 <tr>
@@ -51,13 +51,13 @@
 		$("#submit").click(function(event) {
 			  var launcher = this;  
         var group_id = $("#dropdown_group").data("group");
-        $.post('/teacher/team/group/set/',
+        $.post('/teacher/course/group/set/',
         {
-            teamid: $(launcher).data('teamid'),
+            courseid: $(launcher).data('courseid'),
             classroomid: $(launcher).data('classroomid'),
             groupid: group_id,
         });
-        $(location).attr('href', '/teacher/team/group/{{classroom.id}}/{{team_id}}')			
+        $(location).attr('href', '/teacher/course/group/{{classroom.id}}/{{course_id}}')			
     });		
 	    $('body').css('background-image','url(/static/images/back1.gif)');
 	{% endblock %}

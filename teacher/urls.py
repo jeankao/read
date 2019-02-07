@@ -3,14 +3,7 @@ from django.conf.urls import url
 from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
-from teacher.views import ClassroomListView, ClassroomCreateView
-from teacher.views import GroupListView, GroupCreateView, GroupUpdateView
-from teacher.views import ForumListView, ForumCreateView, ForumContentListView, ForumContentCreateView, ForumClassListView
-from teacher.views import AssistantListView, ForumAllListView, ForumEditUpdateView, AnnounceCreateView
-from teacher.views import SpeculationListView, SpeculationCreateView, SpeculationContentListView, SpeculationContentCreateView, SpeculationClassListView
-from teacher.views import SpeculationAllListView, SpeculationEditUpdateView, SpeculationAnnotationListView, SpeculationAnnotationCreateView
-from teacher.views import ExamListView, ExamCreateView, ExamEditUpdateView, ExamClassListView, ExamQuestionListView, ExamQuestionCreateView, ExamAllListView
-from teacher.views import TeamListView, TeamCreateView, TeamEditUpdateView, TeamClassListView, VideoListView
+from teacher.views import *
 
 urlpatterns = [
     url(r'^member/$', login_required(views.TeacherListView.as_view())),
@@ -105,8 +98,8 @@ urlpatterns = [
     url(r'^exam/question/edit/(?P<exam_id>\d+)/(?P<question_id>\d+)/$', login_required(views.exam_question_edit)), 
     url(r'^exam/score/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/$', login_required(views.exam_score)), 	
 	  #大量匯入選擇題
-    url(r'^exam/import2/upload/(?P<exam_id>\d+)/$', login_required(views.exam_import_sheet)),   	
-    url(r'^exam/import2/question/(?P<exam_id>\d+)/$', login_required(views.exam_import_question)),   
+    url(r'^exam/import/upload/(?P<types>\d+)/(?P<exam_id>\d+)/$', login_required(views.exam_import_sheet)),   	
+    url(r'^exam/import/question/(?P<types>\d+)/(?P<exam_id>\d+)/$', login_required(views.exam_import_question)),   
     # 合作區
     #url(r'^team/(?P<categroy>\d+)/(?P<categroy_id>\d+)/$', login_required(TeamAllListView.as_view())),  
     #url(r'^forum/show/(?P<forum_id>\d+)/$', login_required(views.forum_show), name='forum-show'),    
@@ -132,4 +125,26 @@ urlpatterns = [
     url(r'^video/(?P<classroom_id>\d+)/(?P<forum_id>\d+)/(?P<work_id>\d+)/$', views.EventVideoView.as_view()),
     url(r'^video/length/$', views.video_length),	
 		url(r'^video/user/(?P<classroom_id>\d+)/(?P<content_id>\d+)/(?P<user_id>\d+)/$', VideoListView.as_view()), 	
+    # 課程區
+    url(r'^course/(?P<categroy>\d+)/(?P<categroy_id>\d+)/$', login_required(CourseAllListView.as_view()), name='course-all'),  
+    url(r'^course/show/(?P<course_id>\d+)/$', login_required(views.course_show), name='course-show'),    
+    url(r'^course/edit/(?P<classroom_id>\d+)/(?P<pk>\d+)/$', login_required(CourseEditUpdateView.as_view()), name='course-edit'),   
+    url(r'^course/(?P<classroom_id>\d+)/$', login_required(CourseListView.as_view()), name='course-list'),
+    url(r'^course/add/(?P<classroom_id>\d+)/$', login_required(CourseCreateView.as_view()), name='course-add'),
+    url(r'^course/category/(?P<classroom_id>\d+)/(?P<course_id>\d+)/$', login_required(views.course_categroy), name='course-category'),  
+    url(r'^course/deadline/(?P<classroom_id>\d+)/(?P<course_id>\d+)/$', login_required(views.course_deadline), name='course-deadline'),  
+    url(r'^course/deadline/set/$', login_required(views.course_deadline_set), name='course-deatline-set'), 
+    url(r'^course/deadline/date/$', login_required(views.course_deadline_date), name='course-deatline-date'),   
+    url(r'^course/deadline/(?P<classroom_id>\d+)/(?P<course_id>\d+)/$', login_required(views.course_deadline), name='course-category'),   
+    url(r'^course/download/(?P<content_id>\d+)/$', views.course_download, name='course-download'),  
+    url(r'^course/content/(?P<classroom_id>\d+)/(?P<course_id>\d+)/$', login_required(CourseContentListView.as_view()), name='course-content'), 
+    url(r'^course/content/add/(?P<classroom_id>\d+)/(?P<course_id>\d+)/$', login_required(CourseContentCreateView.as_view()), name='course-content-add'),
+    url(r'^course/content/delete/(?P<classroom_id>\d+)/(?P<content_id>\d+)/$', login_required(views.course_delete), name='course-content-delete'),   
+    url(r'^course/content/edit/(?P<classroom_id>\d+)/(?P<content_id>\d+)/$', login_required(views.course_edit), name='course-content-edit'),     
+    url(r'^course/class/(?P<course_id>\d+)/$',  login_required(CourseClassListView.as_view()), name='course-class'),
+    url(r'^course/exercise/(?P<classroom_id>\d+)/(?P<content_id>\d+)/$', login_required(CourseExerciseListView.as_view()), name='course-excise'), 
+    url(r'^course/exercise/add/(?P<classroom_id>\d+)/(?P<content_id>\d+)/(?P<types>\d+)/$', login_required(CourseExerciseAddListView.as_view()), name='course-excise'), 
+    url(r'^course/group/(?P<classroom_id>\d+)/(?P<course_id>\d+)/$', login_required(views.course_group)),
+    url(r'^course/group/set/$', login_required(views.course_group_set)),      
+    url(r'^course/exercise/make/$', login_required(views.exercise_make)),   
 ]

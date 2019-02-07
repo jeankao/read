@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from account.models import Message
-from teacher.models import Classroom, FWork, FContent, FClass, SpeculationWork, SpeculationContent, SpeculationClass, SpeculationAnnotation, ClassroomGroup, Exam, ExamClass, ExamQuestion
-from teacher.models import TeamWork, TeamClass
-
+from teacher.models import *
 
 # 新增一個課程表單
 class ClassroomForm(forms.ModelForm):
@@ -76,7 +74,16 @@ class AnnounceForm(forms.ModelForm):
             self.fields['content'].label = "公告內容"
             self.fields['content'].widget.attrs['cols'] = 50
             self.fields['content'].widget.attrs['rows'] = 20        
-            self.fields['title'].widget.attrs.update({'class' : 'form-control list-group-item-text'})      						
+            self.fields['title'].widget.attrs.update({'class' : 'form-control list-group-item-text'})      			
+
+# 新增一個文章分類表單
+class SpeculationCategroyForm(forms.ModelForm):
+        class Meta:
+           model = SpeculationWork
+           fields = ['domains', 'levels']
+        
+        def __init__(self, *args, **kwargs):
+            super(SpeculationCategroyForm, self).__init__(*args, **kwargs)				
 						
 
 # 新增一個文章
@@ -179,18 +186,22 @@ class ExamDeadlineForm(forms.ModelForm):
 class ExamQuestionForm(forms.ModelForm):
         class Meta:
            model = ExamQuestion
-           fields = ['exam_id', 'types', 'title', 'option1', 'option2', 'option3', 'option4', 'answer', 'score']
+           fields = ['exam_id', 'types', 'title', 'title_pic', 'option1', 'option2', 'option3', 'option4', 'answer_tf', 'answer_select', 'answer_filling', 'answer_short', 'score']
         
         def __init__(self, *args, **kwargs):
             super(ExamQuestionForm, self).__init__(*args, **kwargs)
             self.fields['exam_id'].required = False		
-            self.fields['title'].required = False						
+            self.fields['title'].required = True				
+            self.fields['title_pic'].required = False	            		
             self.fields['option1'].required = False
             self.fields['option2'].required = False
             self.fields['option3'].required = False
             self.fields['option4'].required = False
-            self.fields['answer'].required = False			
-            self.fields['score'].required = False				
+            self.fields['answer_tf'].required = False			
+            self.fields['answer_select'].required = False			
+            self.fields['answer_filling'].required = False			
+            self.fields['answer_short'].required = False			                                    
+            self.fields['score'].required = True				
 
 
 #上傳檔案
@@ -226,4 +237,48 @@ class TeamDeadlineForm(forms.ModelForm):
         def __init__(self, *args, **kwargs):
             super(TeamDeadlineForm, self).__init__(*args, **kwargs)			
 
-		
+# 新增一個課程表單
+class CourseCategroyForm(forms.ModelForm):
+        class Meta:
+           model = CourseWork
+           fields = ['domains', 'levels']
+        
+        def __init__(self, *args, **kwargs):
+            super(CourseCategroyForm, self).__init__(*args, **kwargs)			
+						
+# 新增一個繳交期長表單
+class CourseDeadlineForm(forms.ModelForm):
+        class Meta:
+           model = CourseClass
+           fields = ['deadline', 'deadline_date']
+        
+        def __init__(self, *args, **kwargs):
+            super(CourseDeadlineForm, self).__init__(*args, **kwargs)			
+
+						
+# 新增一個作業
+class CourseForm(forms.ModelForm):
+        class Meta:
+           model = CourseWork
+           fields = ['title']
+        
+        def __init__(self, *args, **kwargs):
+            super(CourseForm, self).__init__(*args, **kwargs)
+            self.fields['title'].label = "課程主題"
+            self.fields['title'].widget.attrs.update({'class' : 'form-control list-group-item-text'})									
+						
+# 新增一個作業
+class CourseContentForm(forms.ModelForm):
+        class Meta:
+           model = CourseContent
+           fields = ['course_id', 'types', 'title', 'link', 'youtube', 'file', 'memo']
+        
+        def __init__(self, *args, **kwargs):
+            super(CourseContentForm, self).__init__(*args, **kwargs)
+            self.fields['course_id'].required = False		
+            self.fields['title'].required = False						
+            self.fields['link'].required = False
+            self.fields['youtube'].required = False
+            self.fields['file'].required = False
+            self.fields['memo'].required = False						
+						

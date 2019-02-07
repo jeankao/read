@@ -2,8 +2,8 @@
 from django import template
 from django.contrib.auth.models import User
 from account.models import MessagePoll, Site, Parent
-from teacher.models import Classroom, Assistant, FClass, SpeculationClass
-from student.models import Enroll, SFWork, SFReply
+from teacher.models import *
+from student.models import *
 from django.contrib.auth.models import Group
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -224,3 +224,11 @@ def abs_filter(value):
 def update_variable(value):
     """Allows to update existing variable in template"""
     return value
+
+@register.filter(name='exercise_title')
+def exercise_title(exercise_id, types):
+    if types == 0:
+        exercise = SpeculationWork.objects.get(id=exercise_id)
+    else:
+        exercise = Exam.objects.get(id=exercise_id)
+    return exercise.title
