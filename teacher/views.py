@@ -2654,20 +2654,21 @@ class CourseContentCreateView(CreateView):
         work.memo = self.object.memo
         work.save()         
   
-        return redirect("/teacher/course/content/"+self.kwargs['course_id'])  
+        return redirect("/teacher/course/content/"+self.kwargs['classroom_id']+"/"+self.kwargs['course_id'])  
 
     def get_context_data(self, **kwargs):
         ctx = super(CourseContentCreateView, self).get_context_data(**kwargs)
         ctx['course'] = CourseWork.objects.get(id=self.kwargs['course_id'])
+        ctx['classroom_id'] = CourseWork.objects.get(id=self.kwargs['classroom_id'])        
         return ctx
 
-def course_delete(request, classsroom_id, course_id, content_id):
+def course_delete(request, classsroom_id, content_id):
     instance = CourseContent.objects.get(id=content_id)
     instance.delete()
 
     return redirect("/teacher/course/content/"+classroom_id+"/"+course_id)  
 	
-def course_edit(request, classroom_id, course_id, content_id):
+def course_edit(request, classroom_id, content_id):
     try:
         instance = CourseContent.objects.get(id=content_id)
     except:
@@ -2675,9 +2676,9 @@ def course_edit(request, classroom_id, course_id, content_id):
     if request.method == 'POST':
             content_id = request.POST.get("id", "")
             try:
-                content = FContent.objects.get(id=content_id)
+                content = CourseContent.objects.get(id=content_id)
             except ObjectDoesNotExist:
-	              content = FContent(course_id= request.POST.get("course_id", ""), types=form.cleaned_data['types'])
+	            content = CourseContent(course_id= 0, types=form.cleaned_data['types'])
             if content.types == 1:
                 content.title = request.POST.get("title", "")
                 content.link = request.POST.get("link", "")
@@ -2692,8 +2693,8 @@ def course_edit(request, classroom_id, course_id, content_id):
                 fs.save("static/upload/"+str(request.user.id)+"/"+filename, myfile)
             content.memo = request.POST.get("memo", "")
             content.save()
-            return redirect('/teacher/course/content/'+classroom_id+"/"+course_id)   
-    return render(request,'teacher/course_edit.html',{'content': instance, 'course_id':course_id, 'content_id':content_id})		
+            return redirect('/teacher/course/content/'+classroom_id+"/"+str(content.course_id))   
+    return render(request,'teacher/course_edit.html',{'content': instance,  'content_id':content_id})		
 	
 def course_download(request, classroom_id, content_id):
     content = CourseContent.objects.get(id=content_id)

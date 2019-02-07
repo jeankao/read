@@ -58,8 +58,9 @@
       {% endif %}
       {% endfor %}
     </div>
+    <div class="panel-body">{{ work.memo|memo|safe }}</div>
 
-
+    {% endfor %}
   <div class="modal fade" tabindex="-1" role="dialog" id="vidModal">   
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -70,7 +71,7 @@
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
 </div>
-        {% endfor %}
+
   
 <style>
 .modal-content iframe {
@@ -81,7 +82,7 @@
 {% block footer_script %}
 <script>
 var vidMap = {
-  {% for work in contents %}
+  {% for work, exercises in contents %}
 {% if work.types == 2 %}
   'm_{{ work.id }}': '{{ work.youtube|number }}',
 {% endif %}
@@ -94,7 +95,7 @@ function onPlayerReady(event) {
   $.post('/teacher/video/length/',
         {'content_id': activePlayer.content_id,
 				 'length': activePlayer.getDuration(),
-         'page' : 'course',
+         'page' : 'forum',
 				},
         function(data){}
    );
@@ -107,7 +108,7 @@ function timeToSec(timestr) {
     return (hh*3600)+(mm*60)+ss;
 }
 function onYouTubeIframeAPIReady() {
-	 {% for work in contents %}
+	 {% for work, exercises in contents %}
   {% if work.types == 2 %}	
 var player{{work.id}};
 
@@ -159,8 +160,7 @@ $(document).ready(function () {
   var firstScriptTag = document.getElementsByTagName('script')[0];
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);  
 });
-</script>
-{% endblock %}
-	{% block domready %}
+</script>       
+
 	    $('body').css('background-image','url(/static/images/back1.gif)');
 	{% endblock %}
