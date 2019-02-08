@@ -2629,7 +2629,7 @@ class CourseContentCreateView(CreateView):
     def get_context_data(self, **kwargs):
         ctx = super(CourseContentCreateView, self).get_context_data(**kwargs)
         ctx['course'] = CourseWork.objects.get(id=self.kwargs['course_id'])
-        ctx['classroom_id'] = CourseWork.objects.get(id=self.kwargs['classroom_id'])        
+        ctx['classroom_id'] = self.kwargs['classroom_id']        
         return ctx
 
 def course_delete(request, classsroom_id, content_id):
