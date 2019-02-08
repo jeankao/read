@@ -39,7 +39,13 @@
     <A href="/teacher/course/content/delete/{{classroom_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
     <a href="/teacher/course/content/edit/{{classroom_id}}/{{work.id}}"><img src="/static/images/edit.gif"> 編輯</a>
 </div>
-  <div class="panel-body"> <a href="/teacher/course/download/{{work.id}}" target="_blank">{{work.title}}</a> </div>                        
+  <div class="panel-body"> <a href="/teacher/course/download/{{classroom_id}}/{{work.id}}" target="_blank">{{work.title}}</a>
+    {% if work.title|is_pic %}
+    <BR>
+  <img src="/static/upload/{{work.filename}}" style="max-width:900px">
+  {% endif %}
+  
+  </div>                        
               {% elif work.types == 4 %}
       <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.revcounter}}</button>
       <a href="/teacher/course/exercise/{{classroom_id}}/{{work.id}}" role="btn" class="btn btn-danger">練習</a>      

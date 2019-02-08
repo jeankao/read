@@ -28,7 +28,13 @@
     <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.revcounter}}</button>
     下載檔案
 </div>
-  <div class="panel-body"> <a href="/teacher/course/download/{{work.id}}" target="_blank">{{work.title}}</a> </div>                        
+  <div class="panel-body"> <a href="/teacher/course/download/{{classroom_id}}/{{work.id}}" target="_blank">{{work.title}}</a>
+    {% if work.title|is_pic %}
+    <BR>
+  <img src="/static/upload/{{work.filename}}" style="max-width:900px">
+  {% endif %}
+  
+  </div>                        
               {% elif work.types == 4 %}
       <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.revcounter}}</button>
       自訂文字
