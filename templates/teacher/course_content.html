@@ -8,7 +8,7 @@
         {% for work, exercises in contents %}
  <div class="panel panel-default"> 
               {% if work.types == 1 %}        
-   <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.revcounter}}</button>
+   <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button>
     <a href="/teacher/course/exercise/{{classroom_id}}/{{work.id}}" role="btn" class="btn btn-danger">練習</a>    
     外部網址 
     <A href="/teacher/course/content/delete/{{classroom_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
@@ -20,7 +20,7 @@
   </div>
             
               {% elif work.types == 2 %}
-   <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.revcounter}}</button>
+   <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button>
     <a href="/teacher/course/exercise/{{classroom_id}}/{{work.id}}" role="btn" class="btn btn-danger">練習</a>      
     Youtube影片
     <A href="/teacher/course/content/delete/{{classroom_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
@@ -33,7 +33,7 @@
     </div> 
   </div>         
               {% elif work.types == 3 %}
-    <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.revcounter}}</button>
+    <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button>
     <a href="/teacher/course/exercise/{{classroom_id}}/{{work.id}}" role="btn" class="btn btn-danger">練習</a>      
     下載檔案
     <A href="/teacher/course/content/delete/{{classroom_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
@@ -47,7 +47,7 @@
   
   </div>                        
               {% elif work.types == 4 %}
-      <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.revcounter}}</button>
+      <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button>
       <a href="/teacher/course/exercise/{{classroom_id}}/{{work.id}}" role="btn" class="btn btn-danger">練習</a>      
       自訂文字
     <A href="/teacher/course/content/delete/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>

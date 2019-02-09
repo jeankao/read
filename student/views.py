@@ -1395,7 +1395,7 @@ class CourseContentListView(ListView):
     context_object_name = 'contents'
     template_name = "student/course_content.html"		
     def get_queryset(self):
-        contents = CourseContent.objects.filter(course_id=self.kwargs['course_id']).order_by("-id")
+        contents = CourseContent.objects.filter(course_id=self.kwargs['course_id'])
         queryset = []
         for content in contents :
             exercises = CourseExercise.objects.filter(content_id=content.id)
