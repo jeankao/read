@@ -1415,10 +1415,10 @@ class CourseContentListView(ListView):
                         works = [sfworks[0].publish, sfworks]
                     else :
                         if work.deadline and timezone.now() < work.deadline_date:
-                            works = [True, sfworks]
+                            pass
                         else :
-                            works = [False, sfworks]
                             finished = False
+                        works = [False, sfworks]                            
                 #測驗 
                 elif exercise.types == 1:
                     questions = ExamQuestion.objects.filter(exam_id=exercise.exercise_id)
@@ -1436,10 +1436,10 @@ class CourseContentListView(ListView):
                             works = [True, examclass_dict[exercise.exercise_id], examworks, len(questions), retest]
                     else :  
                         if work.deadline and timezone.now() < work.deadline_date:
-                            works = [True, examclass_dict[exercise.exercise_id], 0, len(questions), retest]
+                            pass
                         else :
-                            works = [False, examclass_dict[exercise.exercise_id], 0, len(questions), retest]                     
                             finished = False
+                        works = [False, examclass_dict[exercise.exercise_id], 0, len(questions), retest]                              
                 pool.append([exercise, works])
             queryset.append([content, pool, progress, finished])
         return queryset

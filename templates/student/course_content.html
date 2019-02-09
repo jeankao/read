@@ -12,8 +12,8 @@
     {% if progress == 0 %}
     <a href="#" data-progress="1" data-studentid="{{ request.user.id }}" data-contentid="{{work.id}}" class="open btn btn-danger" role="btn">開啟</a>
     {% endif %}
-    <a id="expand{{work.id}}" href="#" data-contentid="{{work.id}}" class="expand btn btn-success" role="btn" {% if progress != 2 %}style="display:none"{% endif %}>展開</a> 
-    <a id="close{{work.id}}" href="#" data-contentid="{{work.id}}" class="unexpand btn btn-success" role="btn" style="display:none">關閉</a>
+    <a id="expand{{work.id}}" onclick="return false;" href="#" data-contentid="{{work.id}}" class="expand btn btn-success" role="btn" {% if progress != 2 %}style="display:none"{% endif %}>展開</a> 
+    <a id="close{{work.id}}" onclick="return false;" href="#" data-contentid="{{work.id}}" class="unexpand btn btn-success" role="btn" style="display:none">關閉</a>
   </div>
   <div id="div{{work.id}}" class="panel-body" {% if progress == 0 or progress == 2 %}style="display:none"{% endif %}>
     <a href="{{work.link}}" target="_blank">{% if work.title %}{{work.title}}{% else %}開啟連結{% endif %}</a>
@@ -25,8 +25,8 @@
      {% if progress == 0 %}
      <a href="#" data-progress="1" data-studentid="{{ request.user.id }}" data-contentid="{{work.id}}" class="open btn btn-danger" role="btn">開啟</a>
      {% endif %}
-     <a id="expand{{work.id}}" href="#" data-contentid="{{work.id}}" class="expand btn btn-success" role="btn" {% if progress != 2 %}style="display:none"{% endif %}>展開</a> 
-     <a id="close{{work.id}}" href="#" data-contentid="{{work.id}}" class="unexpand btn btn-success" role="btn" style="display:none">關閉</a>
+     <a id="expand{{work.id}}" onclick="return false;" href="#" data-contentid="{{work.id}}" class="expand btn btn-success" role="btn" {% if progress != 2 %}style="display:none"{% endif %}>展開</a> 
+     <a id="close{{work.id}}" onclick="return false;" href="#" data-contentid="{{work.id}}" class="unexpand btn btn-success" role="btn" style="display:none">關閉</a>
      </div>
   <div id="div{{work.id}}" class="panel-body"  {% if progress == 0 or progress == 2 %}style="display:none"{% endif %}>
     <div class="embed-responsive embed-responsive-16by9">
@@ -40,8 +40,8 @@
     {% if progress == 0 %}
     <a href="#" data-progress="1" data-studentid="{{ request.user.id }}" data-contentid="{{work.id}}" class="open btn btn-danger" role="btn">開啟</a>
     {% endif %}
-    <a id="expand{{work.id}}" href="#" data-contentid="{{work.id}}" class="expand btn btn-success" role="btn" {% if progress != 2 %}style="display:none"{% endif %}>展開</a> 
-    <a id="close{{work.id}}" href="#" data-contentid="{{work.id}}" class="unexpand btn btn-success" role="btn" style="display:none">關閉</a>
+    <a id="expand{{work.id}}" onclick="return false;" href="#" data-contentid="{{work.id}}" class="expand btn btn-success" role="btn" {% if progress != 2 %}style="display:none"{% endif %}>展開</a> 
+    <a id="close{{work.id}}" onclick="return false;" href="#" data-contentid="{{work.id}}" class="unexpand btn btn-success" role="btn" style="display:none">關閉</a>
   </div>
   <div id="div{{work.id}}" class="panel-body" {% if progress == 0 or progress == 2 %}style="display:none"{% endif %}> <a href="/teacher/course/download/{{classroom_id}}/{{work.id}}" target="_blank">{{work.title}}</a>
     {% if work.title|is_pic %}
@@ -56,8 +56,8 @@
       {% if progress == 0 %}
       <a href="#" data-progress="1" data-studentid="{{ request.user.id }}" data-contentid="{{work.id}}" class="open btn btn-danger" role="btn">開啟</a>
       {% endif %}
-      <a id="expand{{work.id}}" href="#" data-contentid="{{work.id}}" class="expand btn btn-success" role="btn" {% if progress != 2 %}style="display:none"{% endif %}>展開</a> 
-      <a id="close{{work.id}}" href="#" data-contentid="{{work.id}}" class="unexpand btn btn-success" role="btn" style="display:none">關閉</a>
+      <a id="expand{{work.id}}" onclick="return false;" href="#" data-contentid="{{work.id}}" class="expand btn btn-success" role="btn" {% if progress != 2 %}style="display:none"{% endif %}>展開</a> 
+      <a id="close{{work.id}}" onclick="return false;" href="#" data-contentid="{{work.id}}" class="unexpand btn btn-success" role="btn" style="display:none">關閉</a>
   
  </div>            
 {% endif %}
