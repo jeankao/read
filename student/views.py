@@ -1413,7 +1413,7 @@ class CourseContentListView(ListView):
                     sfworks = SSpeculationWork.objects.filter(student_id=self.request.user.id, index=exercise.exercise_id).order_by("-id")
                     if len(sfworks)> 0 :
                         works = [sfworks[0].publish, sfworks]
-                        if not examworks[0].publish:
+                        if not sfworks[0].publish:
                             finished = False
                     else :
                         if work.deadline and timezone.now() < work.deadline_date:
