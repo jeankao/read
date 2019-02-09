@@ -162,4 +162,12 @@ class TeamContent(models.Model):
     filename = models.CharField(max_length=60,null=True,blank=True)
     publication_date = models.DateTimeField(default=timezone.now)    
     publish = models.BooleanField(default=False)
+
+class CourseContentProgress(models.Model):
+    student_id = models.IntegerField(default=0)  
+    content_id = models.IntegerField(default=0)  
+    progress =models.IntegerField(default=0)  
+
+    class Meta:
+        unique_together = ('student_id', 'content_id')		    
       

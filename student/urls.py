@@ -67,4 +67,5 @@ urlpatterns = [
     #課程
     url(r'^course/(?P<classroom_id>\d+)/$', login_required(CourseListView.as_view()), name='work-list'),  
     url(r'^course/content/(?P<classroom_id>\d+)/(?P<course_id>\d+)/$', login_required(CourseContentListView.as_view()), name='course-content'), 
+    url(r'^course/content/progress/$', login_required(views.course_progress)),                        
 ]

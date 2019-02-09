@@ -4,21 +4,31 @@
 {% block content %}
  <button type="button" class="btn btn-success">{{coursework.title}}</button>
 
-        {% for work, exercises in contents %}
+        {% for work, exercises, progress, finished in contents %}
  <div class="panel panel-default"> 
               {% if work.types == 1 %}        
    <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button>
     外部網址 
+    {% if progress == 0 %}
+    <a href="#" data-progress="1" data-studentid="{{ request.user.id }}" data-contentid="{{work.id}}" class="open btn btn-danger" role="btn">開啟</a>
+    {% endif %}
+    <a id="expand{{work.id}}" href="#" data-contentid="{{work.id}}" class="expand btn btn-success" role="btn" {% if progress != 2 %}style="display:none"{% endif %}>展開</a> 
+    <a id="close{{work.id}}" href="#" data-contentid="{{work.id}}" class="unexpand btn btn-success" role="btn" style="display:none">關閉</a>
   </div>
-  <div class="panel-body">
+  <div id="div{{work.id}}" class="panel-body" {% if progress == 0 or progress == 2 %}style="display:none"{% endif %}>
     <a href="{{work.link}}" target="_blank">{% if work.title %}{{work.title}}{% else %}開啟連結{% endif %}</a>
   </div>
             
               {% elif work.types == 2 %}
    <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button>
      Youtube影片
- 	</div>
-  <div class="panel-body">
+     {% if progress == 0 %}
+     <a href="#" data-progress="1" data-studentid="{{ request.user.id }}" data-contentid="{{work.id}}" class="open btn btn-danger" role="btn">開啟</a>
+     {% endif %}
+     <a id="expand{{work.id}}" href="#" data-contentid="{{work.id}}" class="expand btn btn-success" role="btn" {% if progress != 2 %}style="display:none"{% endif %}>展開</a> 
+     <a id="close{{work.id}}" href="#" data-contentid="{{work.id}}" class="unexpand btn btn-success" role="btn" style="display:none">關閉</a>
+     </div>
+  <div id="div{{work.id}}" class="panel-body"  {% if progress == 0 or progress == 2 %}style="display:none"{% endif %}>
     <div class="embed-responsive embed-responsive-16by9">
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
     <div id="player{{work.id}}"></div>
@@ -27,8 +37,13 @@
               {% elif work.types == 3 %}
     <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button>
     下載檔案
-</div>
-  <div class="panel-body"> <a href="/teacher/course/download/{{classroom_id}}/{{work.id}}" target="_blank">{{work.title}}</a>
+    {% if progress == 0 %}
+    <a href="#" data-progress="1" data-studentid="{{ request.user.id }}" data-contentid="{{work.id}}" class="open btn btn-danger" role="btn">開啟</a>
+    {% endif %}
+    <a id="expand{{work.id}}" href="#" data-contentid="{{work.id}}" class="expand btn btn-success" role="btn" {% if progress != 2 %}style="display:none"{% endif %}>展開</a> 
+    <a id="close{{work.id}}" href="#" data-contentid="{{work.id}}" class="unexpand btn btn-success" role="btn" style="display:none">關閉</a>
+  </div>
+  <div id="div{{work.id}}" class="panel-body" {% if progress == 0 or progress == 2 %}style="display:none"{% endif %}> <a href="/teacher/course/download/{{classroom_id}}/{{work.id}}" target="_blank">{{work.title}}</a>
     {% if work.title|is_pic %}
     <BR>
   <img src="/static/upload/{{work.filename}}" style="max-width:900px">
@@ -38,10 +53,19 @@
               {% elif work.types == 4 %}
       <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button>
       自訂文字
-</div>            
+      {% if progress == 0 %}
+      <a href="#" data-progress="1" data-studentid="{{ request.user.id }}" data-contentid="{{work.id}}" class="open btn btn-danger" role="btn">開啟</a>
+      {% endif %}
+      <a id="expand{{work.id}}" href="#" data-contentid="{{work.id}}" class="expand btn btn-success" role="btn" {% if progress != 2 %}style="display:none"{% endif %}>展開</a> 
+      <a id="close{{work.id}}" href="#" data-contentid="{{work.id}}" class="unexpand btn btn-success" role="btn" style="display:none">關閉</a>
+  
+ </div>            
 {% endif %}
-    <div class="panel-body">{{ work.memo|memo|safe }}
+    <div id="memo{{work.id}}" class="panel-body" {% if progress == 0 or progress == 2 %}style="display:none"{% endif %}>{{ work.memo|memo|safe }}
     <BR>
+      {% if finished and progress == 1 %}
+      <a href="#" data-progress="2" data-studentid="{{ request.user.id }}" data-contentid="{{work.id}}" class="finish btn btn-danger" role="btn">完成進度</a>
+      {% endif %}
       {% for exercise, state in exercises %}
       {% if exercise.types == 0 %}
         {% if not exercise.exercise_id|in_deadline_speculation:classroom_id == '' or state.0 %}      
@@ -85,7 +109,7 @@
 {% block footer_script %}
 <script>
 var vidMap = {
-  {% for work, exercises in contents %}
+  {% for work, exercises, progress, finished in contents %}
 {% if work.types == 2 %}
   'm_{{ work.id }}': '{{ work.youtube|number }}',
 {% endif %}
@@ -111,7 +135,7 @@ function timeToSec(timestr) {
     return (hh*3600)+(mm*60)+ss;
 }
 function onYouTubeIframeAPIReady() {
-	 {% for work, exercises in contents %}
+	 {% for work, exercises, progress, finished in contents %}
   {% if work.types == 2 %}	
 var player{{work.id}};
 
@@ -163,7 +187,66 @@ $(document).ready(function () {
   var firstScriptTag = document.getElementsByTagName('script')[0];
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);  
 });
-</script>       
 
-	    $('body').css('background-image','url(/static/images/back1.gif)');
-	{% endblock %}
+$('a.open').click(function(e){
+    var launcher = this;  
+    e.preventDefault();
+    $.post('/student/course/content/progress/',
+      {
+        studentid: $(launcher).data('studentid'),
+        contentid: $(launcher).data('contentid'),
+        progress: $(launcher).data('progress'),     
+      },
+      function(data){
+        if (data['status'] == 'ok')
+        {
+          $(launcher).hide();
+          $("#div"+$(launcher).data('contentid')).show();
+          $("#memo"+$(launcher).data('contentid')).show();          
+        } else {
+			   	alert("hello");
+	    	}
+      }
+    );
+  });
+  $('a.finish').click(function(e){
+    var launcher = this;  
+    e.preventDefault();
+    $.post('/student/course/content/progress/',
+      {
+        studentid: $(launcher).data('studentid'),
+        contentid: $(launcher).data('contentid'),
+        progress: $(launcher).data('progress'),     
+      },
+      function(data){
+        if (data['status'] == 'ok')
+        {
+          $(launcher).hide();
+          $("#div"+$(launcher).data('contentid')).hide();
+          $("#memo"+$(launcher).data('contentid')).hide();    
+          $("#expand"+$(launcher).data('contentid')).show();                    
+        } else {
+			   	alert("hello");
+	    	}
+      }
+    );
+  });
+
+  $('a.expand').click(function(e){
+    var launcher = this;  
+    $(launcher).hide();
+    $("#div"+$(launcher).data('contentid')).show();
+    $("#memo"+$(launcher).data('contentid')).show();          
+    $("#close"+$(launcher).data('contentid')).show();          
+  });  
+
+  $('a.unexpand').click(function(e){
+    var launcher = this;  
+    $(launcher).hide();
+    $("#div"+$(launcher).data('contentid')).hide();
+    $("#memo"+$(launcher).data('contentid')).hide();          
+    $("#expand"+$(launcher).data('contentid')).show();          
+  });   
+$('body').css('background-image','url(/static/images/back1.gif)');
+</script>       
+{% endblock %}

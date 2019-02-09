@@ -15,7 +15,7 @@
     <a href="/teacher/course/content/edit/{{classroom_id}}/{{work.id}}"><img src="/static/images/edit.gif"> 編輯</a>
 
   </div>
-  <div class="panel-body">
+  <div class="panel-body" {% if progress == 0 %}style="display:none"{% endif %}>
     <a href="{{work.link}}" target="_blank">{% if work.title %}{{work.title}}{% else %}開啟連結{% endif %}</a>
   </div>
             

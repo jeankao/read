@@ -1395,12 +1395,17 @@ class CourseContentListView(ListView):
     context_object_name = 'contents'
     template_name = "student/course_content.html"		
     def get_queryset(self):
-        contents = CourseContent.objects.filter(course_id=self.kwargs['course_id'])
+        contents = CourseContent.objects.filter(course_id=self.kwargs['course_id']).order_by("id")
         queryset = []
         for content in contents :
             exercises = CourseExercise.objects.filter(content_id=content.id)
+            try :
+                progress = CourseContentProgress.objects.get(student_id=self.request.user.id, content_id=content.id).progress
+            except ObjectDoesNotExist:
+                progress = 0
             pool = []
             examclass_dict = dict(((examclass.exam_id, examclass) for examclass in ExamClass.objects.filter(classroom_id=self.kwargs['classroom_id'])))	
+            finished = True
             for exercise in exercises: 
                 #註記
                 if exercise.types == 0:
@@ -1409,7 +1414,11 @@ class CourseContentListView(ListView):
                     if len(sfworks)> 0 :
                         works = [sfworks[0].publish, sfworks]
                     else :
-                        works = [False, sfworks]
+                        if timezone.now() < work.deadline_date():
+                            works = [True, sfworks]
+                        else :
+                            works = [False, sfworks]
+                            finished = False
                 #測驗 
                 elif exercise.types == 1:
                     questions = ExamQuestion.objects.filter(exam_id=exercise.exercise_id)
@@ -1426,9 +1435,13 @@ class CourseContentListView(ListView):
                         else :
                             works = [True, examclass_dict[exercise.exercise_id], examworks, len(questions), retest]
                     else :  
-                        works = [False, examclass_dict[exercise.exercise_id], 0, len(questions), retest]
+                        if work.deadline and timezone.now() < work.deadline_date:
+                            works = [True, examclass_dict[exercise.exercise_id], 0, len(questions), retest]
+                        else :
+                            works = [False, examclass_dict[exercise.exercise_id], 0, len(questions), retest]                     
+                            finished = False
                 pool.append([exercise, works])
-            queryset.append([content, pool])
+            queryset.append([content, pool, progress, finished])
         return queryset
 			
     def get_context_data(self, **kwargs):
@@ -1441,5 +1454,21 @@ class CourseContentListView(ListView):
         context['classroom_id'] = self.kwargs['classroom_id']
         return context	
 			
+# Ajax 設為開啟素材
+def course_progress(request):
+    student_id = request.POST.get('studentid')
+    content_id = request.POST.get('contentid')
+    value = request.POST.get('progress')
+    if student_id and content_id :
+        try:
+            progress = CourseContentProgress.objects.get(student_id=student_id, content_id=content_id)
+            progress.progress = int(value)
+            progress.save()
+        except ObjectDoesNotExist :
+            progress = CourseContentProgress(student_id=student_id, content_id=content_id, progress=1)
+            progress.save()
+        return JsonResponse({'status':'ok'}, safe=False)
+    else:
+        return JsonResponse({'status':'fail'}, safe=False)
 
 
