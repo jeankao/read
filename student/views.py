@@ -1413,6 +1413,7 @@ class CourseContentListView(ListView):
                     sfworks = SSpeculationWork.objects.filter(student_id=self.request.user.id, index=exercise.exercise_id).order_by("-id")
                     if len(sfworks)> 0 :
                         works = [sfworks[0].publish, sfworks]
+                        finished = sfworks[0].publish
                     else :
                         if work.deadline and timezone.now() < work.deadline_date:
                             pass
@@ -1430,6 +1431,7 @@ class CourseContentListView(ListView):
                     if len(examworks) < examclass.round_limit or examclass.round_limit == 0 :
                         retest = True
                     if len(examworks)> 0:
+                        finished = examworks[0].publish
                         if not retest :
                             works = [examworks[0].publish, examclass_dict[exercise.exercise_id], examworks, len(questions), retest]
                         else :
