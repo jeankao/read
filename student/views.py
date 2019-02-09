@@ -1414,7 +1414,7 @@ class CourseContentListView(ListView):
                     if len(sfworks)> 0 :
                         works = [sfworks[0].publish, sfworks]
                     else :
-                        if timezone.now() < work.deadline_date:
+                        if work.deadline and timezone.now() < work.deadline_date:
                             works = [True, sfworks]
                         else :
                             works = [False, sfworks]
