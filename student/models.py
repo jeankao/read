@@ -167,6 +167,8 @@ class CourseContentProgress(models.Model):
     student_id = models.IntegerField(default=0)  
     content_id = models.IntegerField(default=0)  
     progress =models.IntegerField(default=0)  
+    start_time = models.DateTimeField(default=timezone.now)    
+    finish_time = models.DateTimeField(default=timezone.now)
 
     class Meta:
         unique_together = ('student_id', 'content_id')		    

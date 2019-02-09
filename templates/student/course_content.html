@@ -63,9 +63,7 @@
 {% endif %}
     <div id="memo{{work.id}}" class="panel-body" {% if progress == 0 or progress == 2 %}style="display:none"{% endif %}>{{ work.memo|memo|safe }}
     <BR>
-      {% if finished and progress == 1 %}
-      <a href="#" data-progress="2" data-studentid="{{ request.user.id }}" data-contentid="{{work.id}}" class="finish btn btn-danger" role="btn">完成進度</a>
-      {% endif %}
+      <a href="#" data-progress="2" data-studentid="{{ request.user.id }}" data-contentid="{{work.id}}" class="finish btn btn-danger" role="btn"  {% if finished and progress != 2 %}{% else %}style="display:none"{% endif %}>完成進度</a>
       {% for exercise, state in exercises %}
       {% if exercise.types == 0 %}
         {% if not exercise.exercise_id|in_deadline_speculation:classroom_id == '' or state.0 %}      

@@ -1462,6 +1462,8 @@ def course_progress(request):
     if student_id and content_id :
         try:
             progress = CourseContentProgress.objects.get(student_id=student_id, content_id=content_id)
+            if value == "2":
+                progress.finish_time = timezone.now()
             progress.progress = int(value)
             progress.save()
         except ObjectDoesNotExist :
