@@ -10,7 +10,7 @@
 <table class="table">
 {% for exercise, set in exercises %}
 <tr><td>{{forloop.revcounter}}</td>
-    <td><a href="/teacher/speculation/content/{{exercise.id}}">{{exercise.title}}</a></td>
+    <td><a href="/teacher/{% if exercise.types == 0 %}speculation/content/{% else %}exam/question/{% endif %}{{exercise.id}}">{{exercise.title}}</a></td>
     <tD>{{exercise.time}}</tD>    
     <td>{% if set %}<a href="#" data-exerciseid={{exercise.id}} data-contentid="{{ content.id }}" data-action="unset" class="exercise btn btn-success" role="btn">取消練習</a>
         {% else %}<a href="#" data-exerciseid={{exercise.id}} data-contentid="{{content.id }}" data-action="set" class="exercise btn btn-default" role="btn">設為練習</a>{% endif %}</td>
