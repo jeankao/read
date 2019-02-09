@@ -142,6 +142,7 @@ urlpatterns = [
     url(r'^course/content/delete/(?P<classroom_id>\d+)/(?P<content_id>\d+)/$', login_required(views.course_delete), name='course-content-delete'),   
     url(r'^course/content/edit/(?P<classroom_id>\d+)/(?P<content_id>\d+)/$', login_required(views.course_edit), name='course-content-edit'),     
     url(r'^course/class/(?P<course_id>\d+)/$',  login_required(CourseClassListView.as_view()), name='course-class'),
+    url(r'^course/class/switch/$', login_required(views.course_switch)),        
     url(r'^course/exercise/(?P<classroom_id>\d+)/(?P<content_id>\d+)/$', login_required(CourseExerciseListView.as_view()), name='course-excise'), 
     url(r'^course/exercise/add/(?P<classroom_id>\d+)/(?P<content_id>\d+)/(?P<types>\d+)/$', login_required(CourseExerciseAddListView.as_view()), name='course-excise'), 
     url(r'^course/group/(?P<classroom_id>\d+)/(?P<course_id>\d+)/$', login_required(views.course_group)),
