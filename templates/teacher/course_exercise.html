@@ -65,11 +65,9 @@
 {% block footer_script %}
 <script>
 var vidMap = {
-  {% for content in contents %}
 {% if content.types == 2 %}
   'm_{{ content.id }}': '{{ content.youtube|number }}',
 {% endif %}
-{% endfor %}  
 };
 var vidPlayer = null;
 function onPlayerReady(event) {
@@ -91,7 +89,6 @@ function timeToSec(timestr) {
     return (hh*3600)+(mm*60)+ss;
 }
 function onYouTubeIframeAPIReady() {
-	 {% for content in contents %}
   {% if content.types == 2 %}	
 var player{{content.id}};
 
@@ -107,7 +104,6 @@ var player{{content.id}};
 	        player{{content.id}}.content_id = {{content.id}}
 
  	{% endif %}
-  {% endfor %}
   $('.btn-marker').click(function(event) {
     var vid = vidMap['m_'+$(event.target).data('mid')];
     var tsec = timeToSec($(event.target).data('time'));
