@@ -5,7 +5,7 @@
  <button type="button" class="btn btn-success">{{coursework.title}}</button>
 
         {% for work, exercises, progress, finished in contents %}
-        {{exercise.0.0}}##{{progress}}--{{finished}}--
+        {{exercises.0.0}}##{{progress}}--{{finished}}--
  <div class="panel panel-default"> 
               {% if work.types == 1 %}        
    <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button>
