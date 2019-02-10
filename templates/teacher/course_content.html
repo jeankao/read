@@ -11,8 +11,8 @@
    <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button>
     <a href="/teacher/course/exercise/{{classroom_id}}/{{work.id}}" role="btn" class="btn btn-danger">練習</a>    
     外部網址 
-    <A href="/teacher/course/content/delete/{{classroom_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
-    <a href="/teacher/course/content/edit/{{classroom_id}}/{{work.id}}"><img src="/static/images/edit.gif"> 編輯</a>
+    <A href="/teacher/course/content/delete/{{classroom_id}}/{{course_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
+    <a href="/teacher/course/content/edit/{{classroom_id}}/{{course_id}}/{{work.id}}"><img src="/static/images/edit.gif"> 編輯</a>
 
   </div>
   <div class="panel-body" {% if progress == 0 %}style="display:none"{% endif %}>
@@ -23,8 +23,8 @@
    <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button>
     <a href="/teacher/course/exercise/{{classroom_id}}/{{work.id}}" role="btn" class="btn btn-danger">練習</a>      
     Youtube影片
-    <A href="/teacher/course/content/delete/{{classroom_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
-    <a href="/teacher/course/content/edit/{{classroom_id}}/{{work.id}}"><img src="/static/images/edit.gif"> 編輯</a>
+    <A href="/teacher/course/content/delete/{{classroom_id}}/{{course_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
+    <a href="/teacher/course/content/edit/{{classroom_id}}/{{course_id}}/{{work.id}}"><img src="/static/images/edit.gif"> 編輯</a>
 	</div>
   <div class="panel-body">
     <div class="embed-responsive embed-responsive-16by9">
@@ -36,8 +36,8 @@
     <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button>
     <a href="/teacher/course/exercise/{{classroom_id}}/{{work.id}}" role="btn" class="btn btn-danger">練習</a>      
     下載檔案
-    <A href="/teacher/course/content/delete/{{classroom_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
-    <a href="/teacher/course/content/edit/{{classroom_id}}/{{work.id}}"><img src="/static/images/edit.gif"> 編輯</a>
+    <A href="/teacher/course/content/delete/{{classroom_id}}/{{course_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
+    <a href="/teacher/course/content/edit/{{classroom_id}}/{{course_id}}/{{work.id}}"><img src="/static/images/edit.gif"> 編輯</a>
 </div>
   <div class="panel-body"> <a href="/teacher/course/download/{{classroom_id}}/{{work.id}}" target="_blank">{{work.title}}</a>
     {% if work.title|is_pic %}
@@ -50,8 +50,8 @@
       <div class="panel-heading"><button type="button" class="btn btn-default">{{forloop.counter}}</button>
       <a href="/teacher/course/exercise/{{classroom_id}}/{{work.id}}" role="btn" class="btn btn-danger">練習</a>      
       自訂文字
-    <A href="/teacher/course/content/delete/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
-    <a href="/teacher/course/content/edit/{{classroom_id}}/{{work.id}}"><img src="/static/images/edit.gif"> 編輯</a>
+    <A href="/teacher/course/content/delete/{{classroom_id}}/{{course_id}}/{{work.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
+    <a href="/teacher/course/content/edit/{{classroom_id}}/{{course_id}}/{{work.id}}"><img src="/static/images/edit.gif"> 編輯</a>
 </div>            
 {% endif %}
     <div class="panel-body">{{ work.memo|memo|safe }}

@@ -2632,13 +2632,13 @@ class CourseContentCreateView(CreateView):
         ctx['classroom_id'] = self.kwargs['classroom_id']        
         return ctx
 
-def course_delete(request, classsroom_id, content_id):
+def course_delete(request, classroom_id, course_id, content_id):
     instance = CourseContent.objects.get(id=content_id)
     instance.delete()
 
     return redirect("/teacher/course/content/"+classroom_id+"/"+course_id)  
 	
-def course_edit(request, classroom_id, content_id):
+def course_edit(request, classroom_id, course_id, content_id):
     try:
         instance = CourseContent.objects.get(id=content_id)
     except:
