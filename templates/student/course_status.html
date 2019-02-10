@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load tag %}
+{% block content %}
+<table class="table">               
+        {% for enroll, contents in enrolls %}
+      <tr><td nowrap>{{enroll.seat}})<a href="/account/profile/{{enroll.student_id}}">{{enroll.student.first_name}}</a></td>
+        {% for content in contents %}
+                {% if content.progress ==  0 %}
+        <td style="padding:0px"><button type="button" class="btn btn-default btn-circle">{{forloop.counter}}</button><BR></td>
+                {% elif content.progress == 1 %}
+        <td style="padding:0px"><button type="button" class="btn btn-info btn-circle">{{forloop.counter}}</button><BR><font size=-2>{{content.start_time|date:"m/d"}}</font></td>
+                {% else %}
+        <td style="padding:0px"><button type="button" class="btn btn-success btn-circle">{{forloop.counter}}</button><BR><font size=-2>{{content.finish_time|date:"m/d"}}</font></td>
+                {% endif %}
+        {% endfor %}
+      </tr>
+        {% endfor %}
+</table>
+
+<button type="button" class="btn btn-default btn-circle"></button>尚未開始
+<button type="button" class="btn btn-info btn-circle"></button>進行中
+<button type="button" class="btn btn-success btn-circle"></button>已完成
+{% endblock %}
+
+	{% block domready %}
+	    $('body').css('background-image','url(/static/images/back1.gif)');
+	{% endblock %}

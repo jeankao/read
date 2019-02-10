@@ -9,7 +9,7 @@
 <div class="panel-heading">{{course.title}}-- {{courseclass.publication_date}} {{course.teacher_id|realname}}老師 -- 期限:{% if not courseclass.deadline %}無{% else %}{{courseclass.deadline_date}}{% endif %}</div>
   <div class="panel-body">    
             <a href="/student/course/content/{{classroom.id}}/{{course.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> 素材</a>  						
-	</div>
+            <a href="/student/course/status/{{classroom.id}}/{{course.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> 進度</a> 	</div>
 </div>
         {% endfor %}
 	{% endblock %}

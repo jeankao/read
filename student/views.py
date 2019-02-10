@@ -1404,12 +1404,12 @@ class CourseContentListView(ListView):
             except ObjectDoesNotExist:
                 progress = 0
             pool = []
-            examclass_dict = dict(((examclass.exam_id, examclass) for examclass in ExamClass.objects.filter(classroom_id=self.kwargs['classroom_id'])))	
+            #examclass_dict = dict(((examclass.exam_id, examclass) for examclass in ExamClass.objects.filter(classroom_id=self.kwargs['classroom_id'])))	
             finished = True
             for exercise in exercises: 
                 #註記
-                if exercise.types == 0:
-                    work = SpeculationClass.objects.get(classroom_id=self.kwargs['classroom_id'], forum_id=exercise.exercise_id)
+                if exercise.types == 0:                    
+                    #work = SpeculationClass.objects.get(classroom_id=self.kwargs['classroom_id'], forum_id=exercise.exercise_id)
                     sfworks = SSpeculationWork.objects.filter(student_id=self.request.user.id, index=exercise.exercise_id).order_by("-id")
                     if len(sfworks)> 0 :
                         works = [sfworks[0].publish, sfworks]
@@ -1422,19 +1422,22 @@ class CourseContentListView(ListView):
                 elif exercise.types == 1:
                     questions = ExamQuestion.objects.filter(exam_id=exercise.exercise_id)
                     examwork_pool = ExamWork.objects.filter(student_id=self.request.user.id).order_by("-id")                    
-                    work = ExamClass.objects.get(classroom_id=self.kwargs['classroom_id'], exam_id=exercise.exercise_id)                    				
+                    #work = ExamClass.objects.get(classroom_id=self.kwargs['classroom_id'], exam_id=exercise.exercise_id)                    				
                     examworks = filter(lambda w: w.exam_id==exercise.exercise_id, examwork_pool)
                     retest = False
-                    examclass = examclass_dict[exercise.exercise_id]
+                    try :
+                        examclass = ExamClass.objects.get(classroom_id=self.kwargs['classroom_id'], exam_id=exercise.exercise_id)
+                    except ObjectDoesNotExist:
+                        examclass = ExamClass(classroom_id=self.kwargs['classroom_id'], exam_id=exercise.exercise_id)
                     if len(examworks) < examclass.round_limit or examclass.round_limit == 0 :
                         retest = True
                     if len(examworks)> 0:
                         if not examworks[0].publish:
                             finished = False                            
                         if not retest :
-                            works = [examworks[0].publish, examclass_dict[exercise.exercise_id], examworks, len(questions), retest]
+                            works = [examworks[0].publish, exercise.exercise_id, examworks, len(questions), retest]
                         else :
-                            works = [True, examclass_dict[exercise.exercise_id], examworks, len(questions), retest]
+                            works = [True, exercise.exercise_id, examworks, len(questions), retest]
                     else :  
                         finished = False
                         works = [False, examclass_dict[exercise.exercise_id], 0, len(questions), retest]                              
@@ -1471,4 +1474,34 @@ def course_progress(request):
     else:
         return JsonResponse({'status':'fail'}, safe=False)
 
+
+# 列出所有討論主題
+class CourseStatusListView(ListView):
+    model = Enroll
+    context_object_name = 'enrolls'
+    template_name = "student/course_status.html"		
+    
+    def get_queryset(self):
+        enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id'])
+        student_ids = [enroll.student_id for enroll in enrolls]
+        contents = CourseContent.objects.filter(course_id=self.kwargs['course_id'])
+        content_ids = [content.id for content in contents]
+        progress = CourseContentProgress.objects.filter(student_id__in=student_ids, content_id__in=content_ids)        
+        queryset = []
+        for enroll in enrolls:
+            content_list = []
+            for content in contents:
+                status = list(filter(lambda w: w.student_id==enroll.student_id and w.content_id==content.id, progress))
+                if len(status) > 0:
+                    content_list.append(status[0])
+                else:
+                    content_list.append(CourseContentProgress(content_id=0))
+            queryset.append([enroll, content_list])
+        return queryset
+			
+    def get_context_data(self, **kwargs):
+        context = super(CourseStatusListView, self).get_context_data(**kwargs)
+        classroom = Classroom.objects.get(id=self.kwargs['classroom_id'])
+        context['classroom'] = classroom
+        return context	
 
