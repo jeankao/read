@@ -1482,7 +1482,7 @@ class CourseStatusListView(ListView):
     template_name = "student/course_status.html"		
     
     def get_queryset(self):
-        enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id'])
+        enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("seat")
         student_ids = [enroll.student_id for enroll in enrolls]
         contents = CourseContent.objects.filter(course_id=self.kwargs['course_id'])
         content_ids = [content.id for content in contents]
