@@ -18,7 +18,7 @@
             <a href="/teacher/course/group/{{classroom.id}}/{{course.id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> 分組</a>	             
             <a href="/teacher/course/content/{{classroom.id}}/{{course.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> 素材</a>           
 						{% else %}
-            <a href="/teacher/course/content/{{course.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> 素材</a>								
+            <a href="/teacher/course/content/{{classroom.id}}/{{course.id}}" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> 素材</a>								
 						{% endif %}
            <a href="/student/course/{{classroom.id}}/#{{course.id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> 學生</a>						
 	</div>
