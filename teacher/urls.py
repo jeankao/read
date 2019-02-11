@@ -127,7 +127,7 @@ urlpatterns = [
 		url(r'^video/user/(?P<classroom_id>\d+)/(?P<content_id>\d+)/(?P<user_id>\d+)/$', VideoListView.as_view()), 	
     # 課程區
     url(r'^course/(?P<categroy>\d+)/(?P<categroy_id>\d+)/$', login_required(CourseAllListView.as_view()), name='course-all'),  
-    url(r'^course/show/(?P<course_id>\d+)/$', login_required(views.course_show), name='course-show'),    
+    #url(r'^course/show/(?P<course_id>\d+)/$', login_required(views.course_show), name='course-show'),    
     url(r'^course/edit/(?P<classroom_id>\d+)/(?P<pk>\d+)/$', login_required(CourseEditUpdateView.as_view()), name='course-edit'),   
     url(r'^course/(?P<classroom_id>\d+)/$', login_required(CourseListView.as_view()), name='course-list'),
     url(r'^course/add/(?P<classroom_id>\d+)/$', login_required(CourseCreateView.as_view()), name='course-add'),
