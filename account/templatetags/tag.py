@@ -78,12 +78,13 @@ def assistant(user_id):
 
 @register.filter()
 def number(youtube):
-    if youtube :
-        number_pos = youtube.find("v=")
-        number = youtube[number_pos+2:number_pos+13]
-        return number
-    else:
-        return ""
+    number_pos = youtube.find("v=")
+    if number_pos > 0:
+        number = url[number_pos+2:number_pos+13]
+    else :
+        number_pos = url.find("youtu.be/")
+        number = url[number_pos+9:number_pos+20]
+    return number 
 
 @register.filter()
 def memo(text):
