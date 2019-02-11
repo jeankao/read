@@ -1440,7 +1440,7 @@ class CourseContentListView(ListView):
                             works = [True, exercise.exercise_id, examworks, len(questions), retest]
                     else :  
                         finished = False
-                        works = [False, examclass_dict[exercise.exercise_id], 0, len(questions), retest]                              
+                        works = [False, exercise.exercise_id, 0, len(questions), retest]                              
                 pool.append([exercise, works])
             queryset.append([content, pool, progress, finished])
         return queryset
