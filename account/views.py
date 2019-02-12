@@ -5,7 +5,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib.auth import authenticate, login
 from django.db.models import *
-from forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, LineForm, SchoolForm, EmailForm, DomainForm, LevelForm, SiteImageForm, UploadFileForm
+from .forms import LoginForm, UserRegistrationForm, PasswordForm, RealnameForm, LineForm, SchoolForm, EmailForm, DomainForm, LevelForm, SiteImageForm, UploadFileForm
 from django.contrib.auth.models import User
 from account.models import Profile, PointHistory, Log, Message, MessageContent, MessagePoll, Visitor, VisitorLog, Domain, Level, Site, Parent, ImportUser
 from student.models import Enroll, SFWork, SSpeculationWork
@@ -871,16 +871,16 @@ class EventVideoView(ListView):
     template_name = 'account/event_video.html'
 
     def get_queryset(self):    
-				enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id'], seat__gt=0).order_by("seat")
-				events = []
-				for student in enrolls: 
-						videos = VideoLogHelper().getLogByUserid(student.student_id)
-						length = 0
-						for video in videos: 
-								for log in videos[video]:									
-										length += log['length']
-						events.append([student, length/60])
-				return events
+        enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id'], seat__gt=0).order_by("seat")
+        events = []
+        for student in enrolls: 
+            videos = VideoLogHelper().getLogByUserid(student.student_id)
+            length = 0
+            for video in videos: 
+                for log in videos[video]:									
+                    length += log['length']
+            events.append([student, length/60])
+        return events
         
     def get_context_data(self, **kwargs):
         context = super(EventVideoView, self).get_context_data(**kwargs)

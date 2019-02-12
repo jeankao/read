@@ -1421,7 +1421,9 @@ class CourseContentListView(ListView):
                 #測驗 
                 elif exercise.types == 1:
                     questions = ExamQuestion.objects.filter(exam_id=exercise.exercise_id)
-                    examwork_pool = ExamWork.objects.filter(student_id=self.request.user.id).order_by("-id")                    
+                    examclasses = ExamClass.objects.filter(classroom_id=self.kwargs['classroom_id'])
+                    exam_ids = [exam.exam_id for exam in examclasses]
+                    examwork_pool = ExamWork.objects.filter(student_id=self.request.user.id, exam_id__in=exam_ids).order_by("-id")                    
                     #work = ExamClass.objects.get(classroom_id=self.kwargs['classroom_id'], exam_id=exercise.exercise_id)                    				
                     examworks = filter(lambda w: w.exam_id==exercise.exercise_id, examwork_pool)
                     retest = False
