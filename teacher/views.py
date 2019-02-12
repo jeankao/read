@@ -778,7 +778,7 @@ class AnnounceCreateView(CreateView):
     template_name = 'teacher/announce_form.html'     
     def form_valid(self, form):
         self.object = form.save(commit=False)			
-        classrooms = self.request.POST.getlist('classrooms')
+        #classrooms = self.request.POST.getlist('classrooms')
         files = []
         if self.request.FILES.getlist('files'):
              for file in self.request.FILES.getlist('files'):
@@ -826,12 +826,7 @@ class AnnounceCreateView(CreateView):
         context['classrooms'] = classrooms
         return context	   
         
-    # 限本班任課教師        
-    def render_to_response(request,self, context):
-        if not is_teacher(self.request.user, self.kwargs['classroom_id']):
-            if not is_assistant(self.request.user, self.kwargs['classroom_id']) :
-                return redirect('/')
-        return super(AnnounceCreateView, self).render(request,context)        
+ 
 			
 '''    
 ----------------------- 思辨區
