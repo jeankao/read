@@ -1407,8 +1407,13 @@ class CourseContentListView(ListView):
             #examclass_dict = dict(((examclass.exam_id, examclass) for examclass in ExamClass.objects.filter(classroom_id=self.kwargs['classroom_id'])))	
             finished = True
             for exercise in exercises: 
+                append = False
                 #註記
-                if exercise.types == 0:                    
+                if exercise.types == 0:            
+                    sclasses = SpeculationClass.objects.filter(classroom_id=self.kwargs['classroom_id'])
+                    s_ids = [s.forum_id for s in sclasses]
+                    if exercise.exercise_id in s_ids:
+                        append = True                            
                     #work = SpeculationClass.objects.get(classroom_id=self.kwargs['classroom_id'], forum_id=exercise.exercise_id)
                     sfworks = SSpeculationWork.objects.filter(student_id=self.request.user.id, index=exercise.exercise_id).order_by("-id")
                     if len(sfworks)> 0 :
@@ -1417,13 +1422,15 @@ class CourseContentListView(ListView):
                             finished = False
                     else :
                         finished = False
-                        works = [False, sfworks]                            
+                        works = [False, sfworks]                                                    
                 #測驗 
                 elif exercise.types == 1:
                     questions = ExamQuestion.objects.filter(exam_id=exercise.exercise_id)
                     examclasses = ExamClass.objects.filter(classroom_id=self.kwargs['classroom_id'])
                     exam_ids = [exam.exam_id for exam in examclasses]
-                    examwork_pool = ExamWork.objects.filter(student_id=self.request.user.id, exam_id__in=exam_ids).order_by("-id")                    
+                    if exercise.exercise_id in exam_ids:
+                        append = True
+                    examwork_pool = ExamWork.objects.filter(student_id=self.request.user.id).order_by("-id")                    
                     #work = ExamClass.objects.get(classroom_id=self.kwargs['classroom_id'], exam_id=exercise.exercise_id)                    				
                     examworks = filter(lambda w: w.exam_id==exercise.exercise_id, examwork_pool)
                     retest = False
@@ -1442,8 +1449,9 @@ class CourseContentListView(ListView):
                             works = [True, exercise.exercise_id, examworks, len(questions), retest]
                     else :  
                         finished = False
-                        works = [False, exercise.exercise_id, 0, len(questions), retest]                              
-                pool.append([exercise, works])
+                        works = [False, exercise.exercise_id, 0, len(questions), retest]
+                if append:                              
+                    pool.append([exercise, works])
             queryset.append([content, pool, progress, finished])
         return queryset
 			
