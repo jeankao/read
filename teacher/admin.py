@@ -1,5 +1,5 @@
 from django.contrib import admin
-from teacher.models import FClass, FWork, SpeculationWork, SpeculationClass, ExamQuestion
+from teacher.models import FClass, FWork, SpeculationWork, SpeculationClass, ExamQuestion, CourseExercise
 
 admin.site.register(FClass)
 
