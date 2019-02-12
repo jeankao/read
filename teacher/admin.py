@@ -10,3 +10,5 @@ admin.site.register(SpeculationWork)
 admin.site.register(SpeculationClass)
 
 admin.site.register(ExamQuestion)
+
+admin.site.register(CourseExercise)
