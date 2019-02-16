@@ -2353,7 +2353,7 @@ class CourseListView(ListView):
     template_name = "teacher/course_list.html"		
     paginate_by = 20
     def get_queryset(self):        
-        courseclasses = CourseClass.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("-publication_date", "-course_id")
+        courseclasses = CourseClass.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("publication_date", "course_id")
         courses = []
         for courseclass in courseclasses:
             course = CourseWork.objects.get(id=courseclass.course_id)
