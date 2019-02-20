@@ -690,6 +690,7 @@ def forum_grade(request, classroom_id, action):
 		row = 1
 		worksheet.write(row, 1, u'座號')
 		worksheet.write(row, 2, u'姓名')
+               
 		index = 3
 		for forum in forums:
 			worksheet.write(row, index, forum)
@@ -1981,6 +1982,65 @@ def exam_score(request, classroom_id, exam_id):
         scores.append([enroll, works, score_avg, score_max])
     return render(request,'teacher/exam_score.html',{'classroom': classroom, 'exam':exam, 'scores':scores})		
 	
+def exam_excel(request, classroom_id, exam_id):
+    if not is_teacher(request.user, classroom_id):
+        return redirect("/")
+
+    exam = Exam.objects.get(id=exam_id)
+    classroom = Classroom.objects.get(id=classroom_id)
+    examclass = ExamClass.objects.get(classroom_id=classroom_id, exam_id=exam_id)
+    enrolls = Enroll.objects.filter(classroom_id=classroom_id, seat__gt=0).order_by("seat")
+    enroll_ids = []
+    for enroll in enrolls:
+        enroll_ids.append(enroll.student_id)
+    examworks = ExamWork.objects.filter(exam_id=exam_id, student_id__in=enroll_ids, publish=True).order_by("-id")
+    scores = []
+    for enroll in enrolls:
+        works = filter(lambda w: w.student_id == enroll.student_id, examworks)
+        if len(works) > 0 :
+            score_max = max(work.score for work in works)
+            score_avg = sum(work.score for work in works) / len(works)	
+        else :
+            score_max = 0
+            score_avg = 0
+        scores.append([enroll, works, score_avg, score_max])
+
+    claassroom = Classroom.objects.get(id=classroom_id)       
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)    
+    worksheet = workbook.add_worksheet(classroom.name)
+    date_format = workbook.add_format({'num_format': 'yy/mm/dd'})
+		
+    row = 1
+    worksheet.write(row, 1, u'座號')
+    worksheet.write(row, 2, u'姓名')
+    worksheet.write(row, 3, u'次數')
+    worksheet.write(row, 4, u'平均')
+    worksheet.write(row, 5, u'最高分')
+    worksheet.write(row, 6, u'分數')             
+
+    for enroll, works, score_avg, acore_max in scores:
+        row += 1
+    	worksheet.write(row, 1, enroll.seat)
+        worksheet.write(row, 2, enroll.student.first_name)
+        worksheet.write(row, 3, len(works))
+        worksheet.write(row, 4, score_avg)
+        worksheet.write(row, 5, score_max)
+        index = 5
+        for work in works:
+            index += 1
+            worksheet.write(row, index, work.score)              
+
+    workbook.close()
+	# xlsx_data contains the Excel file
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    filename = classroom.name + '-' + str(exam.title) + '-' + str(localtime(timezone.now()).date()) + '.xlsx'
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(filename.encode('utf8'))
+    xlsx_data = output.getvalue()
+    response.write(xlsx_data)
+    return response
+
+
 # 列出所有討論測驗
 class ExamAllListView(ListView):
     model = Exam
