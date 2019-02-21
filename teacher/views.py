@@ -1823,8 +1823,13 @@ class ExamQuestionCreateView(CreateView):
     template_name = "teacher/exam_question_form.html"
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        question = ExamQuestion(exam_id=self.object.exam_id)
+        question = ExamQuestion(exam_id=self.object.exam_id, types=self.object.types)
         question.answer = self.object.answer
+        if question.types == 2:
+            question.option1 = self.object.option1	
+            question.option2 = self.object.option2
+            question.option3 = self.object.option3	
+            question.option4 = self.object.option4        
            
         if 'title_pic' in self.request.FILES :
             myfile = self.request.FILES['title_pic']
@@ -1857,19 +1862,19 @@ def exam_question_edit(request, exam_id, question_id):
     except:
         pass
     if request.method == 'POST':
-            question_id = request.POST.get("question_id", "")
+            question_id = request.POST.get("question_id")
             try:
                 question = ExamQuestion.objects.get(id=question_id)
             except ObjectDoesNotExist:
-	              question = ExamQuestion(exam_id= request.POST.get("exam_id", ""), types=form.cleaned_data['types'])
+	              question = ExamQuestion(exam_id= request.POST.get("exam_id"), types=form.cleaned_data['types'])
             if question.types == 2:
-                question.option1 = request.POST.get("option1", "")	
-                question.option2 = request.POST.get("option2", "")	
-                question.option3 = request.POST.get("option3", "")	
-                question.option4 = request.POST.get("option4", "")	
-            question.score = request.POST.get("score", "")
-            question.answer = request.POST.get("answer", "")	
-            question.title = request.POST.get("title", "")
+                question.option1 = request.POST.get("option1")	
+                question.option2 = request.POST.get("option2")	
+                question.option3 = request.POST.get("option3")	
+                question.option4 = request.POST.get("option4")	
+            question.score = request.POST.get("score")
+            question.answer = request.POST.get("answer")	
+            question.title = request.POST.get("title")
             if 'title_pic' in request.FILES :
                 myfile = request.FILES['title_pic']
                 fs = FileSystemStorage()
@@ -2034,7 +2039,7 @@ def exam_excel(request, classroom_id, exam_id):
     workbook.close()
 	# xlsx_data contains the Excel file
     response = HttpResponse(content_type='application/vnd.ms-excel')
-    filename = classroom.name + '-' + str(exam.title) + '-' + str(localtime(timezone.now()).date()) + '.xlsx'
+    filename = classroom.name + '-' + exam.title + '-' + str(localtime(timezone.now()).date()) + '.xlsx'
     response['Content-Disposition'] = 'attachment; filename={0}'.format(filename.encode('utf8'))
     xlsx_data = output.getvalue()
     response.write(xlsx_data)
