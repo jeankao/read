@@ -779,7 +779,7 @@ class AnnounceCreateView(CreateView):
     template_name = 'teacher/announce_form.html'     
     def form_valid(self, form):
         self.object = form.save(commit=False)			
-        #classrooms = self.request.POST.getlist('classrooms')
+        classrooms = self.request.POST.getlist('classrooms')
         files = []
         if self.request.FILES.getlist('files'):
              for file in self.request.FILES.getlist('files'):
