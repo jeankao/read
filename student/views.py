@@ -1115,7 +1115,7 @@ def exam_score(request, classroom_id, exam_id, examwork_id, user_id, question_id
         if question in answer_dict:
             if score_answer[question][1] == answer_dict[question][0] or answer_dict[question][1]:
                 score += score_answer[question][0]
-            qas.append([question, score_answer[question][1], answer_dict[questions]])
+            qas.append([question, score_answer[question][1], answer_dict[question]])
         else :
             qas.append([question, score_answer[question][1], []])
     if not question_id == "0":
