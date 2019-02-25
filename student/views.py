@@ -1109,15 +1109,15 @@ def exam_score(request, classroom_id, exam_id, examwork_id, user_id, question_id
     qas = []
     for question in question_ids:
         score_total += score_answer[int(question)][0]
-    answer_dict = dict(((answer.question_id, answer.answer) for answer in ExamAnswer.objects.filter(examwork_id=examwork_id, question_id__in=question_ids, student_id=user_id)))		
+    answer_dict = dict(((answer.question_id, [answer.answer, answer.answer_right]) for answer in ExamAnswer.objects.filter(examwork_id=examwork_id, question_id__in=question_ids, student_id=user_id)))		
     for question in question_ids:
         question = int(question)
         if question in answer_dict:
-            if score_answer[question][1] == answer_dict[question] :
+            if score_answer[question][1] == answer_dict[question][0] or answer_dict[question][1]:
                 score += score_answer[question][0]
-            qas.append([question, score_answer[question][1], answer_dict[question]])
+            qas.append([question, score_answer[question][1], answer_dict[questions]])
         else :
-            qas.append([question, score_answer[question][1], ""])
+            qas.append([question, score_answer[question][1], []]])
     if not question_id == "0":
         question = ExamQuestion.objects.get(id=question_id)
     else :

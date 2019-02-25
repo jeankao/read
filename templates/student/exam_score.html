@@ -367,7 +367,7 @@ label .glyphicon {
 </div>
 
 {% for q, answer, a  in qas %}
-<a href="/student/exam/score/{{classroom_id}}/{{exam.id}}/{{examwork.id}}/{{user_id}}/{{q}}" role="btn" class="btn btn-xs btn-{% if not q  == question.id %}{% if a == "" %}default{% else %}{% if answer == a %}success{% else %}info{% endif %}{% endif %}{% else %}primary{% endif %}">{{forloop.counter}} {% if answer == a %}V{% else %}X{% endif %}</a>
+<a href="/student/exam/score/{{classroom_id}}/{{exam.id}}/{{examwork.id}}/{{user_id}}/{{q}}" role="btn" class="btn btn-xs btn-{% if not q  == question.id %}{% if a == "" %}default{% else %}{% if answer == a.0 or a.1 %}success{% else %}info{% endif %}{% endif %}{% else %}primary{% endif %}">{{forloop.counter}} {% if answer == a.0 or a.1 %}V{% else %}X{% endif %}</a>
 {% endfor %}
 <div class="panel panel-default">
     <div class="panel-body" style="font-size:16px">{{question.title|linebreaksbr}}({{question.score}}分)</div>
