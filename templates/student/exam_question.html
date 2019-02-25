@@ -368,22 +368,25 @@ label .glyphicon {
 <a href="/student/exam/submit/{{classroom_id}}/{{question.exam_id}}/{{examwork.id}}" onclick="return confirm('確定要交卷嗎?')" role="btn" class="btn btn-xs btn-warning">交卷</a>
 <div class="panel panel-default">
   <div class="panel-body" style="font-size:16px">{{question.title|linebreaksbr}}({{question.score}}分)</div>
+  {% if question.title_filename %}
+  <BR><img src="/static/exam/{{question.title_filename}}" style="max-width: 900px;">
+  {% endif %}    
 </div>
 {% if question.types == 1 %}
 <div class="quiz" id="quiz" data-toggle="buttons">
     <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation1 btn btn-lg btn-default btn-block {% if answer == "1" %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="1">是</label>
-    <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation2 btn btn-lg btn-default btn-block {% if answer == "0" %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="0">否</label>
+    <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation2 btn btn-lg btn-default btn-block {% if answer == "0" %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="0">否</label> 
 </div>
 {% elif question.types == 2 %}
           <div class="quiz" id="quiz" data-toggle="buttons">
            <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation1 btn btn-lg btn-default btn-block {% if answer == "1" %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="1">{{question.option1}}</label>
            <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation2 btn btn-lg btn-default btn-block {% if answer == "2" %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="2">{{question.option2}}</label>
            <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation3 btn btn-lg btn-default btn-block {% if answer == "3" %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="3">{{question.option3}}</label>
-           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation4 btn btn-lg btn-default btn-block {% if answer == "4" %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="4">{{question.option4}}</label>
+           <label data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" class="option element-animation4 btn btn-lg btn-default btn-block {% if answer == "4" %}active{% endif %}"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="4">{{question.option4}}</label>     
        </div>
 {% elif question.types == 3 %}
 <div class="quiz" id="quiz" data-toggle="buttons">
-    <input data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" type="text" id="answer" name="answer" class="form-control" value="{{answer}}">
+    <input data-examworkid="{{examwork.id}}" data-questionid="{{question.id}}" type="text" id="answer" name="answer" class="form-control" value="{{answer}}">   
 </div>
 {% elif question.types == 4 %}
 <div class="quiz" id="quiz" data-toggle="buttons">

@@ -690,6 +690,7 @@ def forum_grade(request, classroom_id, action):
 		row = 1
 		worksheet.write(row, 1, u'座號')
 		worksheet.write(row, 2, u'姓名')
+               
 		index = 3
 		for forum in forums:
 			worksheet.write(row, index, forum)
@@ -778,7 +779,7 @@ class AnnounceCreateView(CreateView):
     template_name = 'teacher/announce_form.html'     
     def form_valid(self, form):
         self.object = form.save(commit=False)			
-        #classrooms = self.request.POST.getlist('classrooms')
+        classrooms = self.request.POST.getlist('classrooms')
         files = []
         if self.request.FILES.getlist('files'):
              for file in self.request.FILES.getlist('files'):
@@ -1822,8 +1823,13 @@ class ExamQuestionCreateView(CreateView):
     template_name = "teacher/exam_question_form.html"
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        question = ExamQuestion(exam_id=self.object.exam_id)
+        question = ExamQuestion(exam_id=self.object.exam_id, types=self.object.types)
         question.answer = self.object.answer
+        if question.types == 2:
+            question.option1 = self.object.option1	
+            question.option2 = self.object.option2
+            question.option3 = self.object.option3	
+            question.option4 = self.object.option4        
            
         if 'title_pic' in self.request.FILES :
             myfile = self.request.FILES['title_pic']
@@ -1856,19 +1862,19 @@ def exam_question_edit(request, exam_id, question_id):
     except:
         pass
     if request.method == 'POST':
-            question_id = request.POST.get("question_id", "")
+            question_id = request.POST.get("question_id")
             try:
                 question = ExamQuestion.objects.get(id=question_id)
             except ObjectDoesNotExist:
-	              question = ExamQuestion(exam_id= request.POST.get("exam_id", ""), types=form.cleaned_data['types'])
+	              question = ExamQuestion(exam_id= request.POST.get("exam_id"), types=form.cleaned_data['types'])
             if question.types == 2:
-                question.option1 = request.POST.get("option1", "")	
-                question.option2 = request.POST.get("option2", "")	
-                question.option3 = request.POST.get("option3", "")	
-                question.option4 = request.POST.get("option4", "")	
-            question.score = request.POST.get("score", "")
-            question.answer = request.POST.get("answer", "")	
-            question.title = request.POST.get("title", "")
+                question.option1 = request.POST.get("option1")	
+                question.option2 = request.POST.get("option2")	
+                question.option3 = request.POST.get("option3")	
+                question.option4 = request.POST.get("option4")	
+            question.score = request.POST.get("score")
+            question.answer = request.POST.get("answer")	
+            question.title = request.POST.get("title")
             if 'title_pic' in request.FILES :
                 myfile = request.FILES['title_pic']
                 fs = FileSystemStorage()
@@ -1981,6 +1987,65 @@ def exam_score(request, classroom_id, exam_id):
         scores.append([enroll, works, score_avg, score_max])
     return render(request,'teacher/exam_score.html',{'classroom': classroom, 'exam':exam, 'scores':scores})		
 	
+def exam_excel(request, classroom_id, exam_id):
+    if not is_teacher(request.user, classroom_id):
+        return redirect("/")
+
+    exam = Exam.objects.get(id=exam_id)
+    classroom = Classroom.objects.get(id=classroom_id)
+    examclass = ExamClass.objects.get(classroom_id=classroom_id, exam_id=exam_id)
+    enrolls = Enroll.objects.filter(classroom_id=classroom_id, seat__gt=0).order_by("seat")
+    enroll_ids = []
+    for enroll in enrolls:
+        enroll_ids.append(enroll.student_id)
+    examworks = ExamWork.objects.filter(exam_id=exam_id, student_id__in=enroll_ids, publish=True).order_by("-id")
+    scores = []
+    for enroll in enrolls:
+        works = filter(lambda w: w.student_id == enroll.student_id, examworks)
+        if len(works) > 0 :
+            score_max = max(work.score for work in works)
+            score_avg = sum(work.score for work in works) / len(works)	
+        else :
+            score_max = 0
+            score_avg = 0
+        scores.append([enroll, works, score_avg, score_max])
+
+    claassroom = Classroom.objects.get(id=classroom_id)       
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)    
+    worksheet = workbook.add_worksheet(classroom.name)
+    date_format = workbook.add_format({'num_format': 'yy/mm/dd'})
+		
+    row = 1
+    worksheet.write(row, 1, u'座號')
+    worksheet.write(row, 2, u'姓名')
+    worksheet.write(row, 3, u'次數')
+    worksheet.write(row, 4, u'平均')
+    worksheet.write(row, 5, u'最高分')
+    worksheet.write(row, 6, u'分數')             
+
+    for enroll, works, score_avg, acore_max in scores:
+        row += 1
+    	worksheet.write(row, 1, enroll.seat)
+        worksheet.write(row, 2, enroll.student.first_name)
+        worksheet.write(row, 3, len(works))
+        worksheet.write(row, 4, score_avg)
+        worksheet.write(row, 5, score_max)
+        index = 5
+        for work in works:
+            index += 1
+            worksheet.write(row, index, work.score)              
+
+    workbook.close()
+	# xlsx_data contains the Excel file
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    filename = classroom.name + '-' + exam.title + '-' + str(localtime(timezone.now()).date()) + '.xlsx'
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(filename.encode('utf8'))
+    xlsx_data = output.getvalue()
+    response.write(xlsx_data)
+    return response
+
+
 # 列出所有討論測驗
 class ExamAllListView(ListView):
     model = Exam

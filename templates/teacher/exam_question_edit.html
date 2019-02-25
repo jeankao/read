@@ -85,8 +85,9 @@
   <div class="form-group">
     <label for="radioBtn" class="col-sm-1 control-label">答案</label>
     <div id="radioBtn" class="btn-group col-sm-10">
-      <a class="btn btn-primary btn-sm notActive" data-toggle="answer_tf" data-title="True">是</a>
-      <a class="btn btn-primary btn-sm active" data-toggle="answer_tf" data-title="False">否</a>
+      <a class="btn btn-primary btn-sm notActive" data-toggle="answer_tf" data-title="True" data-value="1">是</a>
+      <a class="btn btn-primary btn-sm active" data-toggle="answer_tf" data-title="False" data-value="0">否</a>
+      <input id="id_answer" maxlength="250" name="answer" type="hidden" class="form-control" value="{{question.answer}}">      
     </div>
   </div>
   <div class="form-group">
@@ -180,6 +181,7 @@
     $('#'+tog).prop('value', sel);
     $('a[data-toggle="'+tog+'"]').not('[data-title="'+sel+'"]').removeClass('active').addClass('notActive');
     $('a[data-toggle="'+tog+'"][data-title="'+sel+'"]').removeClass('notActive').addClass('active');
+    $('#id_answer').val($(this).data('value'));
   });
 
   $('body').css('background-image','url(/static/images/back1.gif)');

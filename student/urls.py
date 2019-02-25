@@ -54,7 +54,7 @@ urlpatterns = [
 	url(r'^exam/question/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/(?P<question_id>\d+)$', login_required(views.exam_question)), 	
 	url(r'^exam/answer/$', login_required(views.exam_answer)), 	
 	url(r'^exam/submit/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/$', login_required(views.exam_submit)), 
-	url(r'^exam/score/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/(?P<question_id>\d+)$', login_required(views.exam_score)), 
+	url(r'^exam/score/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/(?P<user_id>\d+)/(?P<question_id>\d+)/$', login_required(views.exam_score)), 
     url(r'^video/log/$', views.video_log),
 	#合作
 	url(r'^team/(?P<classroom_id>\d+)/$', login_required(TeamListView.as_view())), 
