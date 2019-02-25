@@ -2,10 +2,13 @@
 {% load tag %}
 {% block title %} Teachers {% endblock %}
 {% block content %}
-		{% if exam.user_id == request.user.id %}
-        <a href="/teacher/exam/question/add/{{exam_id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 新增題目</a>
-{% endif %}
 <button type="button" class="btn btn-success">{{exam.title}}</button>
+{% if exam.user_id == request.user.id %}
+{% if not exam.opening %}
+<a onclick="return confirm('發佈之後不能再新增題目，您確定發佈嗎?')" href="/teacher/exam/publish/{{exam.id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 發佈測驗</a>
+<a href="/teacher/exam/question/add/{{exam.id}}" class="btn btn-warning" role="btn"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> 新增題目</a>
+{% endif %}
+{% endif %}
 <div class="panel panel-{% if score < 60 %}danger{% else %}success{% endif %}">
   <div class="panel-heading">總分:{{score_total}}</div>
 </div>
@@ -13,8 +16,8 @@
  <div class="panel panel-default"> 
               {% if question.types == 1 %}
    <div class="panel-heading"><button type="button" class="btn btn-primary">{{forloop.revcounter}}</button> ({{question.score}}分) 是非題 
-    <A href="/teacher/exam/question/delete/{{exam_id}}/{{question.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
-    <a href="/teacher/exam/question/edit/{{exam_id}}/{{question.id}}"><img src="/static/images/edit.gif"> 編輯</a>
+    <A href="/teacher/exam/question/delete/{{exam.id}}/{{question.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
+    <a href="/teacher/exam/question/edit/{{exam.id}}/{{question.id}}"><img src="/static/images/edit.gif"> 編輯</a>
   </div>
   <div class="panel-body">
     <div class="panel panel-default">
@@ -34,8 +37,8 @@
 	 <a name="{{question.id}}"></a>
   <div class="panel-heading"><button type="button" class="btn btn-primary">{{forloop.revcounter}}</button> ({{question.score}}分) 選擇題
 		{% if exam.user_id == request.user.id %}
-    <A href="/teacher/exam/question/delete/{{exam_id}}/{{question.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
-    <a href="/teacher/exam/question/edit/{{exam_id}}/{{question.id}}"><img src="/static/images/edit.gif"> 編輯</a>
+    <A href="/teacher/exam/question/delete/{{exam.id}}/{{question.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
+    <a href="/teacher/exam/question/edit/{{exam.id}}/{{question.id}}"><img src="/static/images/edit.gif"> 編輯</a>
 		{% endif %}
 </div>
   <div class="panel-body">
@@ -56,8 +59,8 @@
 <a name="{{question.id}}"></a>
 <div class="panel-heading"><button type="button" class="btn btn-primary">{{forloop.revcounter}}</button> ({{question.score}}分) 填充題
  {% if exam.user_id == request.user.id %}
- <A href="/teacher/exam/question/delete/{{exam_id}}/{{question.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
- <a href="/teacher/exam/question/edit/{{exam_id}}/{{question.id}}"><img src="/static/images/edit.gif"> 編輯</a>
+ <A href="/teacher/exam/question/delete/{{exam.id}}/{{question.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
+ <a href="/teacher/exam/question/edit/{{exam.id}}/{{question.id}}"><img src="/static/images/edit.gif"> 編輯</a>
  {% endif %}
 </div>
 <div class="panel-body">
@@ -75,8 +78,8 @@
 <a name="{{question.id}}"></a>
 <div class="panel-heading"><button type="button" class="btn btn-primary">{{forloop.revcounter}}</button> ({{question.score}}分) 簡答題
  {% if exam.user_id == request.user.id %}
- <A href="/teacher/exam/question/delete/{{exam_id}}/{{question.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
- <a href="/teacher/exam/question/edit/{{exam_id}}/{{question.id}}"><img src="/static/images/edit.gif"> 編輯</a>
+ <A href="/teacher/exam/question/delete/{{exam.id}}/{{question.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
+ <a href="/teacher/exam/question/edit/{{exam.id}}/{{question.id}}"><img src="/static/images/edit.gif"> 編輯</a>
  {% endif %}
 </div>
 <div class="panel-body">

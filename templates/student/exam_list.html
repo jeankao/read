@@ -2,7 +2,8 @@
 {% load tag %}
 {% block content %}
 <button class="btn btn-success">{{classroom_id|classname}}</button>
-	        {% for exam, examwork, exmaclass, examworks, question_count, examclass, retest in exams %}
+					{% for exam, examwork, exmaclass, examworks, question_count, examclass, retest in exams %}
+					{% if exam.opening %}
 <h2 id="{{work.id}}"></h2>
 <div class="panel panel-default">
 	<div class="panel-heading">{{exam.title}} {% if not examwork %}<font color=red>(尚未交卷)</font>{% endif %} -- {{examclass.publication_date}} {{exam.user_id|realname}}老師 -- 期限:{% if examclass.deadline %}{{examclass.deadline_date}}{% if examclass.deadline_date|alert and not examwork %}<font color=red>還剩 {{examclass.deadline_date|due}}</font><img src="/static/images/alert.png">{% endif %}{% else %}無{% endif %}</div>
@@ -21,6 +22,7 @@
 		{% endif %}
 	</div>
 </div>
+        {% endif %}
         {% endfor %}
 {% endblock %}
 

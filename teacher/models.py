@@ -122,6 +122,7 @@ class Exam(models.Model):
     time = models.DateTimeField(default=timezone.now)
     domains = models.TextField(default='')
     levels = models.TextField(default='')
+    opening = models.BooleanField(default=False)
 
 
 class ExamClass(models.Model):

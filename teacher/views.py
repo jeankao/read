@@ -1811,7 +1811,6 @@ class ExamQuestionListView(ListView):
         context = super(ExamQuestionListView, self).get_context_data(**kwargs)
         exam = Exam.objects.get(id=self.kwargs['exam_id'])
         context['exam']= exam
-        context['exam_id'] = self.kwargs['exam_id']
         questions = ExamQuestion.objects.filter(exam_id=self.kwargs['exam_id'])
         context['score_total'] = sum(question.score for question in questions)			
         return context	
@@ -1848,6 +1847,19 @@ class ExamQuestionCreateView(CreateView):
         ctx = super(ExamQuestionCreateView, self).get_context_data(**kwargs)
         ctx['exam'] = Exam.objects.get(id=self.kwargs['exam_id'])
         return ctx
+
+def exam_publish_all(request):
+    exams = Exam.objects.all()
+    exams.update(opening=True)
+
+    return redirect("/")
+
+def exam_publish(request, exam_id):
+    exam = Exam.objects.get(id=exam_id)
+    exam.opening = True
+    exam.save()
+
+    return redirect("/teacher/exam/question/"+exam_id)  
 
 def exam_question_delete(request, exam_id, question_id):
     instance = ExamQuestion.objects.get(id=question_id)

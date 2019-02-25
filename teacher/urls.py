@@ -96,6 +96,8 @@ urlpatterns = [
     url(r'^exam/question/add/(?P<exam_id>\d+)/$', login_required(ExamQuestionCreateView.as_view())),
     url(r'^exam/question/delete/(?P<exam_id>\d+)/(?P<question_id>\d+)/$', login_required(views.exam_question_delete)),   
     url(r'^exam/question/edit/(?P<exam_id>\d+)/(?P<question_id>\d+)/$', login_required(views.exam_question_edit)), 
+    url(r'^exam/publish/(?P<exam_id>\d+)/$', login_required(views.exam_publish)),    
+    url(r'^exam/publish/all/$', login_required(views.exam_publish_all)),            
     url(r'^exam/score/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/$', login_required(views.exam_score)), 
     url(r'^exam/excel/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/$', login_required(views.exam_excel)),      	
 	  #大量匯入選擇題
