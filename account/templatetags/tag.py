@@ -236,3 +236,8 @@ def exercise_title(exercise_id, types):
     else:
         exercise = Exam.objects.get(id=exercise_id)
     return exercise.title
+
+@register.filter(name='classroom_name')
+def classroom_name(classroom_id):
+    classroom = Classroom.objects.get(id=classroom_id)
+    return classroom.name

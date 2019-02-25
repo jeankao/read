@@ -39,6 +39,7 @@ from django.utils.dateparse import parse_date
 from random import shuffle
 from operator import attrgetter
 from helper import VideoLogHelper
+from django.forms import modelformset_factory
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
     return user.groups.filter(name='teacher').exists() and Classroom.objects.filter(teacher_id=user.id, id=classroom_id).exists()
@@ -1811,6 +1812,8 @@ class ExamQuestionListView(ListView):
         context = super(ExamQuestionListView, self).get_context_data(**kwargs)
         exam = Exam.objects.get(id=self.kwargs['exam_id'])
         context['exam']= exam
+        exam_classes = ExamClass.objects.filter(exam_id=self.kwargs['exam_id']).order_by("classroom_id")
+        context['exam_classes'] = exam_classes
         questions = ExamQuestion.objects.filter(exam_id=self.kwargs['exam_id'])
         context['score_total'] = sum(question.score for question in questions)			
         return context	
@@ -1848,11 +1851,50 @@ class ExamQuestionCreateView(CreateView):
         ctx['exam'] = Exam.objects.get(id=self.kwargs['exam_id'])
         return ctx
 
-def exam_publish_all(request):
-    exams = Exam.objects.all()
-    exams.update(opening=True)
+def exam_check(request, exam_id, question_id):
+    classroom_id = request.POST.get("class")
+    q_answer = request.POST.get("answer")    
+    if not is_teacher(request.user, classroom_id):
+        return redirect("/")
+    enroll_pool = Enroll.objects.filter(classroom_id=classroom_id).order_by("seat")		
+    student_ids = map(lambda a: a.student_id, enroll_pool)
+    answers =ExamAnswer.objects.filter(student_id__in=student_ids, question_id=question_id).order_by("student_id")	
+    return render(request, 'teacher/exam_check.html', {'answers': answers, 'q_answer': q_answer, 'question_id':question_id})
 
-    return redirect("/")
+# 分組
+def exam_check_make(request):
+    user_id = request.POST.get('userid')
+    examwork_id = request.POST.get('examworkid')   
+    question_id = request.POST.get('questionid')        
+    action = request.POST.get('action')
+    if user_id and examwork_id and question_id and action :
+        try:  
+            exam_answer = ExamAnswer.objects.get(student_id=user_id, examwork_id=examwork_id, question_id=question_id)            
+            if action == 'set':
+                exam_answer.answer_right = True 
+            else :
+                exam_answer.answer_right = False
+            exam_answer.save()
+        except ObjectDoesNotExist: 
+            pass        
+        try:
+            examwork = ExamWork.objects.get(id=examwork_id)
+            question_ids = [int(x) for x in examwork.questions.split(",")]
+            questions = ExamQuestion.objects.filter(exam_id=examwork.exam_id)
+            score = 0
+            score_answer = dict((question.id, [question.score, question.answer]) for question in questions)			
+            answer_dict = dict(((answer.question_id, [answer.answer, answer.answer_right]) for answer in ExamAnswer.objects.filter(examwork_id=examwork_id, question_id__in=question_ids, student_id=user_id)))		
+            for question in questions:
+                if question.id in answer_dict:
+                    if score_answer[question.id][1] == answer_dict[question.id][0] or answer_dict[question.id][1]:
+                       score += score_answer[question.id][0]
+            examwork.score = score
+            examwork.save()
+        except ObjectDoesNotExist:
+            pass
+        return JsonResponse({'status':"ok"}, safe=False)
+    else:
+        return JsonResponse({'status':'fail'}, safe=False) 
 
 def exam_publish(request, exam_id):
     exam = Exam.objects.get(id=exam_id)

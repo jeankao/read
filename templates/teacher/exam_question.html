@@ -57,12 +57,25 @@
 
 {% elif question.types == 3 %}
 <a name="{{question.id}}"></a>
-<div class="panel-heading"><button type="button" class="btn btn-primary">{{forloop.revcounter}}</button> ({{question.score}}分) 填充題
+
+<div class="panel-heading"><form method="POST" action="/teacher/exam/check/{{exam.id}}/{{question.id}}/"><button type="button" class="btn btn-primary">{{forloop.revcounter}}</button> ({{question.score}}分) 填充題
  {% if exam.user_id == request.user.id %}
  <A href="/teacher/exam/question/delete/{{exam.id}}/{{question.id}}" onclick="return confirm('確定要刪除嗎?')"><img src="/static/images/delete.gif"> 刪除</a>
  <a href="/teacher/exam/question/edit/{{exam.id}}/{{question.id}}"><img src="/static/images/edit.gif"> 編輯</a>
+ <span class="form-group form-inline" style="display:inline"><img src="/static/images/edit.gif"> 學生作答
+ <select name="class" class="form-control">
+ {% for exam_class in exam_classes %}
+ <option value="{{exam_class.classroom_id}}">{{exam_class.classroom_id|classroom_name}}</option>
+ {% endfor %}
+</select>
+{% csrf_token %}
+ <input type="submit" value="批閱" class="form-control">
+ <input type="hidden" name="answer" value="{{question.answer}}">
+</span>
  {% endif %}
+</form>
 </div>
+
 <div class="panel-body">
 <div class="panel panel-default">
 <div class="panel-body" style="font-size:16px">{{question.title|linebreaksbr}}
