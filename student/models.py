@@ -76,6 +76,10 @@ class SFReply(models.Model):
     user_id = models.IntegerField(default=0)
     memo =  models.TextField(default='')
     publication_date = models.DateTimeField(default=timezone.now)
+
+    def __unicode__(self):
+        return memo
+
 		
 #思辨文章
 class SSpeculationWork(models.Model):
