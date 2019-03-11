@@ -78,7 +78,7 @@ class SFReply(models.Model):
     publication_date = models.DateTimeField(default=timezone.now)
 
     def __unicode__(self):
-        return memo
+        return self.memo
 
 		
 #思辨文章
