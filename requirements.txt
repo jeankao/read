@@ -19,7 +19,7 @@ pyexcel-io==0.5.1
 pyexcel-webio==0.1.2
 pyexcel-xls==0.5.0
 pyexcel-xlsx==0.5.0.1
-Pygments==2.1
+Pygments==2.7.4
 python-docx==0.8.6
 pytz==2014.10
 roman==2.0.0
