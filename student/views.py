@@ -373,7 +373,7 @@ def forum_memo(request, classroom_id, index, action):
 			replys = filter(lambda w: w.work_id==works[-1].id, reply_pool)
 			files = filter(lambda w: w.student_id==enroll.student_id, file_pool)
 			if action == "2" :
-			  if works[-1].score == 5:
+				if works[-1].score == 5:
 					datas.append([enroll, works, replys, files])
 			else :
 				datas.append([enroll, works, replys, files])
@@ -928,7 +928,7 @@ def group_list(request, group_id):
             if not enroll.id in group_ids:
                 no_group.append([enroll.seat, enroll.student])
     
-  	    enroll_user = Enroll.objects.get(student_id=request.user.id, classroom_id=group.classroom_id)
+        enroll_user = Enroll.objects.get(student_id=request.user.id, classroom_id=group.classroom_id)
         try:
             user_group = StudentGroup.objects.get(group_id=group_id, enroll_id=enroll_user.id).group
         except ObjectDoesNotExist:

@@ -97,8 +97,10 @@ def user_login(request):
                         user = authenticate(username=username, password=password)
                         if user is not None:
                                 if user.is_active:
-                                        if user.id == 1:
-                                            if user.first_name == "": 
+                                        if user.id == 1:  
+                                            if user.first_name == "":
+                                                profile = Profile(user = user)
+                                                profile.save()   
                                                 user.first_name = "管理員"
                                                 user.save()
                                                 # create Message

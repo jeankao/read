@@ -38,7 +38,7 @@ import os.path
 from django.utils.dateparse import parse_date
 from random import shuffle
 from operator import attrgetter
-from helper import VideoLogHelper
+from . import helper
 from django.forms import modelformset_factory
 # 判斷是否為授課教師
 def is_teacher(user, classroom_id):
