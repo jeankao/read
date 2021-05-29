@@ -28,7 +28,7 @@ from django.utils import timezone
 from docx.oxml.shared import OxmlElement, qn
 from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from docx.enum.dml import MSO_THEME_COLOR_INDEX
-import StringIO
+import io
 from shutil import copyfile
 import xlsxwriter
 from django.utils.timezone import localtime
@@ -375,7 +375,7 @@ def forum_switch(request):
     try:
         fwork = FClass.objects.get(forum_id=forum_id, classroom_id=classroom_id)
         if status == 'false' :
-    				fwork.delete()
+            fwork.delete()
     except ObjectDoesNotExist:
         if status == 'true':
             fwork = FClass(forum_id=forum_id, classroom_id=classroom_id)
@@ -1738,7 +1738,7 @@ def exam_switch(request):
     try:
         examclass = ExamClass.objects.get(exam_id=exam_id, classroom_id=classroom_id)
         if status == 'false' :
-    				examclass.delete()
+            examclass.delete()
     except ObjectDoesNotExist:
         if status == 'true':
             examclass = ExamClass(exam_id=exam_id, classroom_id=classroom_id)
@@ -2065,7 +2065,7 @@ def exam_excel(request, classroom_id, exam_id):
         scores.append([enroll, works, score_avg, score_max])
 
     claassroom = Classroom.objects.get(id=classroom_id)       
-    output = StringIO.StringIO()
+    output = io.StringIO()
     workbook = xlsxwriter.Workbook(output)    
     worksheet = workbook.add_worksheet(classroom.name)
     date_format = workbook.add_format({'num_format': 'yy/mm/dd'})
@@ -2080,7 +2080,7 @@ def exam_excel(request, classroom_id, exam_id):
 
     for enroll, works, score_avg, acore_max in scores:
         row += 1
-    	worksheet.write(row, 1, enroll.seat)
+        worksheet.write(row, 1, enroll.seat)
         worksheet.write(row, 2, enroll.student.first_name)
         worksheet.write(row, 3, len(works))
         worksheet.write(row, 4, score_avg)
@@ -2255,7 +2255,7 @@ def team_switch(request):
     try:
         teamwork = TeamClass.objects.get(team_id=team_id, classroom_id=classroom_id)
         if status == 'false' :
-    				teamwork.delete()
+            teamwork.delete()
     except ObjectDoesNotExist:
         if status == 'true':
             teamwork = TeamClass(team_id=team_id, classroom_id=classroom_id)
@@ -2389,15 +2389,15 @@ class EventVideoView(ListView):
     template_name = 'teacher/event_video.html'
 
     def get_queryset(self):    
-				enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id'], seat__gt=0).order_by("seat")
-				events = []
-				for enroll in enrolls: 
-						videos = VideoLogHelper().getLogByUserid(enroll.student_id,self.kwargs['work_id'])
-						length = 0
-						for video in videos: 
-										length += video['length']
-						events.append([enroll, length/60.0])
-				return events
+                enrolls = Enroll.objects.filter(classroom_id=self.kwargs['classroom_id'], seat__gt=0).order_by("seat")
+                events = []
+                for enroll in enrolls: 
+                    videos = VideoLogHelper().getLogByUserid(enroll.student_id,self.kwargs['work_id'])
+                    length = 0
+                    for video in videos: 
+                        length += video['length']
+                        events.append([enroll, length/60.0])
+                return events
 			
     def get_context_data(self, **kwargs):
         context = super(EventVideoView, self).get_context_data(**kwargs)
@@ -2434,8 +2434,8 @@ class VideoListView(ListView):
     template_name = 'teacher/event_video_user.html'
     
     def get_queryset(self):
-				videos = VideoLogHelper().getLogByUserid(self.kwargs['user_id'],self.kwargs['content_id'])        
-				return videos
+        video = VideoLogHelper().getLogByUserid(self.kwargs['user_id'],self.kwargs['content_id'])        
+        return videos
         
     def get_context_data(self, **kwargs):
         context = super(VideoListView, self).get_context_data(**kwargs)
@@ -2648,7 +2648,7 @@ def course_switch(request):
     try:
         coursework = CourseClass.objects.get(course_id=course_id, classroom_id=classroom_id)
         if status == 'false' :
-    		coursework.delete()
+            coursework.delete()
     except ObjectDoesNotExist:
         if status == 'true':
             coursework = CourseClass(course_id=course_id, classroom_id=classroom_id)

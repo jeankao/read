@@ -18,7 +18,7 @@ from django.http import JsonResponse
 import sys, os
 from django.http import HttpResponse
 from mimetypes import MimeTypes
-import StringIO
+import io
 import xlsxwriter
 import datetime
 from django.utils import timezone
