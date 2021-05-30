@@ -1212,7 +1212,8 @@ def team_stage(request, classroom_id, grouping, team_id):
         group = ClassroomGroup.objects.get(id=teamclass.group)
     except ObjectDoesNotExist:
         group = ClassroomGroup(title="不分組", id=0)
-    return render(request,'student/team_stage.html',{'grouping': grouping, 'groups': groupclass_list, 'team_id': team_id, 'classroom_id':classroom_id, 'published':teamworks.count})
+    return render(request,'student/team_stage.html',{'grouping': grouping, 'groups': groupclass_list, 'team_id': team_id, 'classroom_id':classroom_id, 'published':len(teamworks)})
+
 
 # 列出所有合作任務素材
 class TeamContentListView(ListView):
