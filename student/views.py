@@ -1140,7 +1140,7 @@ def video_log(request):
 
 # 列出所有合作任務
 class TeamListView(ListView):
-    model = TeamWork
+    model = TeamClass
     context_object_name = 'teams'
     template_name = 'student/team_list.html'    
     
