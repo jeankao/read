@@ -1158,7 +1158,7 @@ class TeamListView(ListView):
         
     def get_context_data(self, **kwargs):
         context = super(TeamListView, self).get_context_data(**kwargs)
-        context['classroom_id'] = self.kwargs['classroom_id'
+        context['classroom_id'] = self.kwargs['classroom_id']
         return context	    
 
 def team_stage(request, classroom_id, grouping, team_id):
