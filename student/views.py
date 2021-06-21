@@ -1141,7 +1141,7 @@ def video_log(request):
 # 列出所有合作任務
 class TeamListView(ListView):
     model = TeamWork
-    context_object_name = 'works'
+    context_object_name = 'teams'
     template_name = 'student/team_list.html'    
     
     def get_queryset(self):
@@ -1153,12 +1153,12 @@ class TeamListView(ListView):
                 team_id = TeamClass.objects.get(group=group.id, classroom_id=classroom_id).order_by('id')
             except:
                 team_id = 0
-            queryset.append([work, group, team_id])
+            queryset.append(team_id, group])
         return queryset
         
     def get_context_data(self, **kwargs):
         context = super(TeamListView, self).get_context_data(**kwargs)
-        context['classroom_id'] = self.kwargs['classroom_id']
+        context['classroom_id'] = self.kwargs['classroom_id'
         return context	    
 
 def team_stage(request, classroom_id, grouping, team_id):
