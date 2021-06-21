@@ -1154,7 +1154,7 @@ class TeamListView(ListView):
                 group = TeamClass.objects.get(team_id=team.id, classroom_id=self.kwargs['classroom_id']).group
             except ObjectDoesNotExist:
                 group = 0
-            queryset.append([work, group])
+            queryset.append([team, group])
         return queryset
         
     def get_context_data(self, **kwargs):
