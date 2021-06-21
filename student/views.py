@@ -1155,7 +1155,7 @@ class TeamListView(ListView):
         
     def get_context_data(self, **kwargs):
         context = super(TeamListView, self).get_context_data(**kwargs)
-        context['classroom_id'] = self.kwargs['classroom_id']
+        classroom_id = self.kwargs['classroom_id']
         enrolls = Enroll.objects.filter(classroom_id=classroom_id)
         enroll_dict = {}
         for enroll in enrolls:
@@ -1186,6 +1186,7 @@ class TeamListView(ListView):
         except ObjectDoesNotExist:
             group = ClassroomGroup(title="不分組", id=0)
         context['group'] = group
+        context['classroom_id'] = classroom_id
         return context	    
 
 def team_stage(request, classroom_id, grouping, team_id):
