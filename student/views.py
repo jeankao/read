@@ -1153,7 +1153,7 @@ class TeamListView(ListView):
                 team_id = TeamClass.objects.get(group=group.id, classroom_id=classroom_id).order_by('id')
             except:
                 team_id = 0
-            queryset.append(team_id, group])
+            queryset.append([team_id, group])
         return queryset
         
     def get_context_data(self, **kwargs):
