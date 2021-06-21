@@ -1298,7 +1298,7 @@ class TeamStageContentListView(ListView):
                 user_ids.append(enroll.student_id)
             except ObjectDoesNotExist:
                 pass
-       queryset = TeamContent.objects.filter(team_id=self.kwargs['team_id'], user_id__in=user_ids).order_by("-id")          
+        queryset = TeamContent.objects.filter(team_id=self.kwargs['team_id'], user_id__in=user_ids).order_by("-id")          
         return queryset
 			
     def get_context_data(self, **kwargs):
