@@ -58,9 +58,9 @@ urlpatterns = [
     url(r'^video/log/$', views.video_log),
 	#合作
 	url(r'^team/(?P<classroom_id>\d+)/(?P<group_id>\d+)/$', login_required(TeamListView.as_view())), 
-	#url(r'^team/stage/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/$', login_required(views.team_stage)),                                 
+	url(r'^team/stage/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/$', login_required(views.team_stage)),                                 
     url(r'^team/content/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<publish>\d+)/(?P<stage>\d+)/$', login_required(TeamContentListView.as_view())), 
-    url(r'^team/stage/content/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<publish>\d+)/(?P<stage>\d+)/$', login_required(TeamStageContentListView.as_view())), 
+    #url(r'^team/stage/content/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<publish>\d+)/(?P<stage>\d+)/$', login_required(TeamStageContentListView.as_view())), 
     url(r'^team/content/add/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/$', login_required(TeamContentCreateView.as_view())),
     url(r'^team/content/delete/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<content_id>\d+)/$', login_required(views.team_delete)),   
     url(r'^team/content/edit/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<content_id>\d+)/$', login_required(views.team_edit)),    
