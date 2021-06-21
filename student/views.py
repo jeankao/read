@@ -1245,7 +1245,7 @@ class TeamContentListView(ListView):
             queryset = TeamContent.objects.filter(team_id=self.kwargs['team_id'], user_id__in=user_ids).order_by("-id")
         else :
             queryset = TeamContent.objects.filter(team_id=self.kwargs['team_id'], user_id__in=user_ids, publish=True).order_by("-id")          
-        return queryset
+        return user_ids
 			
     def get_context_data(self, **kwargs):
         context = super(TeamContentListView, self).get_context_data(**kwargs)
