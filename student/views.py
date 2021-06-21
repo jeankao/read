@@ -1228,9 +1228,9 @@ class TeamContentListView(ListView):
         publish = self.kwargs['publish']
         user_ids = []        
         enrolls = StudentGroup.objects.filter(group_id=self.kwargs['grouping'], group=group_id)     
-            for enroll in enrolls:
-                student_id = Enroll.objects.get(id=enroll.enroll_id).student_id
-                user_ids.append(student_id)     
+        for enroll in enrolls:
+            student_id = Enroll.objects.get(id=enroll.enroll_id).student_id
+            user_ids.append(student_id)     
         if publish == "0":
             queryset = TeamContent.objects.filter(team_id=self.kwargs['team_id'], user_id__in=user_ids).order_by("-id")
         else :
