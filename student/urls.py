@@ -57,7 +57,7 @@ urlpatterns = [
 	url(r'^exam/score/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/(?P<user_id>\d+)/(?P<question_id>\d+)/$', login_required(views.exam_score)), 
     url(r'^video/log/$', views.video_log),
 	#合作
-	url(r'^team/(?P<classroom_id>\d+)/(?P<group_id>\d+)/$', login_required(TeamListView.as_view())), 
+	url(r'^team/(?P<classroom_id>\d+)/$', login_required(TeamListView.as_view())), 
 	url(r'^team/stage/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/$', login_required(views.team_stage)),                                 
     url(r'^team/content/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<publish>\d+)/(?P<stage>\d+)/$', login_required(TeamContentListView.as_view())), 
     url(r'^team/stage/content/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<publish>\d+)/(?P<stage>\d+)/$', login_required(TeamStageContentListView.as_view())), 
