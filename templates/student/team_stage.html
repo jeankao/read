@@ -9,7 +9,7 @@
                   <td>{% if leader %}<button class="btn btn-default">{{leader.seat}}){{leader.student.first_name}}{% endif %}</button></td>
                   <td>{% for member in members %}<button class="btn btn-default">({{member.seat}}){{member.student_id|realname}}</button>{% endfor %}</td>                  
                   {% if count > 0 %}
-                  <td><a href="/student/team/content/{{classroom_id}}/{{team_id}}/{{group}}/0/0">觀看發表作品({{count}})</a></td>
+                  <td><a href="/student/team/content/{{classroom_id}}/{{group}}/{{team_id}}/0/{{stage}}">觀看發表作品({{count}})</a></td>
                   {% else %}
                   <td>尚未發表</td>
                   {% endif %}
