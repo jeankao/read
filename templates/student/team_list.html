@@ -11,7 +11,7 @@
 {% if group == 0 %}
 <button class="btn btn-default active"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> 不分組</button>
 {% else %}
-<a href="/student/group/list/{{group}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> 分組</a>	
+<a href="/student/group/list/{{classroom_id}}/{{group}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> 分組</a>	
 {% endif %}
 <a href="/student/team/stage/{{classroom_id}}/{{group}}/{{team_id}}" class="btn btn-default" role="btn"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> 舞台</a>	
 <a href="/student/team/content/{{classroom_id}}/{{group}}/{{team_id}}/0/0" class="btn btn-primary" role="btn"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span> 組內資料</a>	
