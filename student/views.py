@@ -1180,9 +1180,8 @@ class TeamListView(ListView):
             for key in groupclass_dict:
                 groupclass_list.append([key, groupclass_dict[key]])
             group_list.append([group.id, groupclass_list])
-        teamclass = TeamClass.objects.get(team_id=team_id, classroom_id=classroom_id)
         try:
-            group = ClassroomGroup.objects.get(id=teamclass.group)
+            group = EnrollGroup.objects.get(classroom_id=classroom_id, student_id=self.request.user.id).group
         except ObjectDoesNotExist:
             group = ClassroomGroup(title="不分組", id=0)
         context['group'] = group
