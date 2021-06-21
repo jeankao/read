@@ -168,6 +168,7 @@ class ExamImportQuestion(models.Model):
 #合作區
 class TeamWork(models.Model):
     title = models.CharField(max_length=250,verbose_name= '任務主題')
+    group = models.IntegerField(default=0)
     teacher_id = models.IntegerField(default=0)
     classroom_id = models.IntegerField(default=0)
     time = models.DateTimeField(default=timezone.now)

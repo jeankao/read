@@ -1176,42 +1176,16 @@ class TeamListView(ListView):
     
     def get_queryset(self):
         classroom_id = self.kwargs['classroom_id']
-        group = self.kwargs['group']
-        try:
-            teams = TeamClass.objects.filter(classroom_id=classroom_id, group=group)
+        teamworks = TeamWork.objects.filter(classroom_id=classroom_id)
+        for teamwork in teamworks:
+            teams = TeamClass.objects.filter(classroom_id=classroom_id, group=teamwork.group)
         except:
             teams = []
         return teams
         
     def get_context_data(self, **kwargs):
         context = super(TeamListView, self).get_context_data(**kwargs)
-        classroom_id = self.kwargs['classroom_id']
-        enrolls = Enroll.objects.filter(classroom_id=classroom_id)
-        enroll_dict = {}
-        for enroll in enrolls:
-            enroll_dict[enroll.id] = enroll
-        groups = ClassroomGroup.objects.filter(classroom_id=classroom_id)
-        group_ids = []
-        for group in groups:
-            group_ids.append(group.id)
-        classroom = Classroom.objects.get(id=classroom_id)
-        studentgroups = StudentGroup.objects.filter(group_id__in=group_ids)
-        group_list = []
-        for group in groups:        
-            groupclass_list = []  
-            groupclass_dict = {}
-            students = filter(lambda student: student.group_id == group.id , studentgroups)
-            for student in students:
-                if student.enroll_id in enroll_dict:
-                    if student.group in groupclass_dict:
-                        groupclass_dict[student.group].append(enroll_dict[student.enroll_id])
-                    else :
-                        groupclass_dict[student.group] = [enroll_dict[student.enroll_id]]
-            for key in groupclass_dict:
-                groupclass_list.append([key, groupclass_dict[key]])
-            group_list.append([group.id, groupclass_list])
-        group = self.kwargs['group']
-        context['group'] = group
+        classroom_id = self.kwargs['classroom_id']          
         context['classroom_id'] = classroom_id
         return context	    
 
