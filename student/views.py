@@ -1241,7 +1241,7 @@ class TeamContentListView(ListView):
                     pass
             else:
                 user_ids.append(self.request.user.id)       
-        if publish == "0" or is_teacher(self.kwargs[classroom_id], self.request.user.id):
+        if publish == "0" or is_teacher(self.kwargs['classroom_id'], self.request.user.id):
             queryset = TeamContent.objects.filter(team_id=self.kwargs['team_id'], user_id__in=user_ids).order_by("-id")
         else :
             queryset = TeamContent.objects.filter(team_id=self.kwargs['team_id'], user_id__in=user_ids, publish=True).order_by("-id")          
