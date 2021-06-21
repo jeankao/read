@@ -2378,13 +2378,13 @@ def team_group(request, classroom_id, team_id):
         group_list.append([group.id, groupclass_list])
     teamclass = TeamClass.objects.get(team_id=team_id, classroom_id=classroom_id)
     try:
-        group = ClassroomGroup.objects.get(id=teamclass.group)
+        group = ClassroomGroup.objects.get(id=teamclass.group).group
 
     except ObjectDoesNotExist:
         group = 0
     teamworks = TeamWork.objects.filter(classroom_id=classroom_id)
     for teamwork in teamworks:
-        teamwork.group = int(group)
+        teamwork.group = group
         teamwork.save()
 
     return render(request,'teacher/team_group.html',{'team_id': team_id, 'teamgroup': group, 'groups':groups, 'classroom':classroom, 'group_list':group_list})
