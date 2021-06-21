@@ -3,8 +3,8 @@
 {% block content %}
 {{queryset}}--
 <button class="btn btn-success">{{classroom_id|classname}}</button>
-{% for team, group in teams %}
-<h2 id="{{team.id}}"></h2>
+{% for work, group in teams %}
+<h2 id="{{work.id}}"></h2>
 <div class="panel panel-default">
 	<div class="panel-heading">{{team.title}}</div>
   <div class="panel-body">

@@ -1140,21 +1140,25 @@ def video_log(request):
 
 # 列出所有合作任務
 class TeamListView(ListView):
-    model = TeamClass
-    context_object_name = 'teams'
+    model = TeamWork
+    context_object_name = 'works'
     template_name = 'student/team_list.html'    
     
     def get_queryset(self):
         queryset = []
         classroom_id = self.kwargs['classroom_id']
-        teams = TeamClass.objects.filter(classroom_id=classroom_id).order_by("-id")
-        for team in teams:
+        work = TeamWork.objects.filter(classroom_id=classroom_id).order_by("-id")
+        for work in works:
             try:
                 enroll = Enroll.objects.get(classroom_id=self.kwargs['classroom_id'], student_id=self.request.user.id)
-                group = TeamClass.objects.get(team_id=team.id, classroom_id=self.kwargs['classroom_id']).group
+                group = TeamWork.objects.get(id=work.id, classroom_id=self.kwargs['classroom_id']).group
             except ObjectDoesNotExist:
                 group = 0
-            queryset.append([team, group])
+            try:
+                team_id = TeamClass.filter(group=group, classroom_id=classroom_id)
+            except:
+                pass
+            queryset.append([work, group, team_id])
         return queryset
         
     def get_context_data(self, **kwargs):
