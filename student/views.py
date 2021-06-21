@@ -1140,20 +1140,21 @@ def video_log(request):
 
 # 列出所有合作任務
 class TeamListView(ListView):
-    model = TeamClass
+    model = TeamWork
     context_object_name = 'teams'
     template_name = 'student/team_list.html'    
     
     def get_queryset(self):
         queryset = []
         classroom_id = self.kwargs['classroom_id']
-        groups = EnrollGroup.objects.filter(classroom_id=classroom_id).order_by("-id")
-        for group in groups:
+        works = TeamWork.objects.filter(classroom_id=classroom_id).order_by("-id")
+        for work in works:
             try:
-                team_id = TeamClass.objects.get(group=group.id, classroom_id=classroom_id).order_by('id')
-            except:
-                team_id = 0
-            queryset.append([team_id, group.id])
+                enroll = Enroll.objects.get(classroom_id=self.kwargs['classroom_id'], student_id=self.request.user.id)
+                group = TeamClass.objects.get(team_id=work.id, classroom_id=self.kwargs['classroom_id']).group
+            except ObjectDoesNotExist:
+                group = 0
+            queryset.append([work, group])
         return queryset
         
     def get_context_data(self, **kwargs):
@@ -1222,14 +1223,25 @@ class TeamContentListView(ListView):
     def get_queryset(self):
         if self.kwargs['grouping'] == "0":
             group_id = 0
-        else :
-            group_id = int(self.kwargs['grouping'])
+        else:
+            enroll_id = Enroll.objects.get(student_id=self.request.user.id, classroom_id=self.kwargs['classroom_id']).id
+            group_id = StudentGroup.objects.get(group_id=self.kwargs['grouping'], enroll_id=enroll_id).group
         publish = self.kwargs['publish']
         user_ids = []        
-        enrolls = StudentGroup.objects.filter(group_id=self.kwargs['grouping'], group=group_id)     
-        for enroll in enrolls:
-            student_id = Enroll.objects.get(id=enroll.enroll_id).student_id
-            user_ids.append(student_id)     
+        enrolls = StudentGroup.objects.filter(group_id=self.kwargs['grouping'], group=group_id)
+        if len(enrolls) > 0:           
+            for enroll in enrolls:
+                student_id = Enroll.objects.get(id=enroll.enroll_id).student_id
+                user_ids.append(student_id)
+        else:
+            if self.kwargs['stage'] != "0":
+                try:
+                    enroll = Enroll.objects.get(id=self.kwargs['stage'])
+                    user_ids.append(enroll.student_id)
+                except ObjectDoesNotExist:
+                    pass
+            else:
+                user_ids.append(self.request.user.id)       
         if publish == "0":
             queryset = TeamContent.objects.filter(team_id=self.kwargs['team_id'], user_id__in=user_ids).order_by("-id")
         else :
@@ -1263,60 +1275,6 @@ class TeamContentListView(ListView):
         except ObjectDoesNotExist:
             context['leader'] = True
         return context	
-
-# 列出所有合作任務素材
-class TeamStageContentListView(ListView):
-    model = TeamContent
-    context_object_name = 'contents'
-    template_name = "student/team_stage_content.html"		
-    def get_queryset(self):
-        if self.kwargs['grouping'] == "0":
-            group_id = 0
-        else :
-            group_id = int(self.kwargs['grouping'])
-        publish = True
-        user_ids = []        
-        enrolls = StudentGroup.objects.filter(group_id=self.kwargs['grouping'], group=group_id)
-        if len(enrolls) > 0:           
-            for enroll in enrolls:
-                student_id = Enroll.objects.get(id=enroll.enroll_id).student_id
-                user_ids.append(student_id)
-        else:
-            try:
-                enroll = Enroll.objects.get(id=self.kwargs['stage'])
-                user_ids.append(enroll.student_id)
-            except ObjectDoesNotExist:
-                pass
-        queryset = TeamContent.objects.filter(team_id=self.kwargs['team_id'], user_id__in=user_ids).order_by("-id")          
-        return user_ids
-			
-    def get_context_data(self, **kwargs):
-        context = super(TeamStageContentListView, self).get_context_data(**kwargs)
-        teamwork = TeamWork.objects.get(id=self.kwargs['team_id'])
-        context['teamwork']= teamwork
-        context['team_id'] = self.kwargs['team_id']
-        context['grouping'] = self.kwargs['grouping']
-        context['classroom_id'] = self.kwargs['classroom_id']
-        if self.kwargs['grouping'] == "0":
-            group_id = 0
-        else :
-            group_id = TeamClass.objects.get(team_id=self.kwargs['team_id'], classroom_id=self.kwargs['classroom_id']).group
-        try:  
-            enroll = Enroll.objects.get(student_id=self.request.user.id, classroom_id=self.kwargs['classroom_id'])
-            leader = StudentGroupLeader.objects.get(group_id=group_id, enroll_id=enroll.id)
-            mygroup = StudentGroup.objects.get(group_id=group_id, enroll_id=enroll.id)
-            if leader.group == mygroup.group:
-                context['leader'] = True
-            else:
-                context['leader'] = False
-        except ObjectDoesNotExist:
-            context['leader'] = False
-        enroll_id = Enroll.objects.get(classroom_id=self.kwargs['classroom_id'], student_id=self.request.user.id).id
-        try:
-            group = StudentGroup.objects.get(enroll_id=enroll_id, group_id=group_id).group
-        except ObjectDoesNotExist:
-            context['leader'] = True
-        return context	        
             
 #新增一個素材
 class TeamContentCreateView(CreateView):
@@ -1557,4 +1515,3 @@ class CourseStatusListView(ListView):
         classroom = Classroom.objects.get(id=self.kwargs['classroom_id'])
         context['classroom'] = classroom
         return context	
-
