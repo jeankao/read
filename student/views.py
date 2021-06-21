@@ -1150,7 +1150,10 @@ class TeamListView(ListView):
         queryset = []
         for teamwork in teamworks:
             group = teamwork.group
-            team_id = TeamClass.objects.get(classroom_id=classroom_id, group=group).team_id
+            try:
+                team_id = TeamClass.objects.get(classroom_id=classroom_id, group=group).team_id
+            except  ObjectDoesNotExist:
+                team_id = 0
             queryset.append([team_id, group])
         return queryset
         
