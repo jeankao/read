@@ -94,13 +94,6 @@ class ClassroomListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(ClassroomListView, self).get_context_data(**kwargs)
         context['role'] = self.kwargs['role']
-        try:
-            group = EnrollGroup.objects.get(classroom_id=self.kwargs['classroom_id']).id
-        except ObjectDoesNotExist:
-            group = 0
-        except MultipleObjectsReturned:
-            group = EnrollGroup.objects.filter(classroom_id=self.kwargs['classroom_id'])[0].id
-        context['group'] = group
         return context	
     
 # 查看可加入的班級
