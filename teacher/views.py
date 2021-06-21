@@ -1179,7 +1179,7 @@ def speculation_export(request, classroom_id, forum_id):
 		contents = FContent.objects.filter(forum_id=forum_id).order_by("-id")
 		fwork = FWork.objects.get(id=forum_id)
 		works_pool = SFWork.objects.filter(index=forum_id).order_by("-id")
-		reply_pool = SFReply.objects.filter(index=forum_id).order_by("-id")	
+        reply_pool = SFReply.objects.filter(index=forum_id).order_by("-id")	
 		file_pool = SFContent.objects.filter(index=forum_id, visible=True).order_by("-id")	
 		for enroll in enrolls:
 			works = filter(lambda w: w.student_id==enroll.student_id, works_pool)
