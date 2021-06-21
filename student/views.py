@@ -1148,7 +1148,7 @@ class TeamListView(ListView):
         classroom_id = self.kwargs['classroom_id']
         group = self.kwargs['group']
         try:
-            teams = TeamClass.objects.get(classroom_id=classroom_id, group=group)
+            teams = TeamClass.objects.filter(classroom_id=classroom_id, group=group)
         except:
             teams = []
         return teams
