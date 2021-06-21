@@ -1276,7 +1276,7 @@ class TeamContentListView(ListView):
         return context	
 
 # 列出所有合作任務素材
-class TeamStaageContentListView(ListView):
+class TeamStageContentListView(ListView):
     model = TeamContent
     context_object_name = 'contents'
     template_name = "student/team_content.html"		
