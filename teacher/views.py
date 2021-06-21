@@ -2378,7 +2378,7 @@ def team_group(request, classroom_id, team_id):
         group_list.append([group.id, groupclass_list])
     teamclass = TeamClass.objects.get(team_id=team_id, classroom_id=classroom_id)
     try:
-        group = TeamWork.objects.get(id=teamclass.group).group
+        group = TeamWork.objects.get(classroom_id=classroom_id, group=teamclass.group).group
 
     except ObjectDoesNotExist:
         group = 0
