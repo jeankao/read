@@ -11,4 +11,5 @@ urlpatterns = [
         url(r'^teacher/', include('teacher.urls')),    
         url(r'^student/', include('student.urls')),
         url(r'^annotate/', include('annotate.urls')),
+        url(r'^show/', include('show.urls')),
 ]

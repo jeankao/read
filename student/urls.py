@@ -63,7 +63,8 @@ urlpatterns = [
     url(r'^team/content/add/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/$', login_required(TeamContentCreateView.as_view())),
     url(r'^team/content/delete/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<content_id>\d+)/$', login_required(views.team_delete)),   
     url(r'^team/content/edit/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<content_id>\d+)/$', login_required(views.team_edit)),    
-    url(r'^team/publish/$', login_required(views.team_make_publish)),             	
+    url(r'^team/publish/$', login_required(views.team_make_publish)),        
+            	
     #課程
     url(r'^course/(?P<classroom_id>\d+)/$', login_required(CourseListView.as_view()), name='work-list'),  
     url(r'^course/content/(?P<classroom_id>\d+)/(?P<course_id>\d+)/$', login_required(CourseContentListView.as_view()), name='course-content'), 
