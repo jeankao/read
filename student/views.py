@@ -1147,15 +1147,10 @@ class TeamListView(ListView):
     def get_queryset(self):
         queryset = []
         classroom_id = self.kwargs['classroom_id']
-        works = TeamWork.objects.filter(classroom_id=classroom_id).order_by("-id")
-        for work in works:
+        groups = EnrollGroup.objects.filter(classroom_id=classroom_id).order_by("-id")
+        for group in groups:
             try:
-                enroll = Enroll.objects.get(classroom_id=self.kwargs['classroom_id'], student_id=self.request.user.id)
-                group = TeamWork.objects.get(id=work.id, classroom_id=self.kwargs['classroom_id']).group
-            except ObjectDoesNotExist:
-                group = 0
-            try:
-                team_id = TeamClass.objects.get(group=group, classroom_id=classroom_id)
+                team_id = TeamClass.objects.get(group=group.id, classroom_id=classroom_id).order_by('id')
             except:
                 team_id = 0
             queryset.append([work, group, team_id])
