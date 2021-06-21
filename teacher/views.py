@@ -1179,7 +1179,7 @@ def speculation_export(request, classroom_id, forum_id):
 		contents = FContent.objects.filter(forum_id=forum_id).order_by("-id")
 		fwork = FWork.objects.get(id=forum_id)
 		works_pool = SFWork.objects.filter(index=forum_id).order_by("-id")
-        reply_pool = SFReply.objects.filter(index=forum_id).order_by("-id")
+		reply_pool = SFReply.objects.filter(index=forum_id).order_by("-id")	
 		file_pool = SFContent.objects.filter(index=forum_id, visible=True).order_by("-id")	
 		for enroll in enrolls:
 			works = filter(lambda w: w.student_id==enroll.student_id, works_pool)
@@ -2155,7 +2155,6 @@ class TeamListView(ListView):
         context = super(TeamListView, self).get_context_data(**kwargs)
         classroom = Classroom.objects.get(id=self.kwargs['classroom_id'])
         context['classroom'] = classroom
-
         return context	
         
 #新增一個討論主題
@@ -2379,10 +2378,6 @@ def team_group(request, classroom_id, team_id):
     teamclass = TeamClass.objects.get(team_id=team_id, classroom_id=classroom_id)
     try:
         group = ClassroomGroup.objects.get(id=teamclass.group)
-        teamworks = TeamWork.objects.filter(classroom_id=classroom_id)
-        for teamwork in teamworks:
-            teamwork.group = group
-            teamwork.save
     except ObjectDoesNotExist:
         group = ClassroomGroup(title="不分組", id=0)
     return render(request,'teacher/team_group.html',{'team_id': team_id, 'teamgroup': group, 'groups':groups, 'classroom':classroom, 'group_list':group_list})
