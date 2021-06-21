@@ -1279,7 +1279,7 @@ class TeamContentListView(ListView):
 class TeamStageContentListView(ListView):
     model = TeamContent
     context_object_name = 'contents'
-    template_name = "student/team_content.html"		
+    template_name = "student/team_stage_content.html"		
     def get_queryset(self):
         if self.kwargs['grouping'] == "0":
             group_id = 0
@@ -1299,7 +1299,7 @@ class TeamStageContentListView(ListView):
             except ObjectDoesNotExist:
                 pass
         queryset = TeamContent.objects.filter(team_id=self.kwargs['team_id'], user_id__in=user_ids).order_by("-id")          
-        return queryset
+        return user_ids
 			
     def get_context_data(self, **kwargs):
         context = super(TeamStageContentListView, self).get_context_data(**kwargs)
