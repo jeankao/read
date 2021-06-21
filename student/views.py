@@ -1177,10 +1177,9 @@ class TeamListView(ListView):
     def get_queryset(self):
         classroom_id = self.kwargs['classroom_id']
         teamworks = TeamWork.objects.filter(classroom_id=classroom_id)
+        teams = []
         for teamwork in teamworks:
             teams = TeamClass.objects.filter(classroom_id=classroom_id, group=teamwork.group)
-        except ObjectDoesNotExist:
-            teams = []
         return teams
         
     def get_context_data(self, **kwargs):
