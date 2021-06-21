@@ -94,6 +94,13 @@ class ClassroomListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(ClassroomListView, self).get_context_data(**kwargs)
         context['role'] = self.kwargs['role']
+        try:
+            group = EnrollGroup.objects.get(classroom_id=self.kwargs['classroom_id']).id
+        except ObjectDoesNotExist:
+            group = 0
+        except MultipleObjectsReturned:
+            group = EnrollGroup.objects.filter(classroom_id=self.kwargs['classroom_id'])[0].id
+        context['group'] = group
         return context	
     
 # 查看可加入的班級
@@ -1145,20 +1152,14 @@ class TeamListView(ListView):
     template_name = 'student/team_list.html'    
     
     def get_queryset(self):
-        queryset = []
         classroom_id = self.kwargs['classroom_id']
-        works = TeamWork.objects.filter(classroom_id=classroom_id).order_by("-id")
+        group = self.kwargs['group']
         for work in works:
             try:
-                teams = TeamClass.objects.filter(classroom_id=self.kwargs['classroom_id']).order_by("group")
-                for team in teams:
-                    team_id = team.id
-                    group = team.group
-            except ObjectDoesNotExist:
-                team_id = 0
-                group = 0
-            queryset.append([team_id, group])
-        return queryset
+                teams = TeamClass.objects.get(classroom_id=classroom_id, group=group)
+            except:
+                teams = []
+        return teams
         
     def get_context_data(self, **kwargs):
         context = super(TeamListView, self).get_context_data(**kwargs)
