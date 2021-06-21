@@ -1147,7 +1147,7 @@ class TeamListView(ListView):
     def get_queryset(self):
         queryset = []
         classroom_id = self.kwargs['classroom_id']
-        work = TeamWork.objects.filter(classroom_id=classroom_id).order_by("-id")
+        works = TeamWork.objects.filter(classroom_id=classroom_id).order_by("-id")
         for work in works:
             try:
                 enroll = Enroll.objects.get(classroom_id=self.kwargs['classroom_id'], student_id=self.request.user.id)
