@@ -1146,12 +1146,11 @@ class TeamListView(ListView):
     
     def get_queryset(self):
         classroom_id = self.kwargs['classroom_id']
-        group = EnrollGroup
-        for work in works:
-            try:
-                teams = TeamClass.objects.get(classroom_id=classroom_id, group=group)
-            except:
-                teams = []
+        group = self.kwargs['group']
+        try:
+            teams = TeamClass.objects.get(classroom_id=classroom_id, group=group)
+        except:
+            teams = []
         return teams
         
     def get_context_data(self, **kwargs):
