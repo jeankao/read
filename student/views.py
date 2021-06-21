@@ -87,7 +87,7 @@ class ClassroomListView(ListView):
             enrolls = Enroll.objects.filter(classroom_id__in=classroom_ids, student_id=self.request.user.id).order_by("-id")
         else :
             enrolls = Enroll.objects.filter(student_id=self.request.user.id, seat__gt=0).order_by("-id")
-       for enroll in enrolls:
+        for enroll in enrolls:
             queryset.append([enroll, Classroom.objects.get(id=enroll.classroom_id).teacher_id])
         return queryset         			
 			
