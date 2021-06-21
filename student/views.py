@@ -1179,7 +1179,7 @@ class TeamListView(ListView):
         teamworks = TeamWork.objects.filter(classroom_id=classroom_id)
         for teamwork in teamworks:
             teams = TeamClass.objects.filter(classroom_id=classroom_id, group=teamwork.group)
-        except:
+        except ObjectDoesNotExist:
             teams = []
         return teams
         
