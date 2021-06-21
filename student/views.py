@@ -1224,8 +1224,8 @@ class TeamContentListView(ListView):
         if self.kwargs['grouping'] == "0":
             group_id = 0
         else:
-            enroll_id = Enroll.objects.get(student_id=self.request.user.id, classroom_id=self.kwargs['classroom_id']).id
-            group_id = StudentGroup.objects.get(group_id=self.kwargs['grouping'], enroll_id=enroll_id).group
+            group_members = StudentGroup.objects.filter(group_id=self.kwargs['grouping'])
+            group_id = group_members[0].group
         publish = self.kwargs['publish']
         user_ids = []        
         enrolls = StudentGroup.objects.filter(group_id=self.kwargs['grouping'], group=group_id)
