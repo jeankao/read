@@ -1155,9 +1155,9 @@ class TeamListView(ListView):
             except ObjectDoesNotExist:
                 group = 0
             try:
-                team_id = TeamClass.filter(group=group, classroom_id=classroom_id)
+                team_id = TeamClass.objects.get(group=group, classroom_id=classroom_id)
             except:
-                pass
+                team_id = 0
             queryset.append([work, group, team_id])
         return queryset
         
