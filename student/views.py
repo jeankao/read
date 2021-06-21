@@ -1285,7 +1285,7 @@ class TeamStageContentListView(ListView):
             group_id = 0
         else :
             group_id = int(self.kwargs['grouping'])
-        publish = self.kwargs['publish']
+        publish = True
         user_ids = []        
         enrolls = StudentGroup.objects.filter(group_id=self.kwargs['grouping'], group=group_id)
         if len(enrolls) > 0:           
