@@ -87,42 +87,13 @@ class ClassroomListView(ListView):
             enrolls = Enroll.objects.filter(classroom_id__in=classroom_ids, student_id=self.request.user.id).order_by("-id")
         else :
             enrolls = Enroll.objects.filter(student_id=self.request.user.id, seat__gt=0).order_by("-id")
-        for enroll in enrolls:
+       for enroll in enrolls:
             queryset.append([enroll, Classroom.objects.get(id=enroll.classroom_id).teacher_id])
         return queryset         			
 			
     def get_context_data(self, **kwargs):
         context = super(ClassroomListView, self).get_context_data(**kwargs)
         context['role'] = self.kwargs['role']
-        enrolls = Enroll.objects.filter(student_id=self.request.user.id)
-        enroll_dict = {}
-        for enroll in enrolls:
-            enroll_dict[enroll.id] = enroll
-        groups = ClassroomGroup.objects.filter(classroom_id=classroom_id)
-        group_ids = []
-        for group in groups:
-            group_ids.append(group.id)
-        classroom = Classroom.objects.get(id=classroom_id)
-        studentgroups = StudentGroup.objects.filter(group_id__in=group_ids)
-        group_list = []
-        for group in groups:        
-            groupclass_list = []  
-            groupclass_dict = {}
-            students = filter(lambda student: student.group_id == group.id , studentgroups)
-            for student in students:
-                if student.enroll_id in enroll_dict:
-                    if student.group in groupclass_dict:
-                        groupclass_dict[student.group].append(enroll_dict[student.enroll_id])
-                    else :
-                        groupclass_dict[student.group] = [enroll_dict[student.enroll_id]]
-            for key in groupclass_dict:
-                groupclass_list.append([key, groupclass_dict[key]])
-            group_list.append([group.id, groupclass_list])
-        teamclass = TeamClass.objects.get(team_id=team_id, classroom_id=classroom_id)
-        try:
-            group = ClassroomGroup.objects.get(id=teamclass.group)
-        except ObjectDoesNotExist:
-            group = ClassroomGroup(title="不分組", id=0)
         return context	
     
 # 查看可加入的班級
