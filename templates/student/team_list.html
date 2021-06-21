@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load tag %}
 {% block content %}
+{{queryset}}--
 <button class="btn btn-success">{{classroom_id|classname}}</button>
 {% for team, group in teams %}
 <h2 id="{{team.id}}"></h2>
