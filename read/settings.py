@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'teacher',
     'student',
     'annotate',
-    'show',
 ]
 
 MIDDLEWARE_CLASSES = [

@@ -2155,7 +2155,6 @@ class TeamListView(ListView):
         context = super(TeamListView, self).get_context_data(**kwargs)
         classroom = Classroom.objects.get(id=self.kwargs['classroom_id'])
         context['classroom'] = classroom
-
         return context	
         
 #新增一個討論主題
@@ -2378,15 +2377,9 @@ def team_group(request, classroom_id, team_id):
         group_list.append([group.id, groupclass_list])
     teamclass = TeamClass.objects.get(team_id=team_id, classroom_id=classroom_id)
     try:
-        group = TeamWork.objects.get(classroom_id=classroom_id, group=teamclass.group).group
-
+        group = ClassroomGroup.objects.get(id=teamclass.group)
     except ObjectDoesNotExist:
-        group = 0
-    teamworks = TeamWork.objects.filter(classroom_id=classroom_id)
-    for teamwork in teamworks:
-        teamwork.group = group
-        teamwork.save()
-
+        group = ClassroomGroup(title="不分組", id=0)
     return render(request,'teacher/team_group.html',{'team_id': team_id, 'teamgroup': group, 'groups':groups, 'classroom':classroom, 'group_list':group_list})
 
 # 影片觀看時間統計

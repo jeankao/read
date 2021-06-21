@@ -30,9 +30,9 @@ urlpatterns = [
     url(r'^forum/score/$', login_required(views.forum_score), name='score'),   
     url(r'^forum/jieba/(?P<classroom_id>\d+)/(?P<index>\d+)/$', login_required(views.forum_jieba)), 	
     url(r'^forum/word/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<word>[^/]+)/$', login_required(views.forum_word)),  
-	url(r'^forum/download/(?P<file_id>\d+)/$', views.forum_download, name='forum-download'), 
-	url(r'^forum/showpic/(?P<file_id>\d+)/$', login_required(views.forum_showpic), name='forum-showpic'), 	
-	url(r'^forum/publish/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<action>\d+)/$', login_required(views.forum_publish), name='forum-publish'), 	
+	  url(r'^forum/download/(?P<file_id>\d+)/$', views.forum_download, name='forum-download'), 
+	  url(r'^forum/showpic/(?P<file_id>\d+)/$', login_required(views.forum_showpic), name='forum-showpic'), 	
+	  url(r'^forum/publish/(?P<classroom_id>\d+)/(?P<index>\d+)/(?P<action>\d+)/$', login_required(views.forum_publish), name='forum-publish'), 	
     #公告
     url(r'^announce/(?P<classroom_id>\d+)/$', login_required(AnnounceListView.as_view()), name='announce-list'),
     #組別
@@ -57,15 +57,13 @@ urlpatterns = [
 	url(r'^exam/score/(?P<classroom_id>\d+)/(?P<exam_id>\d+)/(?P<examwork_id>\d+)/(?P<user_id>\d+)/(?P<question_id>\d+)/$', login_required(views.exam_score)), 
     url(r'^video/log/$', views.video_log),
 	#合作
-	url(r'^team/(?P<classroom_id>\d+)/(?P<group>\d+)/$', login_required(TeamListView.as_view())), 
+	url(r'^team/(?P<classroom_id>\d+)/$', login_required(TeamListView.as_view())), 
 	url(r'^team/stage/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/$', login_required(views.team_stage)),                                 
-    url(r'^team/content/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<publish>\d+)/(?P<stage>\d+)/$', login_required(TeamContentListView.as_view())), 
-    #url(r'^team/stage/content/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<publish>\d+)/(?P<stage>\d+)/$', login_required(TeamStageContentListView.as_view())), 
+    url(r'^team/content/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<publish>\d+)/(?P<stage>\d+)$', login_required(TeamContentListView.as_view())), 
     url(r'^team/content/add/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/$', login_required(TeamContentCreateView.as_view())),
     url(r'^team/content/delete/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<content_id>\d+)/$', login_required(views.team_delete)),   
     url(r'^team/content/edit/(?P<classroom_id>\d+)/(?P<grouping>\d+)/(?P<team_id>\d+)/(?P<content_id>\d+)/$', login_required(views.team_edit)),    
-    url(r'^team/publish/$', login_required(views.team_make_publish)),        
-            	
+    url(r'^team/publish/$', login_required(views.team_make_publish)),             	
     #課程
     url(r'^course/(?P<classroom_id>\d+)/$', login_required(CourseListView.as_view()), name='work-list'),  
     url(r'^course/content/(?P<classroom_id>\d+)/(?P<course_id>\d+)/$', login_required(CourseContentListView.as_view()), name='course-content'), 

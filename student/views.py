@@ -1145,22 +1145,21 @@ class TeamListView(ListView):
     template_name = 'student/team_list.html'    
     
     def get_queryset(self):
-        classroom_id = self.kwargs['classroom_id']
-        teamworks = TeamWork.objects.filter(classroom_id=classroom_id)
         queryset = []
-        for teamwork in teamworks:
-            group = teamwork.group
+        classroom_id = self.kwargs['classroom_id']
+        works = TeamWork.objects.filter(classroom_id=classroom_id).order_by("-id")
+        for work in works:
             try:
-                team_id = TeamClass.objects.get(classroom_id=classroom_id, group=group).team_id
-            except  ObjectDoesNotExist:
-                team_id = 0
-            queryset.append([team_id, group])
+                enroll = Enroll.objects.get(classroom_id=self.kwargs['classroom_id'], student_id=self.request.user.id)
+                group = TeamClass.objects.get(team_id=work.id, classroom_id=self.kwargs['classroom_id']).group
+            except ObjectDoesNotExist:
+                group = 0
+            queryset.append([work, group])
         return queryset
         
     def get_context_data(self, **kwargs):
         context = super(TeamListView, self).get_context_data(**kwargs)
-        classroom_id = self.kwargs['classroom_id']          
-        context['classroom_id'] = classroom_id
+        context['classroom_id'] = self.kwargs['classroom_id']
         return context	    
 
 def team_stage(request, classroom_id, grouping, team_id):
@@ -1516,3 +1515,4 @@ class CourseStatusListView(ListView):
         classroom = Classroom.objects.get(id=self.kwargs['classroom_id'])
         context['classroom'] = classroom
         return context	
+
