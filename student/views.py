@@ -1141,7 +1141,7 @@ def video_log(request):
 # 下載檔案
 def team_download(request, file_id):
     team = TeamContent.objects.get(id=file_id)
-    filename = content.title
+    filename = team.title
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))		
     download =  BASE_DIR + "/static/upload/" + content.filename
     wrapper = FileWrapper(file( download, "r" ))
