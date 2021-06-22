@@ -1138,6 +1138,21 @@ def video_log(request):
     log.save()
     return JsonResponse({'status':'ok'}, safe=False)
 
+# 下載檔案
+def team_download(request, file_id):
+    team = TeamContent.objects.get(id=file_id)
+    filename = content.title
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))		
+    download =  BASE_DIR + "/static/upload/" + content.filename
+    wrapper = FileWrapper(file( download, "r" ))
+    response = HttpResponse(wrapper, content_type = 'application/force-download')
+    #response = HttpResponse(content_type='application/force-download')
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(filename.encode('utf8'))
+    # It's usually a good idea to set the 'Content-Length' header too.
+    # You can also set any other required headers: Cache-Control, etc.
+    return response
+
+
 # 列出所有合作任務
 class TeamListView(ListView):
     model = TeamWork
