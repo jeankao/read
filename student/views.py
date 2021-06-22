@@ -1223,7 +1223,7 @@ class TeamContentListView(ListView):
     def get_queryset(self):
         if self.kwargs['grouping'] == "0":
             group_id = 0
-        elsee:
+        else:
             teamclass = TeamClass.objects.filter(team_id=self.kwargs['team_id'], classroom_id=self.kwargs['classroom_id'])
             #enroll_id = Enroll.objects.get(student_id=self.request.user.id, classroom_id=self.kwargs['classroom_id']).id
             group_id = teamclass[0].group
