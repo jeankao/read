@@ -1213,13 +1213,13 @@ def team_stage(request, classroom_id, grouping, team_id):
             leader_id = 0
             leader = None        
         if grouping == "0":
-            teamworks = TeamContent.objects.filter(team_id=team_id, user_id=groupclass_dict[key][0].student_id, publish=True)
+            teamworks = TeamContent.objects.filter(team_id=team_id, user_id=groupclass_dict[key][0].student_id)
         else:
             members = groupclass_dict[key]
             student_ids = []
             for member in members:
                 student_ids.append(member.student_id)
-            teamworks = TeamContent.objects.filter(team_id=team_id, user_id__in=student_ids, publish=True)
+            teamworks = TeamContent.objects.filter(team_id=team_id, user_id__in=student_ids)
         groupclass_list.append([key, leader, groupclass_dict[key], len(teamworks)])    
 
     teamclass = TeamClass.objects.get(team_id=team_id, classroom_id=classroom_id)
