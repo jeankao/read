@@ -1320,7 +1320,7 @@ class TeamContentCreateView(CreateView):
         work.user_id = self.request.user.id
         work.save()         
   
-        return redirect("/student/team/content/"+self.kwargs['classroom_id']+"/"+self.kwargs['grouping']+"/"+self.kwargs['team_id']+"/0/0")  
+        return redirect("/student/team/stage/"+self.kwargs['classroom_id']+"/"+self.kwargs['grouping']+"/"+self.kwargs['team_id']+"/")  
 
     def get_context_data(self, **kwargs):
         ctx = super(TeamContentCreateView, self).get_context_data(**kwargs)
