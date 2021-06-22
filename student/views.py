@@ -1165,17 +1165,17 @@ class TeamListView(ListView):
         works = TeamWork.objects.filter(classroom_id=classroom_id).order_by("-id")
         for work in works:
             try:
+                grouping = work.group
                 enroll = Enroll.objects.get(classroom_id=self.kwargs['classroom_id'], student_id=self.request.user.id)
                 group = TeamClass.objects.get(team_id=work.id, classroom_id=self.kwargs['classroom_id']).group
             except ObjectDoesNotExist:
                 group = 0
-            queryset.append([work, group])
+            queryset.append([work, group, grouping])
         return queryset
         
     def get_context_data(self, **kwargs):
         context = super(TeamListView, self).get_context_data(**kwargs)
         context['classroom_id'] = self.kwargs['classroom_id']
-        context['grouping'] = self.kwargs['grouping']
         return context	    
 
 def team_stage(request, classroom_id, grouping, team_id):

@@ -2,7 +2,7 @@
 {% load tag %}
 {% block content %}
 <button class="btn btn-success">{{classroom_id|classname}}</button>
-{% for team, group in teams %}
+{% for team, group, grouping in teams %}
 <h2 id="{{work.id}}"></h2>
 <div class="panel panel-default">
 	<div class="panel-heading">{{team.title}}</div>
